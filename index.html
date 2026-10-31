@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CalmWave</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
+<style>
+/* Layout: phone-sized stage; home feed of overlapping curved cards, full-screen player slides up over it. Dark, single look. */
+:root{
+  --ink:#06080f; --ink2:#0d1220; --fg:#eef1f8; --fg2:#a7afc4; --line:rgba(255,255,255,.12);
+  --glass:rgba(18,22,38,.55); --accent:#8fd3c9;
+  --display:'Syne','Noto Sans KR',system-ui,sans-serif; --body:'Noto Sans KR',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--body);overflow:hidden;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px));
+  display:flex;align-items:center;justify-content:center}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.phone{position:relative;width:100%;height:100%;max-width:430px;max-height:900px;overflow:hidden;background:var(--ink)}
+@media (min-width:520px) and (min-height:760px){.phone{height:min(100%,860px);border-radius:44px;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.6)}}
+
+/* HOME */
+.home{position:absolute;inset:0;z-index:0;isolation:isolate;display:flex;flex-direction:column}
+.homebg{position:absolute;inset:0;opacity:0;transition:opacity .9s ease}
+.homebg.on{opacity:1}
+.hdr{position:absolute;top:0;left:0;right:0;z-index:30;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 10px;gap:10px}
+.hbtn{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:grid;place-items:center;position:relative}
+.wave{display:flex;gap:2.5px;align-items:center;height:16px}
+.wave i{width:2.5px;border-radius:2px;background:var(--fg2);height:4px}
+.playing .wave i{background:var(--accent);animation:eq 1s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}
+@keyframes eq{0%,100%{height:4px}50%{height:15px}}
+.stat{flex:1;min-width:0;height:42px;border-radius:21px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--fg2)}
+.stat b{font-family:var(--display);font-size:15px;color:var(--fg);font-variant-numeric:tabular-nums}
+.badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:#ff7a7a;color:#1a0707;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px}
+.feed{position:relative;z-index:2;flex:1;overflow-y:auto;padding:0 0 110px;scrollbar-width:none}
+.feed::-webkit-scrollbar{display:none}
+.feedhead{padding:6px 24px 18px}
+.feedhead h1{font-family:var(--display);font-weight:700;font-size:30px;margin:0;letter-spacing:-.01em}
+.feedhead p{margin:4px 0 0;color:var(--fg2);font-size:14px}
+.card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;height:340px;overflow:hidden;margin-top:-46px;padding:46px 26px 0;transition:transform .25s;clip-path:url(#w0)}
+.card.w1{clip-path:url(#w1)}.card.w2{clip-path:url(#w2)}
+.card:first-child{margin-top:0;clip-path:none;height:380px;padding-top:90px}
+.card:active{transform:scale(.985)}
+.card .bgc{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center}
+.card .shade{position:absolute;inset:0;z-index:1;background:radial-gradient(70% 45% at 50% 52%,rgba(0,0,0,.28),transparent 80%),linear-gradient(180deg,transparent 60%,rgba(0,0,0,.35))}
+.card>*:not(.bgc):not(.shade){position:relative;z-index:2}
+.card .kind{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+.card h2{font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:-.02em;margin:8px 0 2px;text-wrap:balance}
+.card .sub{font-size:14px;color:rgba(255,255,255,.88);font-weight:400;letter-spacing:.02em}
+.card .kind{margin-bottom:2px}
+.card .go{position:absolute!important;right:22px;bottom:50px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);display:grid;place-items:center}
+.card.enter{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+.nav{position:absolute;z-index:8;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 22px);
+  display:flex;padding:5px;border-radius:30px;background:rgba(14,18,32,.72);border:1px solid var(--line);backdrop-filter:blur(18px);box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.nav .pill{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px)/3);border-radius:25px;background:var(--accent);transition:transform .45s cubic-bezier(.5,1.4,.5,1),background .6s}
+.nav button{position:relative;z-index:1;width:92px;height:46px;border-radius:25px;font-size:14px;font-weight:500;color:var(--fg2);transition:color .3s;display:flex;align-items:center;justify-content:center;gap:6px}
+.nav button[aria-selected=true]{color:#06121a}
+.mini{position:absolute;z-index:7;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);height:52px;border-radius:26px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(16px);display:none;align-items:center;gap:12px;padding:0 8px 0 18px;font-size:14px}
+.mini.show{display:flex}
+.mini span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini small{color:var(--fg2);font-variant-numeric:tabular-nums}
+
+/* PLAYER */
+.player{position:absolute;inset:0;z-index:20;transform:translateY(100%);transition:transform .6s cubic-bezier(.2,.8,.2,1);background:#000;overflow:hidden}
+.player.open{transform:none}
+.pbg{position:absolute;inset:-5%;background-size:cover;background-position:center;animation:drift 50s ease-in-out infinite alternate}
+@keyframes drift{from{transform:scale(1) translateX(0)}to{transform:scale(1.1) translateX(-2%)}}
+.player canvas{position:absolute;inset:0;width:100%;height:100%}
+.veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,0) 30%,rgba(0,0,0,0) 55%,rgba(0,0,0,.55));pointer-events:none}
+.dim{position:absolute;inset:0;background:#000;opacity:0;transition:opacity 2s;pointer-events:none;z-index:6}
+.dim.on{opacity:.72}
+.ptop{position:absolute;z-index:4;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 0}
+.pmid{position:absolute;z-index:4;left:0;right:0;top:50%;transform:translateY(-62%);display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 28px;gap:22px}
+.playbtn{width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.4);backdrop-filter:blur(14px);display:grid;place-items:center;transition:transform .2s,background .3s;box-shadow:0 0 0 0 rgba(255,255,255,.25)}
+.playbtn:active{transform:scale(.94)}
+.on-air .playbtn{animation:halo 3.6s ease-in-out infinite}
+@keyframes halo{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.22)}50%{box-shadow:0 0 0 22px rgba(255,255,255,0)}}
+.ptitle{font-family:var(--display);font-size:30px;font-weight:700;margin:0;letter-spacing:-.02em;text-shadow:0 2px 20px rgba(0,0,0,.4)}
+.pcopy{margin:6px 0 0;font-weight:300;font-style:italic;font-size:16px;color:rgba(255,255,255,.85)}
+.pcr{position:absolute;z-index:4;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 190px);text-align:center;font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.04em}
+.timerbox{position:absolute;z-index:4;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 82px);display:flex;flex-direction:column;align-items:center;gap:12px}
+.count{font-family:var(--display);font-size:38px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.chips{display:flex;gap:8px}
+.chip{height:36px;padding:0 16px;border-radius:18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(10px);font-size:13px;color:rgba(255,255,255,.8);transition:all .25s}
+.chip[aria-pressed=true]{background:#fff;color:#0a0f1a;border-color:#fff}
+.handle{position:absolute;z-index:5;left:0;right:0;bottom:0;height:calc(env(safe-area-inset-bottom,0px) + 64px);display:flex;justify-content:center;align-items:flex-start;padding-top:10px}
+.handle button{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.7)}
+.handle i{display:block;width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.4)}
+.sheet{position:absolute;z-index:10;left:0;right:0;bottom:0;border-radius:28px 28px 0 0;background:rgba(12,15,28,.9);backdrop-filter:blur(26px);border-top:1px solid var(--line);padding:12px 22px calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateY(105%);transition:transform .5s cubic-bezier(.2,.8,.2,1);max-height:78%;overflow-y:auto}
+.sheet.open{transform:none}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.25);margin:0 auto 16px}
+.sheet h3{font-family:var(--display);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg2);margin:18px 0 10px;font-weight:500}
+.sheet h3:first-of-type{margin-top:0}
+.presets{display:flex;gap:8px;flex-wrap:wrap}
+.layer{display:grid;grid-template-columns:70px 1fr 38px;gap:12px;align-items:center;height:40px;font-size:14px}
+.layer output{font-size:12px;color:var(--fg2);text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--accent) var(--v,0%),rgba(255,255,255,.16) var(--v,0%))}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(255,255,255,.16)}
+input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:var(--accent)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;margin-top:-8px;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:#fff}
+.row{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:48px;font-size:14px}
+.row small{display:block;color:var(--fg2);font-size:12px;margin-top:2px}
+.sw{width:50px;height:30px;border-radius:15px;background:rgba(255,255,255,.18);position:relative;transition:background .3s;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .3s}
+.sw[aria-checked=true]{background:var(--accent)}.sw[aria-checked=true]::after{transform:translateX(20px)}
+.breathe{display:block;width:100%;height:52px;border-radius:26px;background:rgba(255,255,255,.1);border:1px solid var(--line);font-size:15px;margin-top:6px}
+
+/* BREATH */
+.breath{position:absolute;z-index:30;inset:0;background:rgba(3,5,12,.82);backdrop-filter:blur(10px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:34px}
+.breath.show{display:flex}
+.orb{width:180px;height:180px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--accent) 45%,rgba(255,255,255,0) 72%);box-shadow:0 0 80px var(--accent);transform:scale(.55)}
+.bt{font-family:var(--display);font-size:26px;min-height:34px}
+.bs{font-size:13px;color:var(--fg2);margin-top:-22px;font-variant-numeric:tabular-nums}
+.xbtn{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);right:18px}
+.toast{position:absolute;z-index:40;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translate(-50%,-20px);background:#fff;color:#0a0f1a;font-size:13px;padding:10px 16px;border-radius:20px;opacity:0;pointer-events:none;transition:all .4s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style>
+
+<div class="phone" id="phone">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="w0" clipPathUnits="objectBoundingBox"><path d="M0,.1 C.15,.02 .3,.14 .5,.09 S.82,0 1,.08 L1,1 L0,1 Z"/></clipPath><clipPath id="w1" clipPathUnits="objectBoundingBox"><path d="M0,.06 C.2,.14 .4,.0 .62,.07 S.88,.13 1,.04 L1,1 L0,1 Z"/></clipPath><clipPath id="w2" clipPathUnits="objectBoundingBox"><path d="M0,.08 C.12,.0 .35,.1 .5,.06 S.8,.13 1,.02 L1,1 L0,1 Z"/></clipPath></defs></svg>
+  <section class="home" id="home" aria-label="홈">
+                <header class="hdr">
+      <button class="hbtn" id="hWave" aria-label="재생 중인 사운드 열기"><span class="wave"><i></i><i></i><i></i><i></i></span></button>
+      <div class="stat">오늘 <b id="today">0분</b> 청취</div>
+      <button class="hbtn" aria-label="알림 2개" id="bell">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+        <span class="badge" id="badge">2</span>
+      </button>
+    </header>
+    <div class="feed" id="feed"></div>
+    <button class="mini" id="mini" aria-label="플레이어 열기"><span id="miniT"></span><small id="miniC"></small>
+      <span class="hbtn" style="flex:none" id="miniPP" role="button" aria-label="재생/일시정지"></span></button>
+  </section>
+
+  <section class="player" id="player" aria-label="플레이어">
+    <div class="pbg" id="pbg"></div><canvas id="cv"></canvas><div class="veil"></div>
+    <div class="ptop">
+      <button class="hbtn" id="close" aria-label="닫기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="stat" style="flex:none;padding:0 16px;height:36px;font-size:12px" id="pkind"></div>
+      <button class="hbtn" id="bat" aria-label="화면 어둡게" title="절전"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+    </div>
+    <div class="pmid">
+      <button class="playbtn" id="pp" aria-label="재생"></button>
+      <div><h2 class="ptitle" id="ptitle"></h2><p class="pcopy" id="pcopy"></p></div>
+    </div>
+    <div class="pcr" id="pcr"></div>
+    <div class="timerbox">
+      <div class="count" id="count">30:00</div>
+      <div class="chips" id="chips" role="group" aria-label="타이머">
+        <button class="chip" data-min="15" aria-pressed="false">15분</button>
+        <button class="chip" data-min="30" aria-pressed="true">30분</button>
+        <button class="chip" data-min="45" aria-pressed="false">45분</button>
+        <button class="chip" data-min="0" aria-pressed="false">무제한</button>
+      </div>
+    </div>
+    <div class="handle"><button id="openSheet" aria-label="사운드 믹스 열기"><i></i>사운드 믹스 · 호흡 가이드</button></div>
+    <div class="sheet" id="sheet" role="dialog" aria-label="사운드 믹스">
+      <div class="grab"></div>
+      <h3>프리셋</h3>
+      <div class="presets" id="presets"></div>
+      <h3>사운드 믹서</h3>
+      <div id="layers"></div>
+      <h3>설정</h3>
+      <div class="row"><div>화면 자동 어둡게<small>터치가 없으면 6초 뒤 밝기를 낮춥니다</small></div><button class="sw" id="swDim" role="switch" aria-checked="true" aria-label="화면 자동 어둡게"></button></div>
+      <button class="breathe" id="openBreath">4-7-8 호흡 가이드 시작</button>
+    </div>
+    <div class="dim" id="dim"></div>
+    <div class="breath" id="breath">
+      <button class="hbtn xbtn" id="bx" aria-label="호흡 가이드 닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="orb" id="orb"></div><div class="bt" id="bt">준비</div><div class="bs" id="bs">4초 들이쉬고 · 7초 멈추고 · 8초 내쉬기</div>
+    </div>
+  </section>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+const ICON={play:'<svg width="36" height="36" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.5-6.5a1 1 0 0 0 0-1.8L9.5 4.6A1 1 0 0 0 8 5.5z"/></svg>',
+  pause:'<svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="5" width="4.2" height="14" rx="1.4"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.4"/></svg>',
+  sm:p=>p?'<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="5" width="4.2" height="14" rx="1.4"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.4"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.5-6.5a1 1 0 0 0 0-1.8L9.5 4.6A1 1 0 0 0 8 5.5z"/></svg>'};
+
+/* ---------- Content ---------- */
+// c: three RGB colors; scene: visual loop; mix: default layer volumes 0..100; pad: chord Hz
+const MODES={
+ focus:{accent:'#8fd3c9',lead:'집중 · 3개의 사운드스케이프',h:'지금, 한 가지에만',
+  items:[
+  {id:'med',kind:'Meditation',t:'Meditation',sub:'discover happiness',cr:'Still Water · 미세한 안개와 낮은 패드',c:[[34,110,120],[20,60,90],[120,200,190]],scene:'mist',mix:{rain:0,fire:0,wind:25,white:10,pad:60},pad:[110,164.8,220]},
+  {id:'dw',kind:'Deep Work',t:'Rainy Desk',sub:'quiet the noise',cr:'Window Rain · 창가에 내리는 빗소리',c:[[40,70,140],[20,30,70],[130,170,230]],scene:'rain',mix:{rain:65,fire:0,wind:10,white:15,pad:30},pad:[98,146.8,196]},
+  {id:'cl',kind:'Clarity',t:'Clear Tide',sub:'one thing at a time',cr:'Low Tide · 잔잔한 파도 위의 백색소음',c:[[20,100,140],[10,50,90],[170,230,240]],scene:'waves',mix:{rain:0,fire:0,wind:35,white:45,pad:35},pad:[130.8,196,261.6]}]},
+ relax:{accent:'#e3a6ff',lead:'이완 · 3개의 사운드스케이프',h:'숨을 길게 내쉬세요',
+  items:[
+  {id:'dd',kind:'Daydream',t:'Daydream',sub:'go beyond the form',cr:'Soft Aurora · 느리게 흐르는 빛',c:[[130,60,170],[60,30,110],[255,150,200]],scene:'mist',mix:{rain:0,fire:0,wind:30,white:5,pad:75},pad:[87.3,130.8,174.6]},
+  {id:'se',kind:'Sensations',t:'Sensations',sub:'feel the moment',cr:'Warm Hearth · 장작 타는 소리',c:[[170,80,60],[80,30,40],[255,180,100]],scene:'embers',mix:{rain:0,fire:60,wind:10,white:0,pad:45},pad:[98,123.5,146.8]},
+  {id:'sh',kind:'Seaside',t:'Shoreline',sub:'let the tide decide',cr:'Evening Surf · 해질녘 파도',c:[[200,110,120],[70,50,120],[255,200,170]],scene:'waves',mix:{rain:0,fire:0,wind:40,white:40,pad:30},pad:[110,138.6,164.8]}]},
+ sleep:{accent:'#9db4ff',lead:'수면 · 3개의 사운드스케이프',h:'오늘 하루, 내려놓기',
+  items:[
+  {id:'nr',kind:'Night Rain',t:'Night Rain',sub:'close your eyes',cr:'Midnight Rain · 깊은 밤의 빗소리',c:[[30,40,110],[8,12,40],[110,130,220]],scene:'rain',mix:{rain:70,fire:0,wind:20,white:10,pad:40},pad:[65.4,98,130.8]},
+  {id:'sf',kind:'Starfield',t:'Starfield',sub:'drift softly',cr:'Deep Space · 아주 낮은 드론',c:[[20,24,70],[4,6,24],[160,170,255]],scene:'stars',mix:{rain:0,fire:0,wind:15,white:20,pad:80},pad:[55,82.4,110]},
+  {id:'sx',kind:'Embers',t:'Slow Fire',sub:'warm and still',cr:'Last Embers · 잦아드는 불씨',c:[[120,50,40],[30,12,20],[255,140,70]],scene:'embers',mix:{rain:10,fire:55,wind:10,white:5,pad:50},pad:[73.4,110,146.8]}]}
+};
+const PRESETS={'기본':null,'비 오는 밤':{rain:75,fire:0,wind:20,white:10,pad:30},'난롯가':{rain:10,fire:70,wind:5,white:0,pad:40},'숲 속 바람':{rain:0,fire:0,wind:70,white:20,pad:35},'백색소음':{rain:0,fire:0,wind:0,white:75,pad:0}};
+const LAYERS=[['rain','빗소리'],['fire','장작불'],['wind','바람'],['white','백색소음'],['pad','앰비언트']];
+
+/* ---------- State ---------- */
+let mode='focus', cur=null, playing=false, mix={}, remain=30*60, timerMin=30, listened=0, lastTick=0, dimOn=true;
+try{listened=+localStorage.getItem('cw_listen')||0}catch(e){}
+const fmt=s=>{s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),2200)}
+const rgba=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+/* ---------- Scene art (generated illustrations, used as card + player backgrounds) ---------- */
+const SCN={
+ med:['forest',['#16302e','#6f9a8e','#ffe9b0','#0f2523','#050d0c']],
+ dw:['forest',['#243247','#7f93a6','#cfdcec','#18222f','#070b11']],
+ cl:['sea',['#6f93bd','#d9c8c0','#fff2e0','#1d3a5f','#0b1a2e']],
+ dd:['sunset',['#3a2a63','#e8738f','#ffc89a','#5a2f66','#150c24']],
+ se:['desert',['#2b2350','#f08a4b','#ffd08a','#b5532d','#3a1710']],
+ sh:['sea',['#40507f','#f2a07b','#ffd9a8','#2a3a68','#10162e']],
+ nr:['forest',['#0b1230','#2a3a70','#8fa6e8','#0a1022','#03060e']],
+ sf:['desert',['#060a24','#2a2f6b','#b8c2ff','#1b1d4a','#05061a']],
+ sx:['sunset',['#2a0f1a','#c8503a','#ffb05a','#4a1820','#0e0508']]
+};
+const ALL=[];['focus','relax','sleep'].forEach(m=>MODES[m].items.forEach(it=>ALL.push({...it,mode:m})));
+const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const mixc=(a,b,t)=>{a=hx(a);b=hx(b);return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*t).toString(16).padStart(2,'0')).join('')};
+const rngf=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+function sceneSVG(type,P,seed,H){
+  const R=rngf(seed),[top,hor,glow,far,near]=P,Y=v=>+(v*H/300).toFixed(1),lerp=(a,b,t)=>a+(b-a)*t;let d='';
+  const defs=`<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${hor}"/></linearGradient>
+<linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${mixc(hor,glow,.2)}"/><stop offset=".5" stop-color="${mixc(hor,far,.6)}"/><stop offset="1" stop-color="${far}"/></linearGradient>
+<linearGradient id="k" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset=".55" stop-color="${hor}"/><stop offset="1" stop-color="${glow}"/></linearGradient>
+<radialGradient id="g"><stop offset="0" stop-color="${glow}"/><stop offset="1" stop-color="${glow}" stop-opacity="0"/></radialGradient>
+<filter id="b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter><filter id="b2"><feGaussianBlur stdDeviation="1.6"/></filter>
+<filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="${seed}"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter></defs>`;
+  if(type==='forest'){
+    d+=`<rect width="400" height="${H}" fill="url(#s)"/><polygon points="185,0 240,0 285,${Y(230)} 160,${Y(230)}" fill="${glow}" opacity=".34" filter="url(#b)"/>`;
+    for(let l=0;l<4;l++){const col=mixc(far,near,l/3),gap=12+l*18,n=15+l*5,gy=Y(165+l*28);
+      for(let i=0;i<n;i++){const x=R()*400;if(Math.abs(x-205)<gap)continue;const w=3+l*4+R()*5;d+=`<rect x="${x.toFixed(1)}" y="-10" width="${w.toFixed(1)}" height="${gy+10}" fill="${col}"/>`}
+      d+=`<rect y="${gy}" width="400" height="${H}" fill="${col}"/><rect width="400" height="${H}" fill="${hor}" opacity="${(.2-l*.04).toFixed(2)}"/>`}
+    d+=`<polygon points="197,${Y(150)} 207,${Y(150)} 340,${H} 60,${H}" fill="${mixc(hor,near,.55)}"/><polygon points="200,${Y(150)} 205,${Y(150)} 250,${H} 175,${H}" fill="${glow}" opacity=".16"/>
+<rect y="${Y(-40)}" width="400" height="${Y(130)}" fill="${near}" opacity=".55" filter="url(#b)"/>`;
+  }else if(type==='sea'){
+    const hy=Y(150);
+    d+=`<rect width="400" height="${hy}" fill="url(#s)"/><circle cx="270" cy="${hy}" r="150" fill="url(#g)" opacity=".85"/><rect y="${hy}" width="400" height="${H-hy}" fill="url(#w)"/>`;
+    for(let i=0;i<20;i++){const w=(14+i*8)*(.5+R()*.8);d+=`<rect x="${(270-w/2).toFixed(1)}" y="${(hy+4+i*Y(7)).toFixed(1)}" width="${w.toFixed(1)}" height="2.4" fill="${glow}" opacity="${Math.max(.04,.4-i*.02).toFixed(2)}" filter="url(#b2)"/>`}
+    for(let i=0;i<26;i++)d+=`<rect x="${(R()*400).toFixed(0)}" y="${(hy+6+R()*(H-hy)).toFixed(0)}" width="${(30+R()*90).toFixed(0)}" height="1" fill="#fff" opacity=".06"/>`;
+    for(let i=15;i>=0;i--){const t=i/15,e=t*t,x=lerp(55,208,e),by=lerp(H-Y(18),hy+3,e),s=lerp(30,2.2,e);
+      d+=`<rect x="${(x-s*.2).toFixed(1)}" y="${by.toFixed(1)}" width="${s.toFixed(1)}" height="${(s*.9).toFixed(1)}" fill="${near}" opacity=".3"/><rect x="${(x-s/2).toFixed(1)}" y="${(by-s*1.7).toFixed(1)}" width="${s.toFixed(1)}" height="${(s*1.7).toFixed(1)}" rx="${(s*.2).toFixed(1)}" fill="${near}"/><ellipse cx="${x.toFixed(1)}" cy="${(by-s*1.7).toFixed(1)}" rx="${(s/2).toFixed(1)}" ry="${(s*.18).toFixed(1)}" fill="${mixc(near,glow,.4)}"/>`}
+  }else if(type==='sunset'){
+    const hy=Y(170);
+    d+=`<rect width="400" height="${hy}" fill="url(#k)"/><circle cx="250" cy="${hy}" r="170" fill="url(#g)" opacity=".9"/><circle cx="250" cy="${hy-6}" r="34" fill="${mixc(glow,'#ffffff',.5)}"/>`;
+    for(let i=0;i<8;i++)d+=`<ellipse cx="${(R()*400).toFixed(0)}" cy="${Y(30+R()*110).toFixed(0)}" rx="${(60+R()*90).toFixed(0)}" ry="${Y(4+R()*7).toFixed(1)}" fill="${mixc(hor,top,.45)}" opacity=".5" filter="url(#b2)"/>`;
+    d+=`<rect y="${hy}" width="400" height="${H-hy}" fill="url(#w)"/><rect y="${hy-3}" width="400" height="${Y(8)}" fill="${near}"/>`;
+    for(let i=0;i<18;i++){const w=20+i*7+R()*20;d+=`<rect x="${(250-w/2).toFixed(1)}" y="${(hy+6+i*Y(7)).toFixed(1)}" width="${w.toFixed(1)}" height="2.6" fill="${glow}" opacity="${Math.max(.05,.55-i*.03).toFixed(2)}" filter="url(#b2)"/>`}
+    for(let i=0;i<4;i++){const x=40+R()*320,y=Y(215+R()*50),s=.8+R()*.7;d+=`<g fill="${near}" opacity=".85"><polygon points="${x-9*s},${y-22*s} ${x},${y-34*s} ${x+9*s},${y-22*s}"/><rect x="${x-3*s}" y="${y-22*s}" width="${6*s}" height="${22*s}"/><rect x="${x-3*s}" y="${y}" width="${6*s}" height="${Y(14)}" opacity=".3"/></g>`}
+  }else{
+    d+=`<rect width="400" height="${H}" fill="url(#s)"/><circle cx="${(130+R()*140).toFixed(0)}" cy="${Y(120)}" r="190" fill="url(#g)" opacity=".7"/><circle cx="${(130+R()*140).toFixed(0)}" cy="${Y(120)}" r="26" fill="${mixc(glow,'#ffffff',.4)}"/>`;
+    for(let i=0;i<22;i++)d+=`<circle cx="${(R()*400).toFixed(0)}" cy="${Y(R()*100).toFixed(0)}" r="${(.4+R()*.9).toFixed(1)}" fill="#fff" opacity="${(R()*.5*(top<'#222222'?1:.2)).toFixed(2)}"/>`;
+    for(let l=0;l<5;l++){const by=Y(135+l*32),col=mixc(mixc(hor,far,.45),near,l/4);let p=`M0 ${H} L0 ${by+(R()-.5)*Y(30)}`;let ridge=`M0 ${by}`;
+      for(let k=1;k<=4;k++){const yk=by+(R()-.5)*Y(46);p+=` Q ${(k-.5)*100} ${(by+(R()-.5)*Y(70)).toFixed(1)} ${k*100} ${yk.toFixed(1)}`}
+      d+=`<path d="${p} L400 ${H} Z" fill="${col}"/><path d="${p.replace(/^M0 \S+ L0/,'M0')}" fill="none" stroke="${mixc(col,glow,.4)}" stroke-width="1.2" opacity=".5" transform="translate(0,.5)"/><rect y="${by-20}" width="400" height="${H}" fill="${hor}" opacity=".07"/>`}
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 ${H}" preserveAspectRatio="xMidYMid slice">${defs}${d}<rect width="400" height="${H}" filter="url(#n)" opacity=".13" style="mix-blend-mode:overlay"/></svg>`;
+}
+const ART={};
+function art(it,H){const k=it.id+H;if(!ART[k]){const [t,p]=SCN[it.id];ART[k]="url('data:image/svg+xml;utf8,"+encodeURIComponent(sceneSVG(t,p,it.id.charCodeAt(0)*31+it.id.charCodeAt(1),H)).replace(/'/g,'%27')+"')"}return ART[k]}
+
+/* ---------- Home ---------- */
+function renderFeed(){
+  $('#feed').innerHTML=ALL.map((it,i)=>`<button class="card enter w${i%3}" data-i="${i}" style="z-index:${i+1};animation-delay:${Math.min(i,4)*80}ms;--first:${i?0:1}"><div class="bgc" style="background-image:${art(it,300)}"></div><div class="shade"></div>
+    <div class="kind">${it.mode} · ${it.kind}</div><h2>${it.t}</h2><div class="sub">${it.sub}</div></button>`).join('');
+}
+
+$('#feed').addEventListener('click',e=>{const c=e.target.closest('.card'); if(!c)return; buzz(14); openTheme(ALL[+c.dataset.i],c.dataset.i)});
+
+/* ---------- Audio engine (Web Audio, procedural, gapless loops) ---------- */
+let ctx,master,pad=[],padGain,L={},fireTimer,fadeTok=0;
+function noiseBuf(kind){
+  const sr=ctx.sampleRate, n=sr*6, xf=Math.floor(sr*.5), tot=n+xf, raw=new Float32Array(tot);
+  let last=0; for(let i=0;i<tot;i++){const w=Math.random()*2-1; if(kind==='brown'){last=(last+.02*w)/1.02;raw[i]=last*3.5}else raw[i]=w}
+  const out=ctx.createBuffer(1,n,sr), d=out.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=raw[i];
+  for(let i=0;i<xf;i++){const k=i/xf; d[i]=raw[i]*k+raw[n+i]*(1-k)} // equal-ish crossfade so the loop point is inaudible
+  return out;
+}
+function loopSrc(buf){const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;s.start();return s}
+function initAudio(){
+  if(ctx)return;
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  master=ctx.createGain(); master.gain.value=0; master.connect(ctx.destination);
+  const white=noiseBuf('white'), brown=noiseBuf('brown');
+  const mk=()=>{const g=ctx.createGain();g.gain.value=0;g.connect(master);return g};
+  // rain
+  L.rain=mk(); let s=loopSrc(white), bp=ctx.createBiquadFilter(); bp.type='bandpass';bp.frequency.value=4200;bp.Q.value=.35;
+  let hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=1200; s.connect(bp);bp.connect(hp);hp.connect(L.rain);
+  // wind
+  L.wind=mk(); s=loopSrc(brown); const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=500;lp.Q.value=2;
+  const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.11;lg.gain.value=280;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();
+  s.connect(lp);lp.connect(L.wind);
+  // white
+  L.white=mk(); s=loopSrc(white); const wl=ctx.createBiquadFilter();wl.type='lowpass';wl.frequency.value=7000; s.connect(wl);wl.connect(L.white);
+  // fire: rumble + crackles
+  L.fire=mk(); s=loopSrc(brown); const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=320; const rg=ctx.createGain();rg.gain.value=.8;s.connect(fl);fl.connect(rg);rg.connect(L.fire);
+  L.crack=white;
+  // pad
+  padGain=mk(); L.pad=padGain; const pf=ctx.createBiquadFilter();pf.type='lowpass';pf.frequency.value=900; pf.connect(padGain);
+  const trem=ctx.createOscillator(),tg=ctx.createGain();trem.frequency.value=.07;tg.gain.value=.25;trem.connect(tg);
+  for(let i=0;i<6;i++){const o=ctx.createOscillator(),g=ctx.createGain();o.type=i%2?'triangle':'sine';o.detune.value=(i-2.5)*4;g.gain.value=.16;o.connect(g);g.connect(pf);tg.connect(g.gain);o.start();pad.push(o)}
+  trem.start();
+  ctx.onstatechange=()=>{ // interruption handling: calls/alarms suspend the context; reflect it and offer resume
+    if(ctx.state==='interrupted'||(ctx.state==='suspended'&&playing&&!fadeTok)){setPlaying(false,true);toast('다른 소리 때문에 일시정지되었어요')}};
+}
+function crackle(){
+  if(!ctx||!playing)return;
+  const v=mix.fire/100;
+  if(v>0.02&&Math.random()<.6+v*.4){
+    const s=ctx.createBufferSource();s.buffer=L.crack;s.loopStart=0;
+    const g=ctx.createGain(),f=ctx.createBiquadFilter();f.type='highpass';f.frequency.value=1500+Math.random()*3500;
+    const t=ctx.currentTime, d=.01+Math.random()*.05, a=(.15+Math.random()*.6)*v*1.2;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(a,t+.003);g.gain.exponentialRampToValueAtTime(.0005,t+d);
+    s.connect(f);f.connect(g);g.connect(L.fire);s.start(t,Math.random()*4,d+.02);
+  }
+  fireTimer=setTimeout(crackle,40+Math.random()*260);
+}
+const LEVEL={rain:.5,fire:.7,wind:.6,white:.18,pad:.9};
+function applyMix(smooth){
+  if(!ctx)return; const t=ctx.currentTime;
+  for(const k of ['rain','fire','wind','white','pad']){const g=L[k].gain; g.cancelScheduledValues(t); g.setTargetAtTime((mix[k]||0)/100*LEVEL[k],t,smooth?.6:.05)}
+}
+function setChord(ch){if(!ctx)return;const t=ctx.currentTime;pad.forEach((o,i)=>{const f=ch[i%ch.length]*(i>=3?2:1);o.frequency.setTargetAtTime(f,t,1.2)})}
+function fadeMaster(to,sec){const t=ctx.currentTime,g=master.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(to,t+sec)}
+
+/* ---------- Player ---------- */
+function openTheme(it,m){
+  const same=cur&&cur.id===it.id; cur=it;
+  $('#pbg').style.backgroundImage=art(it,700); document.documentElement.style.setProperty('--accent','rgb('+it.c[2].join(',')+')');
+  $('#ptitle').textContent=it.t; $('#pcopy').textContent=it.sub; $('#pcr').textContent='© CalmWave · '+it.cr; $('#pkind').textContent=it.kind;
+  if(!same){mix={...it.mix}; buildLayers(); scene=makeScene(it)}
+  $('#player').classList.add('open'); poke();
+  initAudio(); setChord(it.pad); applyMix(false);
+  if(!same||!playing){ if(!same)resetTimer(timerMin); setPlaying(true) }
+}
+function setPlaying(on,silent){
+  if(!ctx)return;
+  const tok=++fadeTok; playing=on;
+  $('#pp').innerHTML=on?ICON.pause:ICON.play; $('#pp').setAttribute('aria-label',on?'일시정지':'재생');
+  $('#player').classList.toggle('on-air',on); document.body.classList.toggle('playing',on); $('#home').classList.toggle('playing',on);
+  $('#miniPP').innerHTML=ICON.sm(on);
+  if(on){ctx.resume();fadeMaster(1,2.2);lastTick=Date.now();clearTimeout(fireTimer);crackle()}
+  else{fadeMaster(0,silent?.2:1.6);clearTimeout(fireTimer);setTimeout(()=>{if(fadeTok===tok&&!playing)ctx.suspend().catch(()=>{});fadeTok=0},silent?300:1800)}
+  updateMini();
+}
+$('#pp').onclick=()=>{buzz(12);setPlaying(!playing);poke()};
+$('#miniPP').onclick=e=>{e.stopPropagation();setPlaying(!playing)};
+$('#close').onclick=()=>{$('#player').classList.remove('open');$('#sheet').classList.remove('open');updateMini()};
+function openPlayer(){if(cur){$('#player').classList.add('open');poke()}}
+$('#hWave').onclick=openPlayer; $('#mini').onclick=openPlayer;
+function updateMini(){const m=$('#mini');m.classList.toggle('show',!!cur&&!$('#player').classList.contains('open'));$('#miniT').textContent=cur?cur.t:'';$('#miniC').textContent=timerMin?fmt(remain):'∞';$('#miniPP').innerHTML=ICON.sm(playing)}
+new MutationObserver(updateMini).observe($('#player'),{attributes:true,attributeFilter:['class']});
+
+/* timer */
+function resetTimer(min){timerMin=min;remain=min*60;$$('.chip').forEach(c=>c.setAttribute('aria-pressed',+c.dataset.min===min));drawCount()}
+function drawCount(){$('#count').textContent=timerMin?fmt(remain):'∞';updateMini()}
+$('#chips').onclick=e=>{const c=e.target.closest('.chip');if(c){resetTimer(+c.dataset.min);buzz(8);toast(timerMin?`${timerMin}분 뒤 서서히 꺼집니다`:'타이머 없이 계속 재생합니다')}};
+setInterval(()=>{
+  if(!playing)return; const now=Date.now(), dt=(now-lastTick)/1000; lastTick=now;
+  listened+=dt; if(Math.floor(listened)%5===0){try{localStorage.setItem('cw_listen',listened)}catch(e){}}
+  $('#today').textContent=Math.floor(listened/60)+'분';
+  if(timerMin){remain-=dt; if(remain<=0){remain=0;drawCount();fadeMaster(0,5);toast('타이머 종료 · 소리를 줄이는 중');setTimeout(()=>{setPlaying(false);resetTimer(timerMin)},5200);playing=false;return} }
+  drawCount();
+},500);
+
+/* sheet + mixer */
+function buildLayers(){
+  $('#layers').innerHTML=LAYERS.map(([k,n])=>`<div class="layer"><label for="r_${k}">${n}</label><input type="range" id="r_${k}" min="0" max="100" value="${mix[k]||0}" style="--v:${mix[k]||0}%"><output id="o_${k}">${mix[k]||0}</output></div>`).join('');
+  $$('#layers input').forEach(r=>r.oninput=()=>{const k=r.id.slice(2);mix[k]=+r.value;r.style.setProperty('--v',r.value+'%');$('#o_'+k).textContent=r.value;applyMix(false);poke()});
+}
+$('#presets').innerHTML=Object.keys(PRESETS).map(n=>`<button class="chip" data-n="${n}" aria-pressed="false">${n}</button>`).join('');
+$('#presets').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const p=PRESETS[b.dataset.n];mix=p?{...p}:{...cur.mix};buildLayers();applyMix(true);
+  $$('#presets .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));buzz(10)};
+$('#openSheet').onclick=()=>{$('#sheet').classList.add('open');poke()};
+$('.player').addEventListener('pointerdown',e=>{if($('#sheet').classList.contains('open')&&!e.target.closest('#sheet')&&!e.target.closest('#openSheet'))$('#sheet').classList.remove('open')});
+$('#swDim').onclick=function(){dimOn=this.getAttribute('aria-checked')!=='true';this.setAttribute('aria-checked',dimOn);poke()};
+
+/* idle dimming (battery saver) */
+let idle; function poke(){$('#dim').classList.remove('on');clearTimeout(idle);if(dimOn)idle=setTimeout(()=>{if(playing&&$('#player').classList.contains('open')&&!$('#sheet').classList.contains('open')&&!$('#breath').classList.contains('show'))$('#dim').classList.add('on')},6000)}
+['pointerdown','pointermove','keydown'].forEach(ev=>$('#player').addEventListener(ev,poke,{passive:true}));
+$('#bat').onclick=()=>{$('#dim').classList.add('on')};
+$('#dim').style.pointerEvents='none';
+
+/* breathing 4-7-8 */
+let bTimer;
+function breathe(){
+  const steps=[['들이쉬기',4,1],['멈추기',7,1],['내쉬기',8,.55]]; let i=0,left=0;
+  const orb=$('#orb');
+  function go(){const [n,d,sc]=steps[i];left=d;$('#bt').textContent=n;
+    orb.style.transition=`transform ${n==='멈추기'?.3:d}s ${n==='내쉬기'?'ease-in-out':'ease-in-out'}`;
+    orb.style.transform=`scale(${n==='내쉬기'?.55:1})`;$('#bs').textContent=left+'초'}
+  go(); bTimer=setInterval(()=>{left--; if(left<=0){i=(i+1)%3;go()}else $('#bs').textContent=left+'초'},1000);
+}
+$('#openBreath').onclick=()=>{$('#sheet').classList.remove('open');$('#orb').style.transition='none';$('#orb').style.transform='scale(.55)';$('#breath').classList.add('show');setTimeout(breathe,60)};
+$('#bx').onclick=()=>{clearInterval(bTimer);$('#breath').classList.remove('show');$('#bt').textContent='준비'};
+
+/* ---------- Visual scenes (canvas stand-in for looping cinematic video) ---------- */
+const cv=$('#cv'), g2=cv.getContext('2d'); let scene=null,W=0,H=0;
+function resize(){const r=cv.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);W=r.width||1;H=r.height||1;cv.width=W*d;cv.height=H*d;g2.setTransform(d,0,0,d,0,0);if(cur)scene=makeScene(cur)}
+function makeScene(it){
+  const n=it.scene, o={it,n,p:[]};
+  const cnt=n==='rain'?160:n==='stars'?140:n==='embers'?60:0;
+  for(let i=0;i<cnt;i++)o.p.push({x:Math.random()*W,y:Math.random()*H,v:.4+Math.random(),r:Math.random(),ph:Math.random()*6.28});
+  return o;
+}
+function frame(t){
+  requestAnimationFrame(frame);
+  if(!scene||!$('#player').classList.contains('open')||!W)return;
+  const {it,n,p}=scene, [a,b,c]=it.c, k=playing?1:.35, tt=t*.001;
+  g2.globalCompositeOperation='source-over';
+  g2.clearRect(0,0,W,H);
+  g2.globalCompositeOperation='lighter';
+  for(let i=0;i<0;i++){
+    const x=W*(.5+.38*Math.sin(tt*.13*(i+1)+i*2.1)), y=H*(.32+.22*Math.cos(tt*.1*(i+1.3)+i)), r=W*(.8+.2*Math.sin(tt*.2+i));
+    const gr=g2.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,rgba(i===1?c:a,.42*(n==='mist'?1.2:.8)));gr.addColorStop(1,rgba(a,0));
+    g2.fillStyle=gr;g2.fillRect(0,0,W,H);
+  }
+  if(n==='rain'){
+    g2.strokeStyle=rgba(c,.5);g2.lineWidth=1;g2.beginPath();
+    for(const d of p){d.y+=(9+d.v*14)*k;d.x-=1.2*k;if(d.y>H){d.y=-20;d.x=Math.random()*W*1.1}
+      g2.moveTo(d.x,d.y);g2.lineTo(d.x+1.2,d.y-(10+d.v*16))}
+    g2.stroke();
+  }else if(n==='stars'){
+    for(const d of p){const tw=.4+.6*Math.abs(Math.sin(tt*(.4+d.v*.5)+d.ph));g2.fillStyle=rgba([220,226,255],tw*.9);g2.beginPath();g2.arc(d.x,(d.y+tt*2*d.v)%H,.5+d.r*1.4,0,6.28);g2.fill()}
+  }else if(n==='embers'){
+    for(const d of p){d.y-=(.3+d.v*1.1)*k;d.x+=Math.sin(tt*1.5+d.ph)*.4;if(d.y<-10){d.y=H+10;d.x=W*(.2+.6*Math.random())}
+      const al=Math.min(1,(H-d.y)/H*1.6)*.9;const gr=g2.createRadialGradient(d.x,d.y,0,d.x,d.y,6+d.r*8);gr.addColorStop(0,rgba(c,al));gr.addColorStop(1,rgba(c,0));g2.fillStyle=gr;g2.fillRect(d.x-16,d.y-16,32,32)}
+  }else if(n==='__'){
+    g2.globalCompositeOperation='source-over';
+    for(let w=0;w<4;w++){const base=H*(.62+w*.08);g2.beginPath();g2.moveTo(0,H);
+      for(let x=0;x<=W;x+=10)g2.lineTo(x,base+Math.sin(x*.012+tt*(.5+w*.15)+w)*(10+w*5)*(playing?1:.5));
+      g2.lineTo(W,H);g2.closePath();g2.fillStyle=rgba(w%2?a:c,.14+w*.04);g2.fill()}
+  }
+  g2.globalCompositeOperation='source-over';
+}
+requestAnimationFrame(frame);
+window.addEventListener('resize',resize);
+
+/* ---------- boot ---------- */
+$('#pp').innerHTML=ICON.play;
+$('#bell').onclick=()=>{$('#badge').style.display='none';toast('새 테마 2개: Clear Tide, Slow Fire')};
+$('#today').textContent=Math.floor(listened/60)+'분';
+renderFeed(); resize(); setTimeout(resize,100);
+})();
+</script>
+
