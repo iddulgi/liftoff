@@ -71,7 +71,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .tbtn{position:absolute;z-index:31;left:10px;top:calc(env(safe-area-inset-top,0px) + 70px);font-size:10px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:10px;padding:4px 8px;backdrop-filter:blur(8px)}
 .feed.cdlist{background:#000;padding:96px 0 130px;display:flex;flex-direction:column;align-items:center;gap:0;scroll-snap-type:y proximity}
 .phone{container-type:inline-size}
-.cdlist .disc{width:min(90cqw,420px);height:min(90cqw,420px);flex:none;margin:0 0 12px;scroll-snap-align:center;transition:transform .25s}
+.cdlist .disc{width:min(80cqw,340px);height:min(80cqw,340px);flex:none;margin:0 0 12px;scroll-snap-align:center;transition:transform .25s}
 .cdlist .disc:active{transform:scale(.97)}
 .cmeta{display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:40px;flex:none}
 .disc{position:relative;display:block;width:min(64vw,250px);aspect-ratio:1;border-radius:50%;box-shadow:0 24px 70px var(--glow),0 0 0 1px rgba(255,255,255,.14);margin-bottom:12px}
@@ -103,10 +103,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .sl{font-size:11px;color:#8a90a3;text-align:center}
 .fly{position:absolute;z-index:60;pointer-events:none;transform-origin:center}
 .fly .disc{width:100%;margin:0;box-shadow:0 18px 40px rgba(0,0,0,.7)}
-.disc.orb .art{overflow:hidden;filter:saturate(1.05)}
-.disc.orb .art::after{content:"";position:absolute;inset:0;border-radius:50%;opacity:.55;mix-blend-mode:overlay;background-size:140px;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
-.disc.orb .sheen{display:none}
-.disc.orb{box-shadow:0 24px 70px var(--glow)}
+.disc.gorb .art{overflow:hidden;filter:saturate(1.05)}
+.disc.gorb .art::after{content:"";position:absolute;inset:0;border-radius:50%;opacity:.55;mix-blend-mode:overlay;background-size:140px;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+.disc.gorb .sheen{display:none}
+.disc.gorb{box-shadow:0 24px 70px var(--glow)}
 /* PLAYER */
 .player{position:absolute;inset:0;z-index:20;transform:translateY(100%);transition:transform .6s cubic-bezier(.2,.8,.2,1);background:#000;overflow:hidden}
 .player.open{transform:none}
@@ -318,7 +318,7 @@ let layout='full', deckIdx=0, shelf=[];
 const LAYOUTS=[['full','꽉 찬 카드'],['cd','CD 리스트'],['deck','CD 플레이어']];
 const ORB={med:['#0e7f70','#4fcfb4','#e6f6ee'],dw:['#2748d0','#58a4ff','#e4ecff'],cl:['#1769e0','#3fbdf0','#e8f4ff'],dd:['#8a2be2','#ff78c4','#fde6f4'],se:['#e24a14','#ffa03a','#fff0d6'],sh:['#dc3f78','#ff9878','#ffe8dc'],nr:['#2a2fb8','#6c7aff','#e4e6ff'],sf:['#4a1ea6','#9070ff','#ece6ff'],sx:['#c02424','#ff7a46','#ffe3d4']};
 const orbBG=it=>{const [d,m,p]=ORB[it.id];return `radial-gradient(70% 55% at 20% 90%,${d} 0%,transparent 72%),radial-gradient(60% 45% at 82% 12%,${m} 0%,transparent 70%),linear-gradient(158deg,${m} 0%,${m} 28%,${p} 48%,${p} 54%,${d} 74%,${d} 100%)`};
-const discHTML=(it,cls,badge)=>`<span class="disc ${cls||''}"><span class="art" style="background-image:${(cls||'').includes('orb')?orbBG(it):art(it,300)}"></span><span class="sheen"></span><span class="hole"></span>${badge?'<span class="pbadge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#111"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>':''}</span>`;
+const discHTML=(it,cls,badge)=>`<span class="disc ${cls||''}"><span class="art" style="background-image:${(cls||'').includes('gorb')?orbBG(it):art(it,300)}"></span><span class="sheen"></span><span class="hole"></span>${badge?'<span class="pbadge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#111"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>':''}</span>`;
 function syncSpin(){
   $$('.cdlist .disc').forEach(d=>{const i=+d.dataset.i;d.classList.toggle('spin',!!(cur&&cur.id===ALL[i].id&&playing))});
   const b=$('#bigdisc'); if(b)b.classList.toggle('spin',playing&&cur&&cur.id===ALL[deckIdx].id);
@@ -327,7 +327,7 @@ function syncSpin(){
 function renderFeed(){
   const feed=$('#feed'); feed.classList.toggle('cdlist',layout==='cd'); feed.classList.toggle('decklist',layout==='deck');
   if(layout==='cd'){
-    feed.innerHTML=ALL.map((it,i)=>discHTML(it,'orb',false).replace('<span class="disc orb"',`<button data-i="${i}" aria-label="${it.t} 재생" class="disc orb enter" style="animation-delay:${Math.min(i,5)*70}ms;--glow:rgba(${it.c[2].join(',')},.28)"`).replace(/<\/span>$/,'</button>')+`<div class="cmeta" data-i="${i}"><span class="ct">${it.t}</span><span class="cs">${it.mode} · ${it.sub}</span></div>`).join('');
+    feed.innerHTML=ALL.map((it,i)=>discHTML(it,'gorb',false).replace('<span class="disc gorb"',`<button data-i="${i}" aria-label="${it.t} 재생" class="disc gorb enter" style="animation-delay:${Math.min(i,5)*70}ms;--glow:rgba(${it.c[2].join(',')},.28)"`).replace(/<\/span>$/,'</button>')+`<div class="cmeta" data-i="${i}"><span class="ct">${it.t}</span><span class="cs">${it.mode} · ${it.sub}</span></div>`).join('');
   }else if(layout==='deck'){
     if(!shelf.length)shelf=ALL.map((_,i)=>i).filter(i=>i!==deckIdx);
     const dk=ALL[deckIdx];
