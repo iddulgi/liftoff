@@ -69,11 +69,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 
 
 .tbtn{position:absolute;z-index:31;left:10px;top:calc(env(safe-area-inset-top,0px) + 70px);font-size:10px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:10px;padding:4px 8px;backdrop-filter:blur(8px)}
-.feed.cdlist{background:#000;padding:96px 0 130px;display:flex;flex-direction:column;align-items:center;gap:44px;scroll-snap-type:y proximity}
+.feed.cdlist{background:#000;padding:96px 0 130px;display:flex;flex-direction:column;align-items:center;gap:36px;scroll-snap-type:y proximity}
 .phone{container-type:inline-size}
-.cd .disc{width:min(76cqw,320px);height:min(76cqw,320px);flex:none}
+.cd .disc{width:min(90cqw,420px);height:min(90cqw,420px);flex:none;margin-bottom:6px}
 .cd{flex:none}
-.cd{display:flex;flex-direction:column;align-items:center;gap:4px;scroll-snap-align:center;transition:transform .25s}
+.cd{display:flex;flex-direction:column;align-items:center;gap:2px;scroll-snap-align:center;transition:transform .25s}
 .cd:active{transform:scale(.97)}
 .disc{position:relative;display:block;width:min(64vw,250px);aspect-ratio:1;border-radius:50%;box-shadow:0 24px 70px var(--glow),0 0 0 1px rgba(255,255,255,.14);margin-bottom:12px}
 .disc .art,.disc .sheen{position:absolute;inset:0;border-radius:50%}
@@ -328,7 +328,7 @@ function syncSpin(){
 function renderFeed(){
   const feed=$('#feed'); feed.classList.toggle('cdlist',layout==='cd'); feed.classList.toggle('decklist',layout==='deck');
   if(layout==='cd'){
-    feed.innerHTML=ALL.map((it,i)=>`<button class="cd enter" data-i="${i}" style="animation-delay:${Math.min(i,5)*70}ms;--glow:rgba(${it.c[2].join(',')},.28)" aria-label="${it.t} 재생">${discHTML(it,'orb',true)}<span class="ct">${it.t}</span><span class="cs">${it.mode} · ${it.sub}</span></button>`).join('');
+    feed.innerHTML=ALL.map((it,i)=>`<button class="cd enter" data-i="${i}" style="animation-delay:${Math.min(i,5)*70}ms;--glow:rgba(${it.c[2].join(',')},.28)" aria-label="${it.t} 재생">${discHTML(it,'orb',false)}<span class="ct">${it.t}</span><span class="cs">${it.mode} · ${it.sub}</span></button>`).join('');
   }else if(layout==='deck'){
     if(!shelf.length)shelf=ALL.map((_,i)=>i).filter(i=>i!==deckIdx);
     const dk=ALL[deckIdx];
