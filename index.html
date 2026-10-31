@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>CalmWave</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
 <style>
 /* Layout: phone-sized stage; home feed of overlapping curved cards, full-screen player slides up over it. Dark, single look. */
 :root{
@@ -30,22 +30,23 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .homebg.on{opacity:1}
 .hdr{position:absolute;top:0;left:0;right:0;z-index:30;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 10px;gap:10px}
 .hbtn{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:grid;place-items:center;position:relative}
-.wave{display:flex;gap:2.5px;align-items:center;height:16px}
-.wave i{width:2.5px;border-radius:2px;background:var(--fg2);height:4px}
-.playing .wave i{background:var(--accent);animation:eq 1s ease-in-out infinite}
+.wave{display:flex;gap:3px;align-items:center;height:18px}
+.wave i{width:2.5px;border-radius:2px;background:var(--fg2);opacity:.5;height:var(--h);transition:background .3s,opacity .3s}
+.wave i:nth-child(1){--h:5px}.wave i:nth-child(2){--h:9px}.wave i:nth-child(3){--h:13px}.wave i:nth-child(4){--h:17px}
+.wave i:nth-child(1){--hp:7px}.wave i:nth-child(2){--hp:13px}.wave i:nth-child(3){--hp:17px}.wave i:nth-child(4){--hp:11px}
+.playing .wave i{background:var(--accent);opacity:1;height:var(--hp);width:3px;animation:eq 1.1s ease-in-out infinite}
 .wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}
-@keyframes eq{0%,100%{height:4px}50%{height:15px}}
+@keyframes eq{0%,100%{height:var(--hp)}50%{height:calc(var(--hp)*.5)}}
 .stat{flex:1;min-width:0;height:42px;border-radius:21px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--fg2)}
 .stat b{font-family:var(--display);font-size:15px;color:var(--fg);font-variant-numeric:tabular-nums}
 .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:#ff7a7a;color:#1a0707;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px}
-.feed{position:relative;z-index:2;flex:1;overflow-y:auto;padding:0 0 110px;scrollbar-width:none}
+.feed{position:relative;z-index:2;flex:1;overflow-y:auto;padding:0 0 150px;scrollbar-width:none}
 .feed::-webkit-scrollbar{display:none}
 .feedhead{padding:6px 24px 18px}
 .feedhead h1{font-family:var(--display);font-weight:700;font-size:30px;margin:0;letter-spacing:-.01em}
 .feedhead p{margin:4px 0 0;color:var(--fg2);font-size:14px}
-.card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;height:340px;overflow:hidden;margin-top:-46px;padding:46px 26px 0;transition:transform .25s;clip-path:url(#w0)}
-.card.w1{clip-path:url(#w1)}.card.w2{clip-path:url(#w2)}
-.card:first-child{margin-top:0;clip-path:none;height:380px;padding-top:90px}
+.card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;height:340px;overflow:hidden;margin:0;padding:0 26px;transition:transform .25s}
+.card:first-child{height:380px;padding-top:50px}
 .card:active{transform:scale(.985)}
 .card .bgc{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center}
 .card .shade{position:absolute;inset:0;z-index:1;background:radial-gradient(70% 45% at 50% 52%,rgba(0,0,0,.28),transparent 80%),linear-gradient(180deg,transparent 60%,rgba(0,0,0,.35))}
@@ -62,10 +63,22 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .nav .pill{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px)/3);border-radius:25px;background:var(--accent);transition:transform .45s cubic-bezier(.5,1.4,.5,1),background .6s}
 .nav button{position:relative;z-index:1;width:92px;height:46px;border-radius:25px;font-size:14px;font-weight:500;color:var(--fg2);transition:color .3s;display:flex;align-items:center;justify-content:center;gap:6px}
 .nav button[aria-selected=true]{color:#06121a}
-.mini{position:absolute;z-index:7;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);height:52px;border-radius:26px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(16px);display:none;align-items:center;gap:12px;padding:0 8px 0 18px;font-size:14px}
+.mini{position:absolute;z-index:7;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);padding:10px 12px 10px 10px;border-radius:36px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:space-between;gap:16px}
 .mini.show{display:flex}
-.mini span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mini small{color:var(--fg2);font-variant-numeric:tabular-nums}
+.mtext{display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-align:left}
+.mtx{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.mt{font-family:var(--display);font-weight:150;font-size:16px;letter-spacing:-.01em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;color:#fff}
+.mt.swap{animation:swapt .4s ease}
+@keyframes swapt{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.mt,.mc{transition:color .3s}
+.playing .mt{color:var(--accent)}
+.playing .mc{color:var(--accent);opacity:.75}
+.mc{font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
+.mctl{display:flex;align-items:center;gap:4px;flex:none}
+.mbtn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);display:grid;place-items:center}
+.mdisc{width:42px;height:42px;border-radius:50%;flex:none;display:block}
+.mdisc .disc{width:42px;height:42px;margin:0;box-shadow:0 0 0 2px rgba(255,255,255,.08)}
+.mdisc .art::after{display:none}
 
 
 .tbtn{position:absolute;z-index:31;left:10px;top:calc(env(safe-area-inset-top,0px) + 70px);font-size:10px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:10px;padding:4px 8px;backdrop-filter:blur(8px)}
@@ -73,6 +86,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .phone{container-type:inline-size}
 .cdlist .disc{width:240px;height:240px;flex:none;margin:0 0 20px;scroll-snap-align:center;transition:transform .25s}
 .cdlist .disc:active{transform:scale(.97)}
+.cmeta .ct,.cmeta .cs{transition:color .3s}
+.cmeta.on .ct{color:var(--accent)}
+.cmeta.on .cs{color:var(--accent);opacity:.75}
 .cmeta{display:flex;flex-direction:column;align-items:center;gap:2px;flex:none}
 .cdi{display:flex;flex-direction:column;align-items:center;flex:none;margin-bottom:34px;will-change:transform,opacity}
 .disc{position:relative;display:block;width:min(64vw,250px);aspect-ratio:1;border-radius:50%;box-shadow:none;margin-bottom:12px}
@@ -104,11 +120,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .fly{position:absolute;z-index:60;pointer-events:none;transform-origin:center}
 .fly .disc{width:100%;margin:0;box-shadow:0 18px 40px rgba(0,0,0,.7)}
 .disc.gorb .art{overflow:hidden;filter:saturate(1.05)}
-.disc.gorb .art::after{display:none;content:"";position:absolute;inset:0;border-radius:50%;opacity:.55;mix-blend-mode:overlay;background-size:140px;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+.disc.gorb .art::after,.bgc::after{content:"";position:absolute;inset:-30%;pointer-events:none;mix-blend-mode:soft-light;opacity:.75;
+  background:radial-gradient(40% 40% at 30% 30%,rgba(255,255,255,.55),transparent 70%),radial-gradient(45% 45% at 72% 68%,rgba(120,210,255,.5),transparent 70%),radial-gradient(35% 35% at 70% 25%,rgba(255,150,210,.45),transparent 70%);
+  animation:wash 7s ease-in-out infinite alternate}
+.cdi:nth-child(odd) .art::after,.sd:nth-child(odd) .art::after,.card:nth-child(even) .bgc::after{animation-delay:-3.5s}
+.cc .art::after,.ai .art::after{display:none}
+@keyframes wash{from{transform:translate(-9%,-7%) rotate(0deg) scale(1)}to{transform:translate(9%,7%) rotate(50deg) scale(1.18)}}
 .disc.gorb .sheen,.disc.gorb .hole{display:none}
 .disc.gorb{box-shadow:none}
 .hl{display:flex;gap:8px}
-.cal{position:absolute;inset:0;z-index:35;background:#0b0d12;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 18px) 6px calc(env(safe-area-inset-bottom,0px) + 18px);overflow-y:auto}
+.cal{position:absolute;inset:0;z-index:20;background:#0b0d12;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 78px) 6px calc(env(safe-area-inset-bottom,0px) + 18px);overflow-y:auto}
 .cal.open{transform:none}
 .calhd{display:flex;padding:0 10px;margin-bottom:10px}
 .calmon{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:22px}
@@ -117,22 +138,24 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .calmon button:disabled{opacity:.25}
 .cdow,.cgrid{display:grid;grid-template-columns:repeat(7,1fr)}
 .cdow span{text-align:center;font-size:12px;color:var(--fg2);padding-bottom:10px}
-.cgrid{row-gap:16px}
-.cc{position:relative;aspect-ratio:1;display:grid;place-items:center;width:100%}
-.cc .n{position:relative;z-index:2;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',system-ui,sans-serif;font-size:16px;font-weight:600;color:#6c7488;font-variant-numeric:tabular-nums}
+.cal{min-height:0}
+.cgrid{flex:1;min-height:0;grid-template-rows:repeat(var(--rows,6),1fr)}
+.cc{position:relative;display:grid;place-items:center;width:100%;height:100%;min-height:0}
+.cc .n{position:relative;z-index:2;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',system-ui,sans-serif;font-size:16px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums}
 .cc.has .n{color:#0b0d12;font-weight:700}
 .cc .disc{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:0;transform:translate(-50%,-50%);box-shadow:none}
 .cc .disc .hole,.cc .disc .sheen{display:none}
-.cc.today:not(.has) .n{color:var(--accent)}
 .cc.sel::after{content:"";position:absolute;inset:1%;border-radius:50%;border:2px solid #fff;z-index:4}
-.cc:disabled{cursor:default}
-.cday-detail{margin-top:22px;padding:16px 4px 0;border-top:1px solid var(--line);font-size:14px}
-.cday-detail h3{margin:0 0 12px;font-size:13px;color:var(--fg2);font-weight:500}
-.drow{display:flex;align-items:center;gap:12px;height:54px}
-.drow .disc{position:relative;width:42px;height:42px;margin:0;flex:none;box-shadow:none}
-.drow .disc .hole{width:16%}
-.drow b{font-weight:600}.drow small{display:block;color:var(--fg2);font-size:12px}
-.dnote{font-size:11px;color:#6c7488;margin-top:14px}
+.cagenda{display:none;flex-direction:column;padding-bottom:20px}
+.cal.agenda .cdow,.cal.agenda .cgrid{display:none}
+.cal.agenda .cagenda{display:flex}
+.arow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid rgba(255,255,255,.05);border-radius:0;padding:0 8px 0 14px;height:96px;scroll-margin-top:78px}
+.arow .an{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',system-ui,sans-serif;font-size:64px;font-weight:300;line-height:1;color:#fff;min-width:80px;font-variant-numeric:tabular-nums}
+.aitems{flex:1;min-width:0;display:flex;justify-content:flex-end;padding-left:20px}
+.ai{display:block;position:relative;margin-left:-26px;flex:none}
+.ai:first-child{margin-left:0}
+.ai .disc{position:relative;width:52px;height:52px;margin:0;box-shadow:0 0 0 1px #0b0d12}
+.dnote{font-size:11px;color:#6c7488;text-align:center;padding:6px 0 0}
 /* PLAYER */
 .player{position:absolute;inset:0;z-index:20;transform:translateY(100%);transition:transform .6s cubic-bezier(.2,.8,.2,1);background:#000;overflow:hidden}
 .player.open{transform:none}
@@ -193,16 +216,24 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
 </style>
 
 <div class="phone" id="phone">
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="w0" clipPathUnits="objectBoundingBox"><path d="M0,.1 C.15,.02 .3,.14 .5,.09 S.82,0 1,.08 L1,1 L0,1 Z"/></clipPath><clipPath id="w1" clipPathUnits="objectBoundingBox"><path d="M0,.06 C.2,.14 .4,.0 .62,.07 S.88,.13 1,.04 L1,1 L0,1 Z"/></clipPath><clipPath id="w2" clipPathUnits="objectBoundingBox"><path d="M0,.08 C.12,.0 .35,.1 .5,.06 S.8,.13 1,.02 L1,1 L0,1 Z"/></clipPath></defs></svg>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="w0" clipPathUnits="objectBoundingBox"><path d="M0,0 C.14,0 .22,.07 .36,.15 L.82,.42 C.93,.48 1,.52 1,.62 L1,1 L0,1 Z"/></clipPath></defs></svg>
   <section class="home" id="home" aria-label="홈">
                 <header class="hdr">
       <div class="hl"><button class="hbtn" id="hWave" aria-label="재생 중인 사운드 열기"><span class="wave"><i></i><i></i><i></i><i></i></span></button>
       <button class="hbtn" id="calBtn" aria-label="청취 기록 달력"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></button></div>
       <button class="hbtn" aria-label="화면 모드 바꾸기" id="bell"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="2.6"/><path d="M12 5.2a6.8 6.8 0 0 1 6.8 6.8" opacity=".6"/></svg></button>
     </header>
+  <section class="cal" id="cal" aria-label="청취 기록 달력" aria-hidden="true">
+    <div class="calmon"><button id="calPrev" aria-label="이전 달">‹</button><h2 id="calTitle"></h2><button id="calNext" aria-label="다음 달">›</button></div>
+    <div class="cdow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+    <div class="cgrid" id="cgrid"></div>
+    <div class="cagenda" id="cagenda"></div>
+  </section>
     <div class="feed" id="feed"></div>
-    <button class="mini" id="mini" aria-label="플레이어 열기"><span id="miniT"></span><small id="miniC"></small>
-      <span class="hbtn" style="flex:none" id="miniPP" role="button" aria-label="재생/일시정지"></span></button>
+    <div class="mini" id="mini">
+      <button class="mtext" id="mtext" aria-label="플레이어 열기"><span class="mdisc" id="mdisc"></span><span class="mtx"><span class="mt" id="miniT"></span><span class="mc" id="miniC">00:00</span></span></button>
+      <div class="mctl"><button class="mbtn" id="mpp" aria-label="재생/일시정지"></button><button class="mbtn" id="mnext" aria-label="다음 곡"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l9.5-6.2a1.400 1.400 0 0 0 0-2.4L9.500 4.600A1 1 0 0 0 8 5.500z"/></svg></button></div>
+    </div>
   </section>
 
   <section class="player" id="player" aria-label="플레이어">
@@ -242,13 +273,6 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
       <button class="hbtn xbtn" id="bx" aria-label="호흡 가이드 닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       <div class="orb" id="orb"></div><div class="bt" id="bt">준비</div><div class="bs" id="bs">4초 들이쉬고 · 7초 멈추고 · 8초 내쉬기</div>
     </div>
-  </section>
-  <section class="cal" id="cal" aria-label="청취 기록 달력" aria-hidden="true">
-    <div class="calhd"><button class="hbtn" id="calX" aria-label="닫기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button></div>
-    <div class="calmon"><button id="calPrev" aria-label="이전 달">‹</button><h2 id="calTitle"></h2><button id="calNext" aria-label="다음 달">›</button></div>
-    <div class="cdow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
-    <div class="cgrid" id="cgrid"></div>
-    <div class="cday-detail" id="cdetail"></div>
   </section>
   <div class="toast" id="toast"></div>
 </div>
@@ -348,8 +372,8 @@ const ART={};
 function art(it,H){const k=it.id+H;if(!ART[k]){const [t,p]=SCN[it.id];ART[k]="url('data:image/svg+xml;utf8,"+encodeURIComponent(sceneSVG(t,p,it.id.charCodeAt(0)*31+it.id.charCodeAt(1),H)).replace(/'/g,'%27')+"')"}return ART[k]}
 
 /* ---------- Home ---------- */
-let layout='full', deckIdx=0, shelf=[];
-const LAYOUTS=[['full','꽉 찬 카드'],['cd','CD 리스트'],['deck','CD 플레이어']];
+let layout='cd', deckIdx=0, shelf=[];
+const LAYOUTS=[['cd','CD 리스트'],['deck','CD 플레이어'],['full','꽉 찬 카드']];
 const ORB={med:['#0e7f70','#4fcfb4','#e6f6ee'],dw:['#2748d0','#58a4ff','#e4ecff'],cl:['#1769e0','#3fbdf0','#e8f4ff'],dd:['#8a2be2','#ff78c4','#fde6f4'],se:['#e24a14','#ffa03a','#fff0d6'],sh:['#dc3f78','#ff9878','#ffe8dc'],nr:['#2a2fb8','#6c7aff','#e4e6ff'],sf:['#4a1ea6','#9070ff','#ece6ff'],sx:['#c02424','#ff7a46','#ffe3d4']};
 const orbBG=it=>{const [d,m,p]=ORB[it.id];return `radial-gradient(70% 55% at 20% 90%,${d} 0%,transparent 72%),radial-gradient(60% 45% at 82% 12%,${m} 0%,transparent 70%),linear-gradient(158deg,${m} 0%,${m} 28%,${p} 48%,${p} 54%,${d} 74%,${d} 100%)`};
 /* ---------- Disc cover art: vinyl-record style, one art-directed disc per theme (200x200, centre hole cut out) ---------- */
@@ -358,39 +382,43 @@ const blobs=(R,cols,n,rmin,rmax,o0,o1,y0=0,y1=200,f='f6')=>{let b='';for(let i=0
 const COVER={
  med:()=>{const R=rngf(11);return `<defs>${fb('f6',6)}${fb('f3',3)}${fb('f10',11)}</defs><rect width="200" height="200" fill="#16280f"/>${blobs(R,['#2c561c','#6c9a2b','#cdc83c','#12300e','#9cba4a','#eee27c'],64,9,30,.5,.92)}
 <g fill="#0c1a08" filter="url(#f3)" opacity=".7"><rect x="22" y="-10" width="12" height="150"/><rect x="150" y="-10" width="9" height="130"/><rect x="108" y="-10" width="6" height="90"/></g><polygon points="150,-10 190,-10 120,200 70,200" fill="#fff3a8" opacity=".2" filter="url(#f10)"/><rect width="200" height="200" fill="#f0c673" opacity=".1"/>
-<circle cx="100" cy="100" r="39" fill="#00000030"/><circle cx="100" cy="100" r="37" fill="#efece4"/><circle cx="100" cy="100" r="8" fill="#dcd8cd"/>
+<!--L--><circle cx="100" cy="100" r="39" fill="#00000030"/><circle cx="100" cy="100" r="37" fill="#efece4"/><circle cx="100" cy="100" r="8" fill="#dcd8cd"/>
 <path id="tp" d="M100 100m-29 0a29 29 0 1 1 58 0a29 29 0 1 1-58 0" fill="none"/><text font-family="Georgia,serif" font-size="4" fill="#2a2a26" letter-spacing=".2"><textPath href="#tp">a quiet morning in the forest · discover happiness · no open cars, no open bars · let the wind blow beneath ·</textPath></text>
-<text x="100" y="83" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="6" letter-spacing="1.1" fill="#1d1d1a">MEDITATION</text><text x="100" y="118" text-anchor="middle" font-family="Menlo,monospace" font-size="3" fill="#33332e">MEDITATION (2026)  3:29</text><text x="100" y="124" text-anchor="middle" font-family="Menlo,monospace" font-size="2.6" fill="#55554e">PRODUCED BY CALMWAVE</text>`},
+<text x="100" y="83" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="6" letter-spacing="1.1" fill="#1d1d1a">MEDITATION</text><text x="100" y="118" text-anchor="middle" font-family="Menlo,monospace" font-size="3" fill="#33332e">MEDITATION (2026)  3:29</text><text x="100" y="124" text-anchor="middle" font-family="Menlo,monospace" font-size="2.6" fill="#55554e">PRODUCED BY CALMWAVE</text><!--/L-->`},
  dw:()=>{const R=rngf(21);return `<defs>${fb('f7',7)}${fb('f5',5)}${fb('f3',3)}</defs><rect width="200" height="200" fill="#0a0c0f"/>
 <ellipse cx="68" cy="66" rx="64" ry="46" fill="#a3dadd" opacity=".92" filter="url(#f7)"/><ellipse cx="108" cy="8" rx="26" ry="11" fill="#9fd8dc" filter="url(#f5)"/><ellipse cx="82" cy="152" rx="22" ry="32" fill="#9ed6da" opacity=".88" filter="url(#f5)"/><ellipse cx="6" cy="108" rx="11" ry="36" fill="#b8b95c" opacity=".8" filter="url(#f5)"/><rect x="124" y="130" width="72" height="42" fill="#8e9497" opacity=".6" filter="url(#f3)"/><rect x="0" y="0" width="200" height="200" fill="#000" opacity=".12"/>
-<circle cx="100" cy="100" r="40" fill="none" stroke="#000" stroke-width=".6" opacity=".55"/><circle cx="100" cy="100" r="11" fill="none" stroke="#000" stroke-width=".5" opacity=".4"/>
-<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff"><text x="96" y="55" font-size="4.6" opacity=".92">Rainy Desk</text><text x="96" y="61" font-size="4.6" opacity=".92">Six</text><text x="18" y="93" font-size="4.2" opacity=".5">RDK-01</text><text x="134" y="147" font-size="4.4" opacity=".9">quiet the noise</text></g>`},
+<!--L--><circle cx="100" cy="100" r="40" fill="none" stroke="#000" stroke-width=".6" opacity=".55"/><circle cx="100" cy="100" r="11" fill="none" stroke="#000" stroke-width=".5" opacity=".4"/>
+<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff"><text x="96" y="55" font-size="4.6" opacity=".92">Rainy Desk</text><text x="96" y="61" font-size="4.6" opacity=".92">Six</text><text x="18" y="93" font-size="4.2" opacity=".5">RDK-01</text><text x="134" y="147" font-size="4.4" opacity=".9">quiet the noise</text></g><!--/L-->`},
  cl:()=>{const R=rngf(31);return `<defs>${fb('f9',9)}${fb('f5',5)}<clipPath id="lc"><circle cx="100" cy="100" r="36"/></clipPath></defs><rect width="200" height="200" fill="#bcdbe8"/>${blobs(R,['#7fb4cf','#f2fafd','#4f8aa6','#dff0f7','#a6cfe0','#eaf6fb'],26,16,46,.5,.9,0,200,'f9')}<ellipse cx="150" cy="166" rx="44" ry="26" fill="#1c2a31" opacity=".78" filter="url(#f9)"/><ellipse cx="40" cy="40" rx="40" ry="18" fill="#fff" opacity=".6" filter="url(#f9)" transform="rotate(-24 40 40)"/>
-<circle cx="100" cy="100" r="37" fill="#0c0d0f"/><g clip-path="url(#lc)"><path d="M78 74c10-9 22-6 32-12l10 6-6 12c-12 4-22 2-36 8z" fill="#d6d6d6" opacity=".85" filter="url(#f5)" style="filter:blur(.6px)"/><path d="M76 124c14-4 22 2 36-2l-2 14c-14 6-26 2-38 4z" fill="#d6d6d6" opacity=".8"/></g>
-<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff" text-anchor="middle"><text x="100" y="84" font-size="6.2" opacity=".95">“CLEAR TIDE”</text><text x="100" y="91" font-size="4" opacity=".6">LOW TIDE</text><text x="100" y="112" font-size="4.6" opacity=".9">SIDE A · 00:29:45</text><text x="100" y="121" font-size="2.8" opacity=".55">ONE THING AT A TIME</text><text x="100" y="125.5" font-size="2.8" opacity=".55">SALT AIR · SLOW WATER</text><text x="100" y="130" font-size="2.8" opacity=".55">LET THE TIDE DECIDE</text></g>`},
+<!--L--><circle cx="100" cy="100" r="37" fill="#0c0d0f"/><g clip-path="url(#lc)"><path d="M78 74c10-9 22-6 32-12l10 6-6 12c-12 4-22 2-36 8z" fill="#d6d6d6" opacity=".85" filter="url(#f5)" style="filter:blur(.6px)"/><path d="M76 124c14-4 22 2 36-2l-2 14c-14 6-26 2-38 4z" fill="#d6d6d6" opacity=".8"/></g>
+<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff" text-anchor="middle"><text x="100" y="84" font-size="6.2" opacity=".95">“CLEAR TIDE”</text><text x="100" y="91" font-size="4" opacity=".6">LOW TIDE</text><text x="100" y="112" font-size="4.6" opacity=".9">SIDE A · 00:29:45</text><text x="100" y="121" font-size="2.8" opacity=".55">ONE THING AT A TIME</text><text x="100" y="125.5" font-size="2.8" opacity=".55">SALT AIR · SLOW WATER</text><text x="100" y="130" font-size="2.8" opacity=".55">LET THE TIDE DECIDE</text></g><!--/L-->`},
  dd:()=>{const R=rngf(41);let c='';const cl=(x,y,s)=>{c+=`<g filter="url(#f3)"><ellipse cx="${x}" cy="${y+5*s}" rx="${30*s}" ry="${9*s}" fill="#8896b8" opacity=".55"/>`;for(let i=0;i<6;i++)c+=`<ellipse cx="${(x+(R()-.5)*34*s).toFixed(1)}" cy="${(y+(R()-.5)*10*s).toFixed(1)}" rx="${((10+R()*14)*s).toFixed(1)}" ry="${((6+R()*8)*s).toFixed(1)}" fill="#fff" opacity=".92"/>`;c+='</g>'};
   cl(150,48,1);cl(168,98,1.1);cl(44,60,.9);cl(40,112,.8);cl(104,150,.7);let b='';[[18,150,14,40],[34,140,12,52],[48,150,16,36],[66,134,14,60],[82,146,18,44],[100,138,12,56]].forEach(([x,y,w,h],i)=>{b+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${i%2?'#dde3ee':'#b9c3d6'}"/><rect x="${x+2}" y="${y+4}" width="${w-4}" height="1.4" fill="#5f6d8c" opacity=".5"/><rect x="${x+2}" y="${y+10}" width="${w-4}" height="1.4" fill="#5f6d8c" opacity=".4"/>`});
   return `<defs>${fb('f3',3.2)}${fb('f1',.8)}<linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f6fa6"/><stop offset=".55" stop-color="#a9b9d8"/><stop offset="1" stop-color="#efc7c0"/></linearGradient></defs><rect width="200" height="200" fill="url(#a)"/>${c}
-<circle cx="100" cy="100" r="40" fill="none" stroke="#fff" stroke-width=".5" opacity=".45"/><circle cx="100" cy="100" r="9" fill="none" stroke="#000" stroke-width="1.4" opacity=".5"/>
-<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff" text-anchor="middle"><text x="100" y="140" font-size="5.2" opacity=".95">SIDE A - DAYDREAM</text><text x="100" y="148" font-size="5.2" opacity=".95">SIDE B - GO BEYOND THE FORM</text><text x="100" y="178" font-size="3.4" opacity=".85">CW000031</text><text x="100" y="183" font-size="3.4" opacity=".85">CALMWAVE PRODUCTION</text><text x="100" y="188" font-size="3.4" opacity=".85">2026</text></g>`},
+<!--L--><circle cx="100" cy="100" r="40" fill="none" stroke="#fff" stroke-width=".5" opacity=".45"/><circle cx="100" cy="100" r="9" fill="none" stroke="#000" stroke-width="1.4" opacity=".5"/>
+<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff" text-anchor="middle"><text x="100" y="140" font-size="5.2" opacity=".95">SIDE A - DAYDREAM</text><text x="100" y="148" font-size="5.2" opacity=".95">SIDE B - GO BEYOND THE FORM</text><text x="100" y="178" font-size="3.4" opacity=".85">CW000031</text><text x="100" y="183" font-size="3.4" opacity=".85">CALMWAVE PRODUCTION</text><text x="100" y="188" font-size="3.4" opacity=".85">2026</text></g><!--/L-->`},
  se:()=>`<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7424"/><stop offset="1" stop-color="#f2500f"/></linearGradient></defs><rect width="200" height="200" fill="url(#a)"/>
-<text x="-6" y="86" font-family="Helvetica Neue,Arial,sans-serif" font-weight="900" font-size="104" font-style="italic" letter-spacing="-5" fill="#e3ded6">feel</text><rect x="30" y="146" width="40" height="1.6" fill="#2a1208" opacity=".7"/><text x="30" y="160" font-family="Menlo,monospace" font-size="6" fill="#2a1208" opacity=".8">THE MOMENT — 27 TRACKS</text><text x="30" y="168" font-family="Menlo,monospace" font-size="6" fill="#2a1208" opacity=".6">WARM HEARTH</text>`,
+<text x="-6" y="86" font-family="Helvetica Neue,Arial,sans-serif" font-weight="900" font-size="104" font-style="italic" letter-spacing="-5" fill="#e3ded6">feel</text><!--L--><rect x="30" y="146" width="40" height="1.6" fill="#2a1208" opacity=".7"/><text x="30" y="160" font-family="Menlo,monospace" font-size="6" fill="#2a1208" opacity=".8">THE MOMENT — 27 TRACKS</text><text x="30" y="168" font-family="Menlo,monospace" font-size="6" fill="#2a1208" opacity=".6">WARM HEARTH</text><!--/L-->`,
  sh:()=>{const R=rngf(51);let s='',r='';for(let i=0;i<16;i++){const w=10+i*5.5;s+=`<rect x="${(100-w/2+(R()-.5)*8).toFixed(0)}" y="${104+i*5.8}" width="${w}" height="1.6" rx=".8" fill="#ffc47e" opacity="${(.85-i*.045).toFixed(2)}"/>`}
   for(let i=0;i<90;i++){const a=R()*6.283;r+=`<line x1="100" y1="100" x2="${(100+Math.cos(a)*140).toFixed(1)}" y2="${(100+Math.sin(a)*140).toFixed(1)}" stroke="#fff" stroke-width=".5" opacity="${(.03+R()*.07).toFixed(2)}"/>`}
   let st='';for(let i=0;i<16;i++){const a=i*Math.PI/8-Math.PI/2,rr=i%2?9:21;st+=(100+Math.cos(a)*rr).toFixed(1)+','+(100+Math.sin(a)*rr).toFixed(1)+' '}
   return `<defs>${fb('f2',2)}${fb('f1',1.1)}<linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f4468"/><stop offset=".42" stop-color="#d2796a"/><stop offset=".5" stop-color="#ffc58a"/></linearGradient><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a5a5a"/><stop offset=".2" stop-color="#24425f"/><stop offset="1" stop-color="#091827"/></linearGradient></defs><rect width="200" height="104" fill="url(#a)"/><circle cx="100" cy="102" r="17" fill="#fff0c6" filter="url(#f1)"/><rect y="104" width="200" height="96" fill="url(#w)"/><g filter="url(#f1)">${s}</g>${r}
-<circle cx="100" cy="100" r="19" fill="#00000026"/><polygon points="${st}" fill="#f4f1ea"/><circle cx="100" cy="100" r="9" fill="#ddd9d0"/>
-<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff"><text x="100" y="40" text-anchor="middle" font-size="4.4" opacity=".9">©2026</text><text x="22" y="102" font-size="5" opacity=".95">SIDE A</text><text x="146" y="97" font-size="4.4" opacity=".95">STEREO</text><text x="146" y="110" font-size="11" font-weight="700" opacity=".98">33</text><text x="165" y="109" font-size="4.4" opacity=".9">1/3</text><text x="100" y="148" text-anchor="middle" font-size="5.4" letter-spacing="1" opacity=".95">SHORELINE</text></g>`},
+<!--L--><circle cx="100" cy="100" r="19" fill="#00000026"/><polygon points="${st}" fill="#f4f1ea"/><circle cx="100" cy="100" r="9" fill="#ddd9d0"/>
+<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff"><text x="100" y="40" text-anchor="middle" font-size="4.4" opacity=".9">©2026</text><text x="22" y="102" font-size="5" opacity=".95">SIDE A</text><text x="146" y="97" font-size="4.4" opacity=".95">STEREO</text><text x="146" y="110" font-size="11" font-weight="700" opacity=".98">33</text><text x="165" y="109" font-size="4.4" opacity=".9">1/3</text><text x="100" y="148" text-anchor="middle" font-size="5.4" letter-spacing="1" opacity=".95">SHORELINE</text></g><!--/L-->`},
  nr:()=>{const R=rngf(61);let r='';for(let i=0;i<46;i++){const x=R()*210,y=R()*160;r+=`<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${(x-2).toFixed(0)}" y2="${(y+26+R()*20).toFixed(0)}" stroke="#cfd4ff" stroke-width=".6" opacity="${(.12+R()*.2).toFixed(2)}"/>`}
   return `<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0e3a"/><stop offset="1" stop-color="#1b2270"/></linearGradient>${fb('b',14)}${fb('c',8)}</defs><rect width="200" height="200" fill="url(#a)"/><path d="M52 98C48 62 86 44 120 52s48 34 30 64-70 40-90 8z" fill="#c9c4ff" opacity=".9" filter="url(#b)"/><ellipse cx="108" cy="86" rx="24" ry="19" fill="#fff6d8" filter="url(#c)"/>${r}`},
  sf:()=>{const R=rngf(71);let t='';for(let i=0;i<210;i++){let x=R()*200,y=R()*150;if(i%3){const u=(R()-.5)*230;x=100+u*.87+(R()-.5)*30;y=84-u*.5+(R()-.5)*30}if(y>138)continue;t+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(.18+R()*R()*.85).toFixed(2)}" fill="#fff" opacity="${(.35+R()*.65).toFixed(2)}"/>`}
   return `<defs>${fb('f14',14)}${fb('f7',7)}${fb('f06',.6)}<linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050719"/><stop offset=".55" stop-color="#1a1450"/><stop offset=".8" stop-color="#5a2a62"/><stop offset=".95" stop-color="#e58a6a"/></linearGradient></defs><rect width="200" height="200" fill="url(#a)"/><g transform="rotate(-30 100 84)"><ellipse cx="100" cy="84" rx="130" ry="24" fill="#a98bf0" opacity=".4" filter="url(#f14)"/><ellipse cx="100" cy="84" rx="110" ry="8" fill="#ffe9d6" opacity=".38" filter="url(#f7)"/></g>${t}
-<path d="M-10 168L22 140L40 152L66 122L92 150L112 136L138 160L160 130L186 150L210 138V210H-10Z" fill="#05060f" filter="url(#f06)"/><path d="M-10 186L30 166L60 180L100 160L140 182L176 168L210 184V210H-10Z" fill="#020208"/><circle cx="100" cy="100" r="13" fill="#cfcfd4"/>
-<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff"><text x="20" y="104" font-size="5" opacity=".95">SIDE A</text><text x="148" y="98" font-size="4.2">STEREO</text><text x="148" y="110" font-size="10.5" font-weight="700">33</text><text x="100" y="40" text-anchor="middle" font-size="4.4" opacity=".85">STARFIELD  ©2026</text></g>`},
+<path d="M-10 168L22 140L40 152L66 122L92 150L112 136L138 160L160 130L186 150L210 138V210H-10Z" fill="#05060f" filter="url(#f06)"/><path d="M-10 186L30 166L60 180L100 160L140 182L176 168L210 184V210H-10Z" fill="#020208"/><!--L--><circle cx="100" cy="100" r="13" fill="#cfcfd4"/>
+<g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff"><text x="20" y="104" font-size="5" opacity=".95">SIDE A</text><text x="148" y="98" font-size="4.2">STEREO</text><text x="148" y="110" font-size="10.5" font-weight="700">33</text><text x="100" y="40" text-anchor="middle" font-size="4.4" opacity=".85">STARFIELD  ©2026</text></g><!--/L-->`},
  sx:()=>{let g='';for(let r=24;r<100;r+=2.3)g+=`<circle cx="100" cy="100" r="${r.toFixed(1)}" fill="none" stroke="#fff" stroke-width=".5" opacity="${(.05+((r*7|0)%5)*.025).toFixed(3)}"/>`;
-  return `<defs><radialGradient id="a" cx=".72" cy=".7" r=".8"><stop offset="0" stop-color="#ff8a24" stop-opacity=".95"/><stop offset=".5" stop-color="#d63a12" stop-opacity=".45"/><stop offset="1" stop-color="#d63a12" stop-opacity="0"/></radialGradient></defs><rect width="200" height="200" fill="#0b0506"/>${g}<rect width="200" height="200" fill="url(#a)" style="mix-blend-mode:screen"/><circle cx="100" cy="100" r="21" fill="#c9431d"/><text x="100" y="88" text-anchor="middle" font-family="Menlo,monospace" font-size="4.6" fill="#ffe3d4" opacity=".85">SLOW FIRE</text><text x="100" y="116" text-anchor="middle" font-family="Menlo,monospace" font-size="3.8" fill="#ffe3d4" opacity=".7">LAST EMBERS</text>`}
+  return `<defs><radialGradient id="a" cx=".72" cy=".7" r=".8"><stop offset="0" stop-color="#ff8a24" stop-opacity=".95"/><stop offset=".5" stop-color="#d63a12" stop-opacity=".45"/><stop offset="1" stop-color="#d63a12" stop-opacity="0"/></radialGradient></defs><rect width="200" height="200" fill="#0b0506"/>${g}<rect width="200" height="200" fill="url(#a)" style="mix-blend-mode:screen"/><!--L--><circle cx="100" cy="100" r="21" fill="#c9431d"/><text x="100" y="88" text-anchor="middle" font-family="Menlo,monospace" font-size="4.6" fill="#ffe3d4" opacity=".85">SLOW FIRE</text><text x="100" y="116" text-anchor="middle" font-family="Menlo,monospace" font-size="3.8" fill="#ffe3d4" opacity=".7">LAST EMBERS</text><!--/L-->`}
 };
-const COV={};
+const COV={}, CARD={};
+// full-bleed card art: the same cover artwork without the label, hole and grooves
+function cardURL(it){if(!CARD[it.id]){let a=COVER[it.id]().replace(/<!--L-->[\s\S]*?<!--\/L-->/g,'').replace('#e3ded6','#ffc9a0');
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><defs><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter></defs>${a}<rect width="200" height="200" filter="url(#n)" opacity=".2" style="mix-blend-mode:overlay"/></svg>`;
+  CARD[it.id]="url('data:image/svg+xml;utf8,"+encodeURIComponent(svg).replace(/'/g,'%27')+"')"}return CARD[it.id]}
 function coverURL(it){if(!COV[it.id]){let g='',g2='';for(let r=44;r<99;r+=2.6){g+=`<circle cx="100" cy="100" r="${r.toFixed(1)}"/>`;g2+=`<circle cx="100" cy="100" r="${(r+1.3).toFixed(1)}"/>`}
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><defs><mask id="hm"><rect width="200" height="200" fill="#fff"/><circle cx="100" cy="100" r="3.8" fill="#000"/></mask><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter><radialGradient id="ev" cx=".5" cy=".5" r=".5"><stop offset=".78" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient><linearGradient id="sh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".0"/><stop offset=".32" stop-color="#fff" stop-opacity=".14"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset=".78" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><g mask="url(#hm)">${COVER[it.id]()}<g fill="none" stroke="#fff" stroke-width=".35" opacity=".07">${g}</g><g fill="none" stroke="#000" stroke-width=".35" opacity=".1">${g2}</g><rect width="200" height="200" fill="url(#sh)" style="mix-blend-mode:screen"/><rect width="200" height="200" fill="url(#ev)"/><rect width="200" height="200" filter="url(#n)" opacity=".2" style="mix-blend-mode:overlay"/></g></svg>`;
   COV[it.id]="url('data:image/svg+xml;utf8,"+encodeURIComponent(svg).replace(/'/g,'%27')+"')"}return COV[it.id]}
@@ -398,6 +426,9 @@ function coverURL(it){if(!COV[it.id]){let g='',g2='';for(let r=44;r<99;r+=2.6){g
 const discHTML=(it,cls,badge)=>`<span class="disc ${cls||''}"><span class="art" style="background-image:${(cls||'').includes('gorb')?coverURL(it):art(it,300)}"></span><span class="sheen"></span><span class="hole"></span>${badge?'<span class="pbadge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#111"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>':''}</span>`;
 function syncSpin(){
   $$('.cdlist .disc').forEach(d=>{const i=+d.dataset.i;d.classList.toggle('spin',!!(cur&&cur.id===ALL[i].id&&playing))});
+  $$('.cdlist .cmeta').forEach(m=>m.classList.toggle('on',!!(cur&&playing&&cur.id===ALL[+m.dataset.i].id)));
+  const md=$('#mdisc .disc'); if(md)md.classList.toggle('spin',!!playing);
+  $('#mpp').innerHTML=ICON.sm(!!playing);
   const b=$('#bigdisc'); if(b)b.classList.toggle('spin',playing&&cur&&cur.id===ALL[deckIdx].id);
   const pp=$('#dpp'); if(pp)pp.innerHTML=playing?ICON.pause.replace(/width="34" height="34"/,'width="22" height="22"'):ICON.play.replace(/width="36" height="36"/,'width="22" height="22"');
 }
@@ -405,6 +436,7 @@ function renderFeed(){
   const feed=$('#feed'); feed.classList.toggle('cdlist',layout==='cd'); feed.classList.toggle('decklist',layout==='deck');
   if(layout==='cd'){
     feed.innerHTML=ALL.map((it,i)=>'<div class="cdi">'+discHTML(it,'gorb',false).replace('<span class="disc gorb"',`<button data-i="${i}" aria-label="${it.t} 재생" class="disc gorb enter" style="animation-delay:${Math.min(i,5)*70}ms;--glow:rgba(${it.c[2].join(',')},.28)"`).replace(/<\/span>$/,'</button>')+`<div class="cmeta" data-i="${i}"><span class="ct">${it.t}</span><span class="cs">${it.mode} · ${it.sub}</span></div></div>`).join('');
+    syncSpin();
   }else if(layout==='deck'){
     if(!shelf.length)shelf=ALL.map((_,i)=>i).filter(i=>i!==deckIdx);
     const dk=ALL[deckIdx];
@@ -414,10 +446,10 @@ function renderFeed(){
       <div class="shelf">${shelf.map((i,k)=>`<button class="sd" data-slot="${k}" data-i="${i}" aria-label="${ALL[i].t} 넣기">${discHTML(ALL[i],'gorb',false)}<span class="sl">${ALL[i].t}</span></button>`).join('')}</div>`;
     syncSpin();
   }else{
-    feed.innerHTML=ALL.map((it,i)=>`<button class="card enter w${i%3}" data-i="${i}" style="z-index:${i+1};animation-delay:${Math.min(i,4)*80}ms;--first:${i?0:1}"><div class="bgc" style="background-image:${art(it,300)}"></div><div class="shade"></div>
+    feed.innerHTML=ALL.map((it,i)=>`<button class="card enter w${i%3}" data-i="${i}" style="z-index:${i+1};animation-delay:${Math.min(i,4)*80}ms;--first:${i?0:1}"><div class="bgc" style="background-image:${cardURL(it)}"></div><div class="shade"></div>
     <div class="kind">${it.mode} · ${it.kind}</div><h2>${it.t}</h2><div class="sub">${it.sub}</div></button>`).join('');
   }
-  feed.scrollTop=0; cancelAnimationFrame(cdRaf); sp=0;
+  feed.scrollTop=0; cancelAnimationFrame(cdRaf); sp=0; updateMini();
   if(layout==='cd')cdRaf=requestAnimationFrame(cdTick);
 }
 // CD list: discs stay perfect circles; they shrink/fade away from the middle and turn with the scroll, following it with a slight lag
@@ -448,13 +480,13 @@ function loadDisc(btn){
     openTheme(ALL[i],i,true); syncSpin(); buzz(14)};
 }
 let feed_busy=false;
-function nextLayout(){const n=(LAYOUTS.findIndex(l=>l[0]===layout)+1)%LAYOUTS.length;layout=LAYOUTS[n][0];renderFeed();toast(LAYOUTS[n][1]);buzz(10)}
+function nextLayout(){const n=(LAYOUTS.findIndex(l=>l[0]===layout)+1)%LAYOUTS.length;layout=LAYOUTS[n][0];if(layout==='deck'&&cur){deckIdx=ALL.findIndex(a=>a.id===cur.id);shelf=[]}renderFeed();toast(LAYOUTS[n][1]);buzz(10)}
 
 $('#feed').addEventListener('click',e=>{
   if(layout==='deck'){const sd=e.target.closest('.sd');if(sd)return loadDisc(sd);
     if(e.target.closest('#dpp')){if(!cur||cur.id!==ALL[deckIdx].id)openTheme(ALL[deckIdx],deckIdx,true);else setPlaying(!playing);return}
     if(e.target.closest('#bigslot')){openTheme(ALL[deckIdx],deckIdx);return}return}
-  const c=e.target.closest('[data-i]'); if(!c)return; buzz(14); openTheme(ALL[+c.dataset.i],c.dataset.i)});
+  const c=e.target.closest('[data-i]'); if(!c)return; buzz(14); {const i=+c.dataset.i;if(layout==='cd'){if(cur&&cur.id===ALL[i].id)setPlaying(!playing);else openTheme(ALL[i],i,true)}else openTheme(ALL[i],i)}});
 
 /* ---------- Audio engine (Web Audio, procedural, gapless loops) ---------- */
 let ctx,master,pad=[],padGain,L={},fireTimer,fadeTok=0;
@@ -528,17 +560,22 @@ function setPlaying(on,silent){
   const tok=++fadeTok; playing=on;
   $('#pp').innerHTML=on?ICON.pause:ICON.play; $('#pp').setAttribute('aria-label',on?'일시정지':'재생');
   $('#player').classList.toggle('on-air',on); document.body.classList.toggle('playing',on); $('#home').classList.toggle('playing',on);
-  $('#miniPP').innerHTML=ICON.sm(on);
+  syncSpin();
   if(on){ctx.resume();fadeMaster(1,2.2);lastTick=Date.now();clearTimeout(fireTimer);crackle()}
   else{fadeMaster(0,silent?.2:1.6);clearTimeout(fireTimer);setTimeout(()=>{if(fadeTok===tok&&!playing)ctx.suspend().catch(()=>{});fadeTok=0},silent?300:1800)}
   updateMini();
 }
 $('#pp').onclick=()=>{buzz(12);setPlaying(!playing);poke()};
-$('#miniPP').onclick=e=>{e.stopPropagation();setPlaying(!playing)};
+$('#mpp').onclick=()=>{buzz(10);setPlaying(!playing)};
+const step=d=>{if(!cur)return;const i=ALL.findIndex(a=>a.id===cur.id),n=(i+d+ALL.length)%ALL.length;buzz(10);openTheme(ALL[n],n,true)};
+$('#mnext').onclick=()=>step(1);
 $('#close').onclick=()=>{$('#player').classList.remove('open');$('#sheet').classList.remove('open');updateMini()};
 function openPlayer(){if(cur){$('#player').classList.add('open');poke()}}
-$('#hWave').onclick=openPlayer; $('#mini').onclick=openPlayer;
-function updateMini(){const m=$('#mini');m.classList.toggle('show',!!cur&&!$('#player').classList.contains('open'));$('#miniT').textContent=cur?cur.t:'';$('#miniC').textContent=timerMin?fmt(remain):'∞';$('#miniPP').innerHTML=ICON.sm(playing)}
+$('#hWave').onclick=openPlayer; $('#mtext').onclick=openPlayer;
+let miniId=null, trackSec=0;
+function updateMini(){const m=$('#mini');m.classList.toggle('show',!!cur&&!$('#player').classList.contains('open')&&layout!=='deck');
+  if(cur&&cur.id!==miniId){miniId=cur.id;trackSec=0;const t=$('#miniT');t.textContent=cur.t;t.classList.remove('swap');void t.offsetWidth;t.classList.add('swap');$('#mdisc').innerHTML=discHTML(cur,'gorb'+(playing?' spin':''),false)}
+  $('#miniC').textContent=fmt(trackSec)}
 new MutationObserver(updateMini).observe($('#player'),{attributes:true,attributeFilter:['class']});
 
 /* timer */
@@ -547,7 +584,7 @@ function drawCount(){$('#count').textContent=timerMin?fmt(remain):'∞';updateMi
 $('#chips').onclick=e=>{const c=e.target.closest('.chip');if(c){resetTimer(+c.dataset.min);buzz(8);toast(timerMin?`${timerMin}분 뒤 서서히 꺼집니다`:'타이머 없이 계속 재생합니다')}};
 setInterval(()=>{
   if(!playing)return; const now=Date.now(), dt=(now-lastTick)/1000; lastTick=now;
-  listened+=dt; logListen(dt); if(Math.floor(listened)%5===0){try{localStorage.setItem('cw_listen',listened)}catch(e){}}
+  listened+=dt; trackSec+=dt; logListen(dt); if(Math.floor(listened)%5===0){try{localStorage.setItem('cw_listen',listened)}catch(e){}}
   if(timerMin){remain-=dt; if(remain<=0){remain=0;drawCount();fadeMaster(0,5);toast('타이머 종료 · 소리를 줄이는 중');setTimeout(()=>{setPlaying(false);resetTimer(timerMin)},5200);playing=false;return} }
   drawCount();
 },500);
@@ -639,28 +676,30 @@ function demoHist(y,m){const o={},R=rngf(y*12+m),ids=ALL.map(a=>a.id);
 const now0=new Date(); let vy=now0.getFullYear(), vm=now0.getMonth(), selDay=null;
 const realEmpty=()=>!Object.keys(hist).length;
 function renderCal(){
-  const data=realEmpty()?demoHist(vy,vm):hist, first=new Date(vy,vm,1).getDay(), dim=new Date(vy,vm+1,0).getDate(), tk=dkey(new Date());
+  const data=realEmpty()?demoHist(vy,vm):hist, first=new Date(vy,vm,1).getDay(), dim=new Date(vy,vm+1,0).getDate(), tk=dkey(new Date()), WD=['일','월','화','수','목','금','토'];
   $('#calTitle').textContent=vy+'년 '+(vm+1)+'월';
   $('#calNext').disabled=(vy===now0.getFullYear()&&vm>=now0.getMonth());
-  let h='<span></span>'.repeat(first);
+  $('#cgrid').style.setProperty('--rows',Math.ceil((first+dim)/7));
+  let h='<span></span>'.repeat(first), ag='';
   for(let d=1;d<=dim;d++){const k=`${vy}-${String(vm+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,day=data[k],ids=day?Object.keys(day).sort((a,b)=>day[b]-day[a]):[];
     const it=ids.length&&ALL.find(a=>a.id===ids[0]);
-    h+=`<button class="cc${it?' has':''}${k===tk?' today':''}${k===selDay?' sel':''}" data-k="${k}" ${it?'':'disabled'} aria-label="${vm+1}월 ${d}일${it?' · '+ids.length+'개 청취':''}">${it?discHTML(it,'gorb',false):''}<span class="n">${d}</span></button>`}
+    h+=`<button class="cc${it?' has':''}${k===tk?' today':''}" data-k="${k}" aria-label="${vm+1}월 ${d}일${it?' · '+ids.length+'개 청취':''}">${it?discHTML(it,'gorb',false):''}<span class="n">${d}</span></button>`;
+    ag+=`<button class="arow${ids.length?'':' none'}${k===tk?' today':''}${k===selDay?' sel':''}" data-k="${k}" aria-label="${vm+1}월 ${d}일, 달력으로 돌아가기"><span class="an">${d}</span>
+      ${ids.length?`<span class="aitems">${ids.map((id,n)=>{const t=ALL.find(a=>a.id===id);return `<span class="ai" style="z-index:${ids.length-n}" title="${t.t} · ${Math.max(1,Math.round(day[id]/60))}분">${discHTML(t,'gorb',false)}</span>`}).join('')}</span>`:''}</button>`}
   $('#cgrid').innerHTML=h;
-  const det=$('#cdetail');
-  if(selDay&&data[selDay]){const day=data[selDay],ids=Object.keys(day).sort((a,b)=>day[b]-day[a]);
-    det.innerHTML=`<h3>${+selDay.slice(5,7)}월 ${+selDay.slice(8)}일에 들은 음악</h3>`+ids.map(id=>{const it=ALL.find(a=>a.id===id);return `<div class="drow">${discHTML(it,'gorb',false)}<div><b>${it.t}</b><small>${it.mode} · ${Math.max(1,Math.round(day[id]/60))}분</small></div></div>`}).join('')+(realEmpty()?'<div class="dnote">샘플 기록입니다. 직접 음악을 들으면 실제 기록으로 바뀝니다.</div>':'');
-  }else det.innerHTML='<h3>날짜를 누르면 그날 들은 음악이 보여요</h3>'+(realEmpty()?'<div class="dnote">지금 보이는 기록은 샘플입니다. 직접 음악을 들으면 실제 기록으로 바뀝니다.</div>':'');
+  $('#cagenda').innerHTML=ag+(realEmpty()?'<div class="dnote">지금 보이는 기록은 샘플입니다. 직접 음악을 들으면 실제 기록으로 바뀝니다.</div>':'');
 }
-$('#calBtn').onclick=()=>{vy=now0.getFullYear();vm=now0.getMonth();selDay=null;renderCal();$('#cal').classList.add('open');$('#cal').setAttribute('aria-hidden','false');buzz(8)};
-$('#calX').onclick=()=>{$('#cal').classList.remove('open');$('#cal').setAttribute('aria-hidden','true')};
+function setAgenda(on,k){const c=$('#cal');c.classList.toggle('agenda',on);if(on){selDay=k;renderCal();const r=$(`.arow[data-k="${k}"]`);if(r)c.scrollTop=Math.max(0,r.offsetTop-78)}else{selDay=null;c.scrollTop=0}buzz(8)}
+function setCal(on){const c=$('#cal');c.classList.remove('agenda');if(on){vy=now0.getFullYear();vm=now0.getMonth();selDay=null;renderCal()}c.classList.toggle('open',on);c.setAttribute('aria-hidden',!on);buzz(8)}
+$('#calBtn').onclick=()=>setCal(!$('#cal').classList.contains('open'));
 $('#calPrev').onclick=()=>{vm--;if(vm<0){vm=11;vy--}selDay=null;renderCal()};
 $('#calNext').onclick=()=>{if($('#calNext').disabled)return;vm++;if(vm>11){vm=0;vy++}selDay=null;renderCal()};
-$('#cgrid').onclick=e=>{const c=e.target.closest('.cc.has');if(!c)return;selDay=c.dataset.k;renderCal();buzz(8)};
+$('#cgrid').onclick=e=>{const c=e.target.closest('.cc');if(c)setAgenda(true,c.dataset.k)};
+$('#cagenda').onclick=e=>{if(e.target.closest('.arow'))setAgenda(false)};
 
 /* ---------- boot ---------- */
 $('#pp').innerHTML=ICON.play;
-$('#bell').onclick=nextLayout;
+$('#bell').onclick=()=>{if($('#cal').classList.contains('open'))setCal(false);else nextLayout()};
 renderFeed(); resize(); setTimeout(resize,100);
 })();
 </script>
