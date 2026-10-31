@@ -67,6 +67,47 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .mini span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini small{color:var(--fg2);font-variant-numeric:tabular-nums}
 
+
+.tbtn{position:absolute;z-index:31;left:10px;top:calc(env(safe-area-inset-top,0px) + 70px);font-size:10px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:10px;padding:4px 8px;backdrop-filter:blur(8px)}
+.feed.cdlist{background:#000;padding:96px 0 130px;display:flex;flex-direction:column;align-items:center;gap:44px;scroll-snap-type:y proximity}
+.phone{container-type:inline-size}
+.cd .disc{width:min(76cqw,320px);height:min(76cqw,320px);flex:none}
+.cd{flex:none}
+.cd{display:flex;flex-direction:column;align-items:center;gap:4px;scroll-snap-align:center;transition:transform .25s}
+.cd:active{transform:scale(.97)}
+.disc{position:relative;display:block;width:min(64vw,250px);aspect-ratio:1;border-radius:50%;box-shadow:0 24px 70px var(--glow),0 0 0 1px rgba(255,255,255,.14);margin-bottom:12px}
+.disc .art,.disc .sheen{position:absolute;inset:0;border-radius:50%}
+.disc .art{background-size:cover;background-position:center}
+.disc .sheen{background:conic-gradient(from 20deg,rgba(255,255,255,.22),transparent 18%,rgba(255,255,255,.12) 40%,transparent 58%,rgba(255,255,255,.2) 78%,transparent);mix-blend-mode:soft-light}
+.disc .hole{position:absolute;left:50%;top:50%;width:11%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#000;box-shadow:0 0 0 5px rgba(255,255,255,.28)}
+.disc .pbadge{position:absolute;right:2%;bottom:6%;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+.disc.spin .art,.disc.spin .sheen{animation:spin 14s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ct{font-family:var(--display);font-weight:700;font-size:15px;color:#fff}
+.cs{font-size:12px;color:#8a90a3}
+
+.feed.decklist{background:#000;padding:90px 0 130px}
+.deck{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 24px}
+.tray{width:min(66vw,270px);aspect-ratio:1;border-radius:34px;background:linear-gradient(145deg,#232733,#0e1017);border:1px solid rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);display:grid;place-items:center;margin-bottom:14px;position:relative}
+.tray::before{content:'';position:absolute;z-index:-1;left:50%;top:50%;width:230%;aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(closest-side,var(--glow),transparent 72%);pointer-events:none}
+.deck{position:relative;z-index:0}
+.bigslot{width:84%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;outline-offset:4px}
+.bigslot .disc{width:100%;margin:0;box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 0 6px rgba(255,255,255,.045)}
+.dtitle{font-family:var(--display);font-weight:700;font-size:20px}
+.dsub{font-size:12px;color:#8a90a3}
+.dctl{margin-top:10px}
+.dbtn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);display:grid;place-items:center}
+.shelf{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 12px;padding:34px 22px 0;justify-items:center}
+.sd{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%}
+.sd .disc{width:min(24vw,96px);margin:0;box-shadow:0 8px 20px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.14)}
+.sd:active .disc{transform:scale(.94)}
+.sl{font-size:11px;color:#8a90a3;text-align:center}
+.fly{position:absolute;z-index:60;pointer-events:none;transform-origin:center}
+.fly .disc{width:100%;margin:0;box-shadow:0 18px 40px rgba(0,0,0,.7)}
+.disc.orb .art{overflow:hidden;filter:saturate(1.05)}
+.disc.orb .art::after{content:"";position:absolute;inset:0;border-radius:50%;opacity:.55;mix-blend-mode:overlay;background-size:140px;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+.disc.orb .sheen{display:none}
+.disc.orb{box-shadow:0 24px 70px var(--glow)}
 /* PLAYER */
 .player{position:absolute;inset:0;z-index:20;transform:translateY(100%);transition:transform .6s cubic-bezier(.2,.8,.2,1);background:#000;overflow:hidden}
 .player.open{transform:none}
@@ -131,11 +172,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
   <section class="home" id="home" aria-label="홈">
                 <header class="hdr">
       <button class="hbtn" id="hWave" aria-label="재생 중인 사운드 열기"><span class="wave"><i></i><i></i><i></i><i></i></span></button>
-      <div class="stat">오늘 <b id="today">0분</b> 청취</div>
-      <button class="hbtn" aria-label="알림 2개" id="bell">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
-        <span class="badge" id="badge">2</span>
-      </button>
+      <button class="hbtn" aria-label="화면 모드 바꾸기" id="bell"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="2.6"/><path d="M12 5.2a6.8 6.8 0 0 1 6.8 6.8" opacity=".6"/></svg></button>
     </header>
     <div class="feed" id="feed"></div>
     <button class="mini" id="mini" aria-label="플레이어 열기"><span id="miniT"></span><small id="miniC"></small>
@@ -196,21 +233,21 @@ const ICON={play:'<svg width="36" height="36" viewBox="0 0 24 24" fill="#fff"><p
 const MODES={
  focus:{accent:'#8fd3c9',lead:'집중 · 3개의 사운드스케이프',h:'지금, 한 가지에만',
   items:[
-  {id:'med',kind:'Meditation',t:'Meditation',sub:'discover happiness',cr:'Still Water · 미세한 안개와 낮은 패드',c:[[34,110,120],[20,60,90],[120,200,190]],scene:'mist',mix:{rain:0,fire:0,wind:25,white:10,pad:60},pad:[110,164.8,220]},
-  {id:'dw',kind:'Deep Work',t:'Rainy Desk',sub:'quiet the noise',cr:'Window Rain · 창가에 내리는 빗소리',c:[[40,70,140],[20,30,70],[130,170,230]],scene:'rain',mix:{rain:65,fire:0,wind:10,white:15,pad:30},pad:[98,146.8,196]},
-  {id:'cl',kind:'Clarity',t:'Clear Tide',sub:'one thing at a time',cr:'Low Tide · 잔잔한 파도 위의 백색소음',c:[[20,100,140],[10,50,90],[170,230,240]],scene:'waves',mix:{rain:0,fire:0,wind:35,white:45,pad:35},pad:[130.8,196,261.6]}]},
+  {id:'med',kind:'Meditation',t:'Meditation',sub:'discover happiness',cr:'Still Water · 미세한 안개와 낮은 패드',c:[[34,110,120],[20,60,90],[120,200,190]],scene:'mist',mix:{rain:0,fire:0,wind:25,white:10,pad:5},pad:[110,164.8,220]},
+  {id:'dw',kind:'Deep Work',t:'Rainy Desk',sub:'quiet the noise',cr:'Window Rain · 창가에 내리는 빗소리',c:[[40,70,140],[20,30,70],[130,170,230]],scene:'rain',mix:{rain:65,fire:0,wind:10,white:15,pad:5},pad:[98,146.8,196]},
+  {id:'cl',kind:'Clarity',t:'Clear Tide',sub:'one thing at a time',cr:'Low Tide · 잔잔한 파도 위의 백색소음',c:[[20,100,140],[10,50,90],[170,230,240]],scene:'waves',mix:{rain:0,fire:0,wind:35,white:45,pad:5},pad:[130.8,196,261.6]}]},
  relax:{accent:'#e3a6ff',lead:'이완 · 3개의 사운드스케이프',h:'숨을 길게 내쉬세요',
   items:[
-  {id:'dd',kind:'Daydream',t:'Daydream',sub:'go beyond the form',cr:'Soft Aurora · 느리게 흐르는 빛',c:[[130,60,170],[60,30,110],[255,150,200]],scene:'mist',mix:{rain:0,fire:0,wind:30,white:5,pad:75},pad:[87.3,130.8,174.6]},
-  {id:'se',kind:'Sensations',t:'Sensations',sub:'feel the moment',cr:'Warm Hearth · 장작 타는 소리',c:[[170,80,60],[80,30,40],[255,180,100]],scene:'embers',mix:{rain:0,fire:60,wind:10,white:0,pad:45},pad:[98,123.5,146.8]},
-  {id:'sh',kind:'Seaside',t:'Shoreline',sub:'let the tide decide',cr:'Evening Surf · 해질녘 파도',c:[[200,110,120],[70,50,120],[255,200,170]],scene:'waves',mix:{rain:0,fire:0,wind:40,white:40,pad:30},pad:[110,138.6,164.8]}]},
+  {id:'dd',kind:'Daydream',t:'Daydream',sub:'go beyond the form',cr:'Soft Aurora · 느리게 흐르는 빛',c:[[130,60,170],[60,30,110],[255,150,200]],scene:'mist',mix:{rain:0,fire:0,wind:30,white:5,pad:5},pad:[87.3,130.8,174.6]},
+  {id:'se',kind:'Sensations',t:'Sensations',sub:'feel the moment',cr:'Warm Hearth · 장작 타는 소리',c:[[170,80,60],[80,30,40],[255,180,100]],scene:'embers',mix:{rain:0,fire:60,wind:10,white:0,pad:5},pad:[98,123.5,146.8]},
+  {id:'sh',kind:'Seaside',t:'Shoreline',sub:'let the tide decide',cr:'Evening Surf · 해질녘 파도',c:[[200,110,120],[70,50,120],[255,200,170]],scene:'waves',mix:{rain:0,fire:0,wind:40,white:40,pad:5},pad:[110,138.6,164.8]}]},
  sleep:{accent:'#9db4ff',lead:'수면 · 3개의 사운드스케이프',h:'오늘 하루, 내려놓기',
   items:[
-  {id:'nr',kind:'Night Rain',t:'Night Rain',sub:'close your eyes',cr:'Midnight Rain · 깊은 밤의 빗소리',c:[[30,40,110],[8,12,40],[110,130,220]],scene:'rain',mix:{rain:70,fire:0,wind:20,white:10,pad:40},pad:[65.4,98,130.8]},
-  {id:'sf',kind:'Starfield',t:'Starfield',sub:'drift softly',cr:'Deep Space · 아주 낮은 드론',c:[[20,24,70],[4,6,24],[160,170,255]],scene:'stars',mix:{rain:0,fire:0,wind:15,white:20,pad:80},pad:[55,82.4,110]},
-  {id:'sx',kind:'Embers',t:'Slow Fire',sub:'warm and still',cr:'Last Embers · 잦아드는 불씨',c:[[120,50,40],[30,12,20],[255,140,70]],scene:'embers',mix:{rain:10,fire:55,wind:10,white:5,pad:50},pad:[73.4,110,146.8]}]}
+  {id:'nr',kind:'Night Rain',t:'Night Rain',sub:'close your eyes',cr:'Midnight Rain · 깊은 밤의 빗소리',c:[[30,40,110],[8,12,40],[110,130,220]],scene:'rain',mix:{rain:70,fire:0,wind:20,white:10,pad:5},pad:[65.4,98,130.8]},
+  {id:'sf',kind:'Starfield',t:'Starfield',sub:'drift softly',cr:'Deep Space · 아주 낮은 드론',c:[[20,24,70],[4,6,24],[160,170,255]],scene:'stars',mix:{rain:0,fire:0,wind:15,white:20,pad:5},pad:[55,82.4,110]},
+  {id:'sx',kind:'Embers',t:'Slow Fire',sub:'warm and still',cr:'Last Embers · 잦아드는 불씨',c:[[120,50,40],[30,12,20],[255,140,70]],scene:'embers',mix:{rain:10,fire:55,wind:10,white:5,pad:5},pad:[73.4,110,146.8]}]}
 };
-const PRESETS={'기본':null,'비 오는 밤':{rain:75,fire:0,wind:20,white:10,pad:30},'난롯가':{rain:10,fire:70,wind:5,white:0,pad:40},'숲 속 바람':{rain:0,fire:0,wind:70,white:20,pad:35},'백색소음':{rain:0,fire:0,wind:0,white:75,pad:0}};
+const PRESETS={'기본':null,'비 오는 밤':{rain:75,fire:0,wind:20,white:10,pad:5},'난롯가':{rain:10,fire:70,wind:5,white:0,pad:5},'숲 속 바람':{rain:0,fire:0,wind:70,white:20,pad:5},'백색소음':{rain:0,fire:0,wind:0,white:75,pad:5}};
 const LAYERS=[['rain','빗소리'],['fire','장작불'],['wind','바람'],['white','백색소음'],['pad','앰비언트']];
 
 /* ---------- State ---------- */
@@ -278,12 +315,54 @@ const ART={};
 function art(it,H){const k=it.id+H;if(!ART[k]){const [t,p]=SCN[it.id];ART[k]="url('data:image/svg+xml;utf8,"+encodeURIComponent(sceneSVG(t,p,it.id.charCodeAt(0)*31+it.id.charCodeAt(1),H)).replace(/'/g,'%27')+"')"}return ART[k]}
 
 /* ---------- Home ---------- */
-function renderFeed(){
-  $('#feed').innerHTML=ALL.map((it,i)=>`<button class="card enter w${i%3}" data-i="${i}" style="z-index:${i+1};animation-delay:${Math.min(i,4)*80}ms;--first:${i?0:1}"><div class="bgc" style="background-image:${art(it,300)}"></div><div class="shade"></div>
-    <div class="kind">${it.mode} · ${it.kind}</div><h2>${it.t}</h2><div class="sub">${it.sub}</div></button>`).join('');
+let layout='full', deckIdx=0, shelf=[];
+const LAYOUTS=[['full','꽉 찬 카드'],['cd','CD 리스트'],['deck','CD 플레이어']];
+const ORB={med:['#0e7f70','#4fcfb4','#e6f6ee'],dw:['#2748d0','#58a4ff','#e4ecff'],cl:['#1769e0','#3fbdf0','#e8f4ff'],dd:['#8a2be2','#ff78c4','#fde6f4'],se:['#e24a14','#ffa03a','#fff0d6'],sh:['#dc3f78','#ff9878','#ffe8dc'],nr:['#2a2fb8','#6c7aff','#e4e6ff'],sf:['#4a1ea6','#9070ff','#ece6ff'],sx:['#c02424','#ff7a46','#ffe3d4']};
+const orbBG=it=>{const [d,m,p]=ORB[it.id];return `radial-gradient(70% 55% at 20% 90%,${d} 0%,transparent 72%),radial-gradient(60% 45% at 82% 12%,${m} 0%,transparent 70%),linear-gradient(158deg,${m} 0%,${m} 28%,${p} 48%,${p} 54%,${d} 74%,${d} 100%)`};
+const discHTML=(it,cls,badge)=>`<span class="disc ${cls||''}"><span class="art" style="background-image:${(cls||'').includes('orb')?orbBG(it):art(it,300)}"></span><span class="sheen"></span><span class="hole"></span>${badge?'<span class="pbadge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#111"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>':''}</span>`;
+function syncSpin(){
+  $$('.cd .disc').forEach(d=>{const i=+d.closest('.cd').dataset.i;d.classList.toggle('spin',!!(cur&&cur.id===ALL[i].id&&playing))});
+  const b=$('#bigdisc'); if(b)b.classList.toggle('spin',playing&&cur&&cur.id===ALL[deckIdx].id);
+  const pp=$('#dpp'); if(pp)pp.innerHTML=playing?ICON.pause.replace(/width="34" height="34"/,'width="22" height="22"'):ICON.play.replace(/width="36" height="36"/,'width="22" height="22"');
 }
+function renderFeed(){
+  const feed=$('#feed'); feed.classList.toggle('cdlist',layout==='cd'); feed.classList.toggle('decklist',layout==='deck');
+  if(layout==='cd'){
+    feed.innerHTML=ALL.map((it,i)=>`<button class="cd enter" data-i="${i}" style="animation-delay:${Math.min(i,5)*70}ms;--glow:rgba(${it.c[2].join(',')},.28)" aria-label="${it.t} 재생">${discHTML(it,'orb',true)}<span class="ct">${it.t}</span><span class="cs">${it.mode} · ${it.sub}</span></button>`).join('');
+  }else if(layout==='deck'){
+    if(!shelf.length)shelf=ALL.map((_,i)=>i).filter(i=>i!==deckIdx);
+    const dk=ALL[deckIdx];
+    feed.innerHTML=`<div class="deck"><div class="tray" style="--glow:rgba(${dk.c[2].join(',')},.42)"><button class="bigslot" id="bigslot" aria-label="전체 화면 플레이어 열기">${discHTML(dk,'',false).replace('class="disc ','id="bigdisc" class="disc ')}</button></div>
+      <div class="dtitle">${dk.t}</div><div class="dsub">${dk.mode} · ${dk.sub}</div>
+      <div class="dctl"><button id="dpp" class="dbtn" aria-label="재생/일시정지"></button></div></div>
+      <div class="shelf">${shelf.map((i,k)=>`<button class="sd" data-slot="${k}" data-i="${i}" aria-label="${ALL[i].t} 넣기">${discHTML(ALL[i],'',false)}<span class="sl">${ALL[i].t}</span></button>`).join('')}</div>`;
+    syncSpin();
+  }else{
+    feed.innerHTML=ALL.map((it,i)=>`<button class="card enter w${i%3}" data-i="${i}" style="z-index:${i+1};animation-delay:${Math.min(i,4)*80}ms;--first:${i?0:1}"><div class="bgc" style="background-image:${art(it,300)}"></div><div class="shade"></div>
+    <div class="kind">${it.mode} · ${it.kind}</div><h2>${it.t}</h2><div class="sub">${it.sub}</div></button>`).join('');
+  }
+  feed.scrollTop=0;
+}
+// deck: the picked disc flies from the shelf into the tray; the old one drops into its slot
+function loadDisc(btn){
+  const k=+btn.dataset.slot,i=+btn.dataset.i; if(feed_busy)return; feed_busy=true;
+  const ph=$('#phone').getBoundingClientRect(), src=btn.querySelector('.disc').getBoundingClientRect(), dst=$('#bigslot').getBoundingClientRect();
+  const fly=document.createElement('div'); fly.className='fly'; fly.innerHTML=discHTML(ALL[i],'spin',false);
+  const sz=src.width; Object.assign(fly.style,{left:(src.left-ph.left)+'px',top:(src.top-ph.top)+'px',width:sz+'px',height:sz+'px'});
+  $('#phone').appendChild(fly); btn.style.visibility='hidden'; const old=$('#bigdisc'); if(old)old.style.transition='opacity .3s',old.style.opacity=0;
+  const tw=dst.width*.8, dx=dst.left-ph.left+(dst.width-tw)/2-(src.left-ph.left), dy=dst.top-ph.top+(dst.height-tw)/2-(src.top-ph.top), sc=tw/sz;
+  const an=fly.animate([{transform:'translate(0,0) scale(1) rotate(0)'},{transform:`translate(${dx*.5}px,${dy*.5-60}px) scale(${1+(sc-1)*.5}) rotate(180deg)`,offset:.5},{transform:`translate(${dx}px,${dy}px) scale(${sc}) rotate(360deg)`}],{duration:700,easing:'cubic-bezier(.3,.7,.3,1)',fill:'forwards'});
+  an.onfinish=()=>{const prev=deckIdx; shelf[k]=prev; deckIdx=i; fly.remove(); feed_busy=false; renderFeed(); const n=document.querySelector(`.sd[data-slot="${k}"] .disc`); if(n)n.animate([{transform:'scale(.4)',opacity:0},{transform:'none',opacity:1}],{duration:380,easing:'cubic-bezier(.3,1.4,.5,1)'});
+    openTheme(ALL[i],i,true); syncSpin(); buzz(14)};
+}
+let feed_busy=false;
+function nextLayout(){const n=(LAYOUTS.findIndex(l=>l[0]===layout)+1)%LAYOUTS.length;layout=LAYOUTS[n][0];renderFeed();toast(LAYOUTS[n][1]);buzz(10)}
 
-$('#feed').addEventListener('click',e=>{const c=e.target.closest('.card'); if(!c)return; buzz(14); openTheme(ALL[+c.dataset.i],c.dataset.i)});
+$('#feed').addEventListener('click',e=>{
+  if(layout==='deck'){const sd=e.target.closest('.sd');if(sd)return loadDisc(sd);
+    if(e.target.closest('#dpp')){if(!cur||cur.id!==ALL[deckIdx].id)openTheme(ALL[deckIdx],deckIdx,true);else setPlaying(!playing);return}
+    if(e.target.closest('#bigslot')){openTheme(ALL[deckIdx],deckIdx);return}return}
+  const c=e.target.closest('[data-i]'); if(!c)return; buzz(14); openTheme(ALL[+c.dataset.i],c.dataset.i)});
 
 /* ---------- Audio engine (Web Audio, procedural, gapless loops) ---------- */
 let ctx,master,pad=[],padGain,L={},fireTimer,fadeTok=0;
@@ -343,12 +422,12 @@ function setChord(ch){if(!ctx)return;const t=ctx.currentTime;pad.forEach((o,i)=>
 function fadeMaster(to,sec){const t=ctx.currentTime,g=master.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(to,t+sec)}
 
 /* ---------- Player ---------- */
-function openTheme(it,m){
+function openTheme(it,m,stay){
   const same=cur&&cur.id===it.id; cur=it;
   $('#pbg').style.backgroundImage=art(it,700); document.documentElement.style.setProperty('--accent','rgb('+it.c[2].join(',')+')');
   $('#ptitle').textContent=it.t; $('#pcopy').textContent=it.sub; $('#pcr').textContent='© CalmWave · '+it.cr; $('#pkind').textContent=it.kind;
   if(!same){mix={...it.mix}; buildLayers(); scene=makeScene(it)}
-  $('#player').classList.add('open'); poke();
+  if(!stay){$('#player').classList.add('open'); poke()}
   initAudio(); setChord(it.pad); applyMix(false);
   if(!same||!playing){ if(!same)resetTimer(timerMin); setPlaying(true) }
 }
@@ -377,7 +456,6 @@ $('#chips').onclick=e=>{const c=e.target.closest('.chip');if(c){resetTimer(+c.da
 setInterval(()=>{
   if(!playing)return; const now=Date.now(), dt=(now-lastTick)/1000; lastTick=now;
   listened+=dt; if(Math.floor(listened)%5===0){try{localStorage.setItem('cw_listen',listened)}catch(e){}}
-  $('#today').textContent=Math.floor(listened/60)+'분';
   if(timerMin){remain-=dt; if(remain<=0){remain=0;drawCount();fadeMaster(0,5);toast('타이머 종료 · 소리를 줄이는 중');setTimeout(()=>{setPlaying(false);resetTimer(timerMin)},5200);playing=false;return} }
   drawCount();
 },500);
@@ -457,8 +535,7 @@ window.addEventListener('resize',resize);
 
 /* ---------- boot ---------- */
 $('#pp').innerHTML=ICON.play;
-$('#bell').onclick=()=>{$('#badge').style.display='none';toast('새 테마 2개: Clear Tide, Slow Fire')};
-$('#today').textContent=Math.floor(listened/60)+'분';
+$('#bell').onclick=nextLayout;
 renderFeed(); resize(); setTimeout(resize,100);
 })();
 </script>
