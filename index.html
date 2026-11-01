@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Liftoff">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="apple-touch-startup-image" href="splash/1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
 <link rel="apple-touch-startup-image" href="splash/1260x2736.png" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
 <link rel="apple-touch-startup-image" href="splash/1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
@@ -842,18 +842,12 @@ function waveSync(){
   if(playing){if(!waveRaf){waveMean.fill(-1);wavePk.fill(40);waveRaf=requestAnimationFrame(waveTick)}}
   else{cancelAnimationFrame(waveRaf);waveRaf=0;(waveEls||[...document.querySelectorAll('#hWave .wave i')]).forEach(e=>e.style.removeProperty('height'))}}
 
-/* Installed iPhone web app: if the page reports a viewport shorter than the screen, size the app to the real screen height */
-function fitStandalone(){
-  if(!navigator.standalone)return;
-  const ph=$('#phone');
-  if(innerHeight>innerWidth&&screen.height>innerHeight){ph.style.bottom='auto';ph.style.height=screen.height+'px'}
-  else{ph.style.bottom='';ph.style.height=''}}
-addEventListener('resize',fitStandalone);addEventListener('orientationchange',fitStandalone);document.addEventListener('visibilitychange',fitStandalone);
+
 
 /* ---------- boot ---------- */
 $('#pp').innerHTML=ICON.play;
 $('#bell').onclick=()=>{if($('#cal').classList.contains('open'))setCal(false);else nextLayout()};
-fitStandalone(); renderFeed(); resize(); setTimeout(resize,100);
+renderFeed(); resize(); setTimeout(resize,100);
 })();
 </script>
 
