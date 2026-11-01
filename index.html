@@ -129,6 +129,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .cc .art::after,.ai .art::after{display:none}
 @keyframes wash{from{transform:translate(-9%,-7%) rotate(0deg) scale(1)}to{transform:translate(9%,7%) rotate(50deg) scale(1.18)}}
 .disc.gorb .sheen,.disc.gorb .hole{display:none}
+.disc.gorb .art.photo{background-size:cover,cover;background-position:center,center;background-repeat:no-repeat;-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 3.5%,#000 3.8%);mask-image:radial-gradient(circle at 50% 50%,transparent 3.5%,#000 3.8%)}
 .disc.gorb{box-shadow:none}
 .hl{display:flex;gap:8px}
 .cal{position:absolute;inset:0;z-index:20;background:#0b0d12;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:0 6px calc(env(safe-area-inset-bottom,0px) + 18px);overflow-y:auto}
@@ -199,7 +200,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .sheet .grab{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.25);margin:0 auto 16px}
 .sheet h3{font-family:var(--display);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg2);margin:18px 0 10px;font-weight:500}
 .sheet h3:first-of-type{margin-top:0}
-.presets{display:flex;gap:8px;flex-wrap:wrap}
+.nomusic{color:var(--fg2);font-size:14px;padding:10px 0 18px}
 .layer{display:grid;grid-template-columns:70px 1fr 38px;gap:12px;align-items:center;height:40px;font-size:14px}
 .layer output{font-size:12px;color:var(--fg2);text-align:right;font-variant-numeric:tabular-nums}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:0}
@@ -265,9 +266,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
   <div class="sheet msheet" id="msheet" role="dialog" aria-label="재생 설정" aria-hidden="true">
     <div class="grab" id="mgrab"></div>
     <div class="mshead"><b id="mstitle">재생 설정</b><span id="mssub"></span></div>
-    <h3>프리셋</h3>
-    <div class="presets" id="presets"></div>
-    <h3>사운드 믹서</h3>
+    <h3>볼륨</h3>
     <div id="layers"></div>
   </div>
   <div class="toast" id="toast"></div>
@@ -287,8 +286,8 @@ const MODES={
  focus:{accent:'#8fd3c9',lead:'집중 · 3개의 사운드스케이프',h:'지금, 한 가지에만',
   items:[
   {id:'med',kind:'Meditation',t:'Meditation',sub:'discover happiness',cr:'Still Water · 미세한 안개와 낮은 패드',c:[[34,110,120],[20,60,90],[120,200,190]],scene:'mist',mix:{rain:0,fire:0,wind:25,white:10,pad:5},pad:[110,164.8,220]},
-  {id:'dw',kind:'Deep Work',t:'Rainy Desk',sub:'quiet the noise',cr:'Window Rain · 창가에 내리는 빗소리',c:[[40,70,140],[20,30,70],[130,170,230]],scene:'rain',mix:{rain:65,fire:0,wind:10,white:15,pad:5},pad:[98,146.8,196]},
-  {id:'cl',kind:'Clarity',t:'Clear Tide',sub:'one thing at a time',cr:'Low Tide · 잔잔한 파도 위의 백색소음',c:[[20,100,140],[10,50,90],[170,230,240]],scene:'waves',mix:{rain:0,fire:0,wind:35,white:45,pad:5},pad:[130.8,196,261.6]}]},
+  {id:'cl',kind:'Clarity',t:'Clear Tide',sub:'one thing at a time',cr:'Low Tide · 잔잔한 파도 위의 백색소음',c:[[20,100,140],[10,50,90],[170,230,240]],scene:'waves',mix:{rain:0,fire:0,wind:35,white:45,pad:5},pad:[130.8,196,261.6]},
+  {id:'dw',kind:'Deep Work',t:'Rainy Desk',sub:'quiet the noise',cr:'Window Rain · 창가에 내리는 빗소리',c:[[40,70,140],[20,30,70],[130,170,230]],scene:'rain',mix:{rain:65,fire:0,wind:10,white:15,pad:5},pad:[98,146.8,196]}]},
  relax:{accent:'#e3a6ff',lead:'이완 · 3개의 사운드스케이프',h:'숨을 길게 내쉬세요',
   items:[
   {id:'dd',kind:'Daydream',t:'Daydream',sub:'go beyond the form',cr:'Soft Aurora · 느리게 흐르는 빛',c:[[130,60,170],[60,30,110],[255,150,200]],scene:'mist',mix:{rain:0,fire:0,wind:30,white:5,pad:5},pad:[87.3,130.8,174.6]},
@@ -297,12 +296,9 @@ const MODES={
   {id:'ch',kind:'Chill',t:'Chill',sub:'warm story',cr:'Warm Story · 따뜻한 로파이 음악',c:[[220,120,110],[120,60,90],[255,190,150]],scene:'mist',mix:{rain:0,fire:0,wind:0,white:0,pad:0,music:80},pad:[130.8,164.8,196],music:'audio/chill.mp3'}]},
  sleep:{accent:'#9db4ff',lead:'수면 · 3개의 사운드스케이프',h:'오늘 하루, 내려놓기',
   items:[
-  {id:'nr',kind:'Night Rain',t:'Night Rain',sub:'close your eyes',cr:'Midnight Rain · 깊은 밤의 빗소리',c:[[30,40,110],[8,12,40],[110,130,220]],scene:'rain',mix:{rain:70,fire:0,wind:20,white:10,pad:5},pad:[65.4,98,130.8]},
-  {id:'sf',kind:'Starfield',t:'Starfield',sub:'drift softly',cr:'Deep Space · 아주 낮은 드론',c:[[20,24,70],[4,6,24],[160,170,255]],scene:'stars',mix:{rain:0,fire:0,wind:15,white:20,pad:5},pad:[55,82.4,110]},
-  {id:'sx',kind:'Embers',t:'Slow Fire',sub:'warm and still',cr:'Last Embers · 잦아드는 불씨',c:[[120,50,40],[30,12,20],[255,140,70]],scene:'embers',mix:{rain:10,fire:55,wind:10,white:5,pad:5},pad:[73.4,110,146.8]}]}
+  {id:'nr',kind:'Night Rain',t:'Night Rain',sub:'close your eyes',cr:'Midnight Rain · 깊은 밤의 빗소리',c:[[30,40,110],[8,12,40],[110,130,220]],scene:'rain',mix:{rain:70,fire:0,wind:20,white:10,pad:5},pad:[65.4,98,130.8]}]}
 };
-const PRESETS={'기본':null,'비 오는 밤':{rain:75,fire:0,wind:20,white:10,pad:5},'난롯가':{rain:10,fire:70,wind:5,white:0,pad:5},'숲 속 바람':{rain:0,fire:0,wind:70,white:20,pad:5},'백색소음':{rain:0,fire:0,wind:0,white:75,pad:5}};
-const LAYERS=[['music','음악'],['rain','빗소리'],['fire','장작불'],['wind','바람'],['white','백색소음'],['pad','앰비언트']];
+const LAYERS=[['music','음악']];
 
 /* ---------- State ---------- */
 let mode='focus', cur=null, playing=false, mix={}, listened=0, lastTick=0, dimOn=true;
@@ -426,7 +422,21 @@ function coverURL(it){if(!COV[it.id]){let g='',g2='';for(let r=44;r<99;r+=2.6){g
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><defs><mask id="hm"><rect width="200" height="200" fill="#fff"/><circle cx="100" cy="100" r="3.8" fill="#000"/></mask><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter><radialGradient id="ev" cx=".5" cy=".5" r=".5"><stop offset=".78" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient><linearGradient id="sh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".0"/><stop offset=".32" stop-color="#fff" stop-opacity=".14"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset=".78" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><g mask="url(#hm)">${COVER[it.id]()}<g fill="none" stroke="#fff" stroke-width=".35" opacity=".07">${g}</g><g fill="none" stroke="#000" stroke-width=".35" opacity=".1">${g2}</g><rect width="200" height="200" fill="url(#sh)" style="mix-blend-mode:screen"/><rect width="200" height="200" fill="url(#ev)"/><rect width="200" height="200" filter="url(#n)" opacity=".2" style="mix-blend-mode:overlay"/></g></svg>`;
   COV[it.id]="url('data:image/svg+xml;utf8,"+encodeURIComponent(svg).replace(/'/g,'%27')+"')"}return COV[it.id]}
 
-const discHTML=(it,cls,badge)=>`<span class="disc ${cls||''}"><span class="art" style="background-image:${(cls||'').includes('gorb')?coverURL(it):art(it,300)}"></span><span class="sheen"></span><span class="hole"></span>${badge?'<span class="pbadge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#111"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>':''}</span>`;
+// real cover photos from cover/ (filenames, in the order they are handed out); the vinyl look (grooves, sheen, centre hole) is layered on top
+const PHOTO={ch:'cover/chill.jpg',
+  med:'cover/9b0d26031d71dc870723674c00564c99.jpg',
+  dw:'cover/b4e0aee2db0cb4c621a9f818d4541ac2 2.jpg',
+  cl:'cover/de82594eabfa27dab1defe551d769f66 2.jpg',
+  dd:'cover/eac11306bd51447d313834350dabc922.jpg',
+  se:'cover/068eb9b86b5fc2995e8a5b4fc59a5624.jpg',
+  sh:'cover/2858e4b793d567ba697904fe69994422.jpg',
+  nr:'cover/d26632d9d3e869048293727e27b01322.jpg'};
+let OVER=null;
+function overlayURL(){if(!OVER){let g='',g2='';for(let r=44;r<99;r+=2.6){g+=`<circle cx="100" cy="100" r="${r.toFixed(1)}"/>`;g2+=`<circle cx="100" cy="100" r="${(r+1.3).toFixed(1)}"/>`}
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter><radialGradient id="ev" cx=".5" cy=".5" r=".5"><stop offset=".78" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient><linearGradient id="sh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".32" stop-color="#fff" stop-opacity=".14"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset=".78" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><circle cx="100" cy="100" r="30" fill="none" stroke="#000" stroke-width=".6" opacity=".35"/><g fill="none" stroke="#fff" stroke-width=".35" opacity=".08">${g}</g><g fill="none" stroke="#000" stroke-width=".35" opacity=".12">${g2}</g><rect width="200" height="200" fill="url(#sh)" style="mix-blend-mode:screen"/><rect width="200" height="200" fill="url(#ev)"/><rect width="200" height="200" filter="url(#n)" opacity=".2" style="mix-blend-mode:overlay"/></svg>`;
+  OVER="url('data:image/svg+xml;utf8,"+encodeURIComponent(svg).replace(/'/g,'%27')+"')"}return OVER}
+const photoOf=(it,cls)=>(cls||'').includes('gorb')&&PHOTO[it.id];
+const discHTML=(it,cls,badge)=>`<span class="disc ${cls||''}"><span class="art${photoOf(it,cls)?' photo':''}" style="background-image:${photoOf(it,cls)?overlayURL()+",url('"+encodeURI(PHOTO[it.id])+"')":((cls||'').includes('gorb')?coverURL(it):art(it,300))}"></span><span class="sheen"></span><span class="hole"></span>${badge?'<span class="pbadge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#111"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>':''}</span>`;
 function syncSpin(){
   $$('.cdlist .disc').forEach(d=>{const i=+d.dataset.i;d.classList.toggle('spin',!!(cur&&cur.id===ALL[i].id&&playing))});
   $$('.cdlist .cmeta').forEach(m=>m.classList.toggle('on',!!(cur&&playing&&cur.id===ALL[+m.dataset.i].id)));
@@ -492,60 +502,19 @@ $('#feed').addEventListener('click',e=>{
   const c=e.target.closest('[data-i]'); if(!c)return; buzz(14); {const i=+c.dataset.i;if(layout==='cd'){if(cur&&cur.id===ALL[i].id)setPlaying(!playing);else openTheme(ALL[i],i,true)}else openTheme(ALL[i],i,true)}});
 
 /* ---------- Audio engine (Web Audio, procedural, gapless loops) ---------- */
-let ctx,master,pad=[],padGain,L={},fireTimer,fadeTok=0;
-function noiseBuf(kind){
-  const sr=ctx.sampleRate, n=sr*6, xf=Math.floor(sr*.5), tot=n+xf, raw=new Float32Array(tot);
-  let last=0; for(let i=0;i<tot;i++){const w=Math.random()*2-1; if(kind==='brown'){last=(last+.02*w)/1.02;raw[i]=last*3.5}else raw[i]=w}
-  const out=ctx.createBuffer(1,n,sr), d=out.getChannelData(0);
-  for(let i=0;i<n;i++)d[i]=raw[i];
-  for(let i=0;i<xf;i++){const k=i/xf; d[i]=raw[i]*k+raw[n+i]*(1-k)} // equal-ish crossfade so the loop point is inaudible
-  return out;
-}
-function loopSrc(buf){const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;s.start();return s}
+let ctx,master,L={},fadeTok=0;
 function initAudio(){
   if(ctx)return;
-  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){} // iOS: play even with the silent switch on
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){} // iOS: keep playing with the silent switch on / in the background
   ctx=new (window.AudioContext||window.webkitAudioContext)();
   master=ctx.createGain(); master.gain.value=0; master.connect(ctx.destination);
-  const white=noiseBuf('white'), brown=noiseBuf('brown');
-  const mk=()=>{const g=ctx.createGain();g.gain.value=0;g.connect(master);return g};
-  // rain
-  L.rain=mk(); let s=loopSrc(white), bp=ctx.createBiquadFilter(); bp.type='bandpass';bp.frequency.value=4200;bp.Q.value=.35;
-  let hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=1200; s.connect(bp);bp.connect(hp);hp.connect(L.rain);
-  // wind
-  L.wind=mk(); s=loopSrc(brown); const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=500;lp.Q.value=2;
-  const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.11;lg.gain.value=280;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();
-  s.connect(lp);lp.connect(L.wind);
-  // white
-  L.white=mk(); s=loopSrc(white); const wl=ctx.createBiquadFilter();wl.type='lowpass';wl.frequency.value=7000; s.connect(wl);wl.connect(L.white);
-  // fire: rumble + crackles
-  L.fire=mk(); s=loopSrc(brown); const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=320; const rg=ctx.createGain();rg.gain.value=.8;s.connect(fl);fl.connect(rg);rg.connect(L.fire);
-  L.crack=white;
-  L.music=mk();
-  // pad
-  padGain=mk(); L.pad=padGain; const pf=ctx.createBiquadFilter();pf.type='lowpass';pf.frequency.value=900; pf.connect(padGain);
-  const trem=ctx.createOscillator(),tg=ctx.createGain();trem.frequency.value=.07;tg.gain.value=.25;trem.connect(tg);
-  for(let i=0;i<6;i++){const o=ctx.createOscillator(),g=ctx.createGain();o.type=i%2?'triangle':'sine';o.detune.value=(i-2.5)*4;g.gain.value=.16;o.connect(g);g.connect(pf);tg.connect(g.gain);o.start();pad.push(o)}
-  trem.start();
-  ctx.onstatechange=()=>{ // interruption handling: calls/alarms suspend the context; reflect it and offer resume
+  L.music=ctx.createGain(); L.music.gain.value=0; L.music.connect(master);
+  ctx.onstatechange=()=>{ // interruption handling: calls/alarms suspend the context; reflect it
     if(ctx.state==='interrupted'||(ctx.state==='suspended'&&playing&&!fadeTok)){setPlaying(false,true);toast('다른 소리 때문에 일시정지되었어요')}};
 }
-function crackle(){
-  if(!ctx||!playing)return;
-  const v=mix.fire/100;
-  if(v>0.02&&Math.random()<.6+v*.4){
-    const s=ctx.createBufferSource();s.buffer=L.crack;s.loopStart=0;
-    const g=ctx.createGain(),f=ctx.createBiquadFilter();f.type='highpass';f.frequency.value=1500+Math.random()*3500;
-    const t=ctx.currentTime, d=.01+Math.random()*.05, a=(.15+Math.random()*.6)*v*1.2;
-    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(a,t+.003);g.gain.exponentialRampToValueAtTime(.0005,t+d);
-    s.connect(f);f.connect(g);g.connect(L.fire);s.start(t,Math.random()*4,d+.02);
-  }
-  fireTimer=setTimeout(crackle,40+Math.random()*260);
-}
-const LEVEL={rain:.5,fire:.7,wind:.6,white:.18,pad:.9,music:1};
 function applyMix(smooth){
   if(!ctx)return; const t=ctx.currentTime; if(musicEl&&!musicEl.dataset.routed)musicEl.volume=Math.min(1,(mix.music||0)/100);
-  for(const k of ['rain','fire','wind','white','pad','music']){const g=L[k].gain; g.cancelScheduledValues(t); g.setTargetAtTime((mix[k]||0)/100*LEVEL[k],t,smooth?.6:.05)}
+  const g=L.music.gain; g.cancelScheduledValues(t); g.setTargetAtTime((mix.music||0)/100,t,smooth?.6:.05);
 }
 
 // music track: an <audio> element routed into the mixer. Started inside the tap that selects the disc, which iOS Safari requires;
@@ -562,7 +531,6 @@ function setMusic(it){
   musicEl=el; if(!el.dataset.routed)el.volume=Math.min(1,(mix.music||0)/100);
   el.play().catch(()=>toast('화면을 한 번 탭하면 음악이 시작돼요'));
 }
-function setChord(ch){if(!ctx)return;const t=ctx.currentTime;pad.forEach((o,i)=>{const f=ch[i%ch.length]*(i>=3?2:1);o.frequency.setTargetAtTime(f,t,1.2)})}
 function fadeMaster(to,sec){const t=ctx.currentTime,g=master.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(to,t+sec)}
 
 /* ---------- Player ---------- */
@@ -572,7 +540,7 @@ function openTheme(it,m,stay){
   $('#ptitle').textContent=it.t; $('#pcopy').textContent=it.sub; $('#pcr').textContent='© CalmWave · '+it.cr; $('#pkind').textContent=it.kind;
   if(!same){mix={...it.mix}; buildLayers(); scene=makeScene(it)}
   if(!stay){$('#player').classList.add('open'); poke()}
-  initAudio(); setChord(it.pad); if(!same)setMusic(it); applyMix(false);
+  initAudio(); if(!same){setMusic(it);updateMediaSession(it)} applyMix(false);
   if(!same||!playing){ setPlaying(true) }
 }
 function setPlaying(on,silent){
@@ -581,9 +549,10 @@ function setPlaying(on,silent){
   $('#pp').innerHTML=on?ICON.pause:ICON.play; $('#pp').setAttribute('aria-label',on?'일시정지':'재생');
   $('#player').classList.toggle('on-air',on); document.body.classList.toggle('playing',on); $('#home').classList.toggle('playing',on);
   syncSpin();
+  try{if('mediaSession' in navigator)navigator.mediaSession.playbackState=on?'playing':'paused'}catch(e){}
   if(on&&musicEl)musicEl.play().catch(()=>{});
-  if(on){ctx.resume();fadeMaster(1,2.2);lastTick=Date.now();clearTimeout(fireTimer);crackle()}
-  else{fadeMaster(0,silent?.2:1.6);clearTimeout(fireTimer);setTimeout(()=>{if(fadeTok===tok&&!playing){ctx.suspend().catch(()=>{});if(musicEl)musicEl.pause()}fadeTok=0},silent?300:1800)}
+  if(on){ctx.resume();fadeMaster(1,2.2);lastTick=Date.now()}
+  else{fadeMaster(0,silent?.2:1.6);setTimeout(()=>{if(fadeTok===tok&&!playing){ctx.suspend().catch(()=>{});if(musicEl)musicEl.pause()}fadeTok=0},silent?300:1800)}
   updateMini();
 }
 $('#pp').onclick=()=>{buzz(12);setPlaying(!playing);poke()};
@@ -608,12 +577,9 @@ setInterval(()=>{
 
 /* sheet + mixer */
 function buildLayers(){
-  $('#layers').innerHTML=LAYERS.filter(([k])=>k!=='music'||(cur&&cur.music)).map(([k,n])=>`<div class="layer"><label for="r_${k}">${n}</label><input type="range" id="r_${k}" min="0" max="100" value="${mix[k]||0}" style="--v:${mix[k]||0}%"><output id="o_${k}">${mix[k]||0}</output></div>`).join('');
+  $('#layers').innerHTML=!(cur&&cur.music)?'<div class="nomusic">이 CD에는 아직 음악이 없어요</div>':LAYERS.map(([k,n])=>`<div class="layer"><label for="r_${k}">${n}</label><input type="range" id="r_${k}" min="0" max="100" value="${mix[k]||0}" style="--v:${mix[k]||0}%"><output id="o_${k}">${mix[k]||0}</output></div>`).join('');
   $$('#layers input').forEach(r=>r.oninput=()=>{const k=r.id.slice(2);mix[k]=+r.value;r.style.setProperty('--v',r.value+'%');$('#o_'+k).textContent=r.value;applyMix(false);poke()});
 }
-$('#presets').innerHTML=Object.keys(PRESETS).map(n=>`<button class="chip" data-n="${n}" aria-pressed="false">${n}</button>`).join('');
-$('#presets').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const p=PRESETS[b.dataset.n];mix=p?{...p,music:mix.music||0}:{...cur.mix};buildLayers();applyMix(true);
-  $$('#presets .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));buzz(10)};
 
 /* idle dimming (battery saver) */
 let idle; function poke(){$('#dim').classList.remove('on');clearTimeout(idle);if(dimOn)idle=setTimeout(()=>{if(playing&&$('#player').classList.contains('open'))$('#dim').classList.add('on')},6000)}
@@ -677,7 +643,7 @@ function demoHist(y,m){const o={},R=rngf(y*12+m),ids=ALL.map(a=>a.id);
 const now0=new Date(); let vy=now0.getFullYear(), vm=now0.getMonth(), selDay=null;
 const realEmpty=()=>!Object.keys(hist).length;
 const pad2=n=>String(n).padStart(2,'0');
-const dayIds=(data,k)=>{const day=data[k];return day?Object.keys(day).sort((a,b)=>day[b]-day[a]):[]};
+const dayIds=(data,k)=>{const day=data[k];return day?Object.keys(day).filter(id=>ALL.some(a=>a.id===id)).sort((a,b)=>day[b]-day[a]):[]};
 // every month sits in one long scroll (earlier months above, the current month at the bottom); the big number follows the month in view
 function renderMonths(){
   const tk=dkey(new Date()), empty=realEmpty(); let out='';
@@ -725,6 +691,19 @@ $('#mback').onclick=()=>setSheet(false);
   g.addEventListener('pointerup',e=>{if(y0!==null)end(e.clientY-y0)});g.addEventListener('pointercancel',()=>end(0));
   g.addEventListener('click',()=>{if(sh.classList.contains('open')&&y0===null&&!sh.style.transform)setSheet(false)});
 })();
+
+
+/* ---------- Lock screen / control centre (Media Session) ---------- */
+const artCache={};
+function coverPNG(it){return new Promise(res=>{if(artCache[it.id])return res(artCache[it.id]);
+  const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=512;const k=Math.max(512/img.width,512/img.height),w=img.width*k,h=img.height*k;c.getContext('2d').drawImage(img,(512-w)/2,(512-h)/2,w,h);c.toBlob(b=>{if(!b)return res(null);artCache[it.id]=URL.createObjectURL(b);res(artCache[it.id])})};img.onerror=()=>res(null);img.src=PHOTO[it.id]?encodeURI(PHOTO[it.id]):coverURL(it).slice(5,-2)})}
+function updateMediaSession(it){
+  if(!('mediaSession' in navigator)||typeof MediaMetadata==='undefined')return;
+  const meta={title:it.t,artist:'CalmWave',album:it.mode+' · '+it.sub};
+  try{navigator.mediaSession.metadata=new MediaMetadata(meta)}catch(e){return}
+  coverPNG(it).then(u=>{if(u&&cur&&cur.id===it.id){try{navigator.mediaSession.metadata=new MediaMetadata({...meta,artwork:[{src:u,sizes:'512x512',type:'image/png'}]})}catch(e){}}})}
+if('mediaSession' in navigator){const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
+  set('play',()=>{if(!playing)setPlaying(true)});set('pause',()=>{if(playing)setPlaying(false)});set('nexttrack',()=>step(1));set('previoustrack',()=>step(-1))}
 
 /* ---------- boot ---------- */
 $('#pp').innerHTML=ICON.play;
