@@ -723,21 +723,23 @@ if('mediaSession' in navigator){const set=(a,f)=>{try{navigator.mediaSession.set
 
 /* ---------- Header level bars: six bands of the music, bass on the left; each bar shrinks to a dot when its band is quiet ---------- */
 const WAVE=[[1,2],[2,4],[4,8],[8,16],[16,40],[40,110]]; // fft bins of 86 Hz
-let waveRaf=0, waveEls=null, waveBuf=null, waveSm=[0,0,0,0,0,0], waveAgc=40, waveT0=0;
+const WBASE=[.28,.32,.55,.55,.38,.12];                    // resting height of each bar (middle bars tallest, like the reference)
+let waveRaf=0, waveEls=null, waveBuf=null, waveSm=[.28,.32,.55,.55,.38,.12], wavePk=[40,40,40,40,40,40], waveMean=[-1,-1,-1,-1,-1,-1];
 function waveTick(t){
   waveRaf=0; if(!playing)return;
   const els=waveEls||(waveEls=[...document.querySelectorAll('#hWave .wave i')]), MAX=22, DOT=2.5;
-  let live=!!(ctx&&L.an&&musicEl&&musicEl.dataset.routed&&!musicEl.paused);
+  let live=!!(ctx&&L.an&&musicEl&&musicEl.dataset.routed&&!musicEl.paused), target=null;
   if(live){const b=waveBuf||(waveBuf=new Uint8Array(L.an.frequencyBinCount));L.an.getByteFrequencyData(b);
-    let top=0;const v=WAVE.map(([a,z])=>{let m=0;for(let i=a;i<z;i++)m+=b[i];m/=(z-a);top=Math.max(top,m);return m});
-    if(top<2)live=false;else{waveAgc=Math.max(top,waveAgc*.995);       // auto gain so quiet and loud tracks both fill the bars
-      v.forEach((m,i)=>{const x=Math.min(1,Math.pow(m/waveAgc,1.35)),k=x>waveSm[i]?.65:.2;waveSm[i]+=(x-waveSm[i])*k})}}
-  if(!live){const s=t/1000; // no audio to read (or opened from a file): a lively stand-in
-    for(let i=0;i<6;i++){const x=.5+.5*Math.sin(s*(2.1+i*.55)+i*1.7)*Math.sin(s*(.9+i*.31)+i);waveSm[i]+=(Math.max(0,x-.1*i/5)-waveSm[i])*.18}}
-  els.forEach((e,i)=>{e.style.height=(DOT+waveSm[i]*(MAX-DOT)).toFixed(1)+'px'});
+    let top=0;target=WAVE.map(([a,z],i)=>{let m=0;for(let k=a;k<z;k++)m+=b[k];m/=(z-a);top=Math.max(top,m);
+      wavePk[i]=Math.max(m,wavePk[i]*.997,20);                 // each band is normalised on its own, so a steady bass line cannot pin bar 1 at full height
+      const v=m/wavePk[i];if(waveMean[i]<0)waveMean[i]=v;waveMean[i]+=(v-waveMean[i])*.04;     // slow average: the bar rests near its base height
+      return Math.max(0,Math.min(1,WBASE[i]+2.4*(v-waveMean[i])))});  // and jumps up on every beat or note, dips below when its band goes quiet
+    if(top<2)live=false}
+  if(!live){const s=t/1000;target=WBASE.map((b,i)=>Math.max(0,Math.min(1,b+.4*Math.sin(s*(2.3+i*.6)+i*1.9)*Math.sin(s*(.8+i*.27)+i))))}
+  els.forEach((e,i)=>{const k=target[i]>waveSm[i]?.6:.22;waveSm[i]+=(target[i]-waveSm[i])*k;e.style.height=(DOT+waveSm[i]*(MAX-DOT)).toFixed(1)+'px'});
   waveRaf=requestAnimationFrame(waveTick)}
 function waveSync(){
-  if(playing){if(!waveRaf)waveRaf=requestAnimationFrame(waveTick)}
+  if(playing){if(!waveRaf){waveMean.fill(-1);wavePk.fill(40);waveRaf=requestAnimationFrame(waveTick)}}
   else{cancelAnimationFrame(waveRaf);waveRaf=0;(waveEls||[...document.querySelectorAll('#hWave .wave i')]).forEach(e=>e.style.removeProperty('height'))}}
 
 /* ---------- boot ---------- */
