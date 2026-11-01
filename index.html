@@ -293,7 +293,8 @@ const MODES={
   items:[
   {id:'dd',kind:'Daydream',t:'Daydream',sub:'go beyond the form',cr:'Soft Aurora · 느리게 흐르는 빛',c:[[130,60,170],[60,30,110],[255,150,200]],scene:'mist',mix:{rain:0,fire:0,wind:30,white:5,pad:5},pad:[87.3,130.8,174.6]},
   {id:'se',kind:'Sensations',t:'Sensations',sub:'feel the moment',cr:'Warm Hearth · 장작 타는 소리',c:[[170,80,60],[80,30,40],[255,180,100]],scene:'embers',mix:{rain:0,fire:60,wind:10,white:0,pad:5},pad:[98,123.5,146.8]},
-  {id:'sh',kind:'Seaside',t:'Shoreline',sub:'let the tide decide',cr:'Evening Surf · 해질녘 파도',c:[[200,110,120],[70,50,120],[255,200,170]],scene:'waves',mix:{rain:0,fire:0,wind:40,white:40,pad:5},pad:[110,138.6,164.8]}]},
+  {id:'sh',kind:'Seaside',t:'Shoreline',sub:'let the tide decide',cr:'Evening Surf · 해질녘 파도',c:[[200,110,120],[70,50,120],[255,200,170]],scene:'waves',mix:{rain:0,fire:0,wind:40,white:40,pad:5},pad:[110,138.6,164.8]},
+  {id:'ch',kind:'Chill',t:'Chill',sub:'warm story',cr:'Warm Story · 따뜻한 로파이 음악',c:[[220,120,110],[120,60,90],[255,190,150]],scene:'mist',mix:{rain:0,fire:0,wind:0,white:0,pad:0,music:80},pad:[130.8,164.8,196],music:'audio/music/strawberry_candy-chill-advertising-music-warm-story-627308.mp3'}]},
  sleep:{accent:'#9db4ff',lead:'수면 · 3개의 사운드스케이프',h:'오늘 하루, 내려놓기',
   items:[
   {id:'nr',kind:'Night Rain',t:'Night Rain',sub:'close your eyes',cr:'Midnight Rain · 깊은 밤의 빗소리',c:[[30,40,110],[8,12,40],[110,130,220]],scene:'rain',mix:{rain:70,fire:0,wind:20,white:10,pad:5},pad:[65.4,98,130.8]},
@@ -301,7 +302,7 @@ const MODES={
   {id:'sx',kind:'Embers',t:'Slow Fire',sub:'warm and still',cr:'Last Embers · 잦아드는 불씨',c:[[120,50,40],[30,12,20],[255,140,70]],scene:'embers',mix:{rain:10,fire:55,wind:10,white:5,pad:5},pad:[73.4,110,146.8]}]}
 };
 const PRESETS={'기본':null,'비 오는 밤':{rain:75,fire:0,wind:20,white:10,pad:5},'난롯가':{rain:10,fire:70,wind:5,white:0,pad:5},'숲 속 바람':{rain:0,fire:0,wind:70,white:20,pad:5},'백색소음':{rain:0,fire:0,wind:0,white:75,pad:5}};
-const LAYERS=[['rain','빗소리'],['fire','장작불'],['wind','바람'],['white','백색소음'],['pad','앰비언트']];
+const LAYERS=[['music','음악'],['rain','빗소리'],['fire','장작불'],['wind','바람'],['white','백색소음'],['pad','앰비언트']];
 
 /* ---------- State ---------- */
 let mode='focus', cur=null, playing=false, mix={}, listened=0, lastTick=0, dimOn=true;
@@ -320,7 +321,8 @@ const SCN={
  sh:['sea',['#40507f','#f2a07b','#ffd9a8','#2a3a68','#10162e']],
  nr:['forest',['#0b1230','#2a3a70','#8fa6e8','#0a1022','#03060e']],
  sf:['desert',['#060a24','#2a2f6b','#b8c2ff','#1b1d4a','#05061a']],
- sx:['sunset',['#2a0f1a','#c8503a','#ffb05a','#4a1820','#0e0508']]
+ sx:['sunset',['#2a0f1a','#c8503a','#ffb05a','#4a1820','#0e0508']],
+ ch:['sunset',['#3b2a5e','#e07a8a','#ffc7a0','#6a3a6e','#1c1030']]
 };
 const ALL=[];['focus','relax','sleep'].forEach(m=>MODES[m].items.forEach(it=>ALL.push({...it,mode:m})));
 const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
@@ -407,6 +409,11 @@ const COVER={
   return `<defs>${fb('f14',14)}${fb('f7',7)}${fb('f06',.6)}<linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050719"/><stop offset=".55" stop-color="#1a1450"/><stop offset=".8" stop-color="#5a2a62"/><stop offset=".95" stop-color="#e58a6a"/></linearGradient></defs><rect width="200" height="200" fill="url(#a)"/><g transform="rotate(-30 100 84)"><ellipse cx="100" cy="84" rx="130" ry="24" fill="#a98bf0" opacity=".4" filter="url(#f14)"/><ellipse cx="100" cy="84" rx="110" ry="8" fill="#ffe9d6" opacity=".38" filter="url(#f7)"/></g>${t}
 <path d="M-10 168L22 140L40 152L66 122L92 150L112 136L138 160L160 130L186 150L210 138V210H-10Z" fill="#05060f" filter="url(#f06)"/><path d="M-10 186L30 166L60 180L100 160L140 182L176 168L210 184V210H-10Z" fill="#020208"/><!--L--><circle cx="100" cy="100" r="13" fill="#cfcfd4"/>
 <g font-family="Helvetica Neue,Arial,sans-serif" fill="#fff"><text x="20" y="104" font-size="5" opacity=".95">SIDE A</text><text x="148" y="98" font-size="4.2">STEREO</text><text x="148" y="110" font-size="10.5" font-weight="700">33</text><text x="100" y="40" text-anchor="middle" font-size="4.4" opacity=".85">STARFIELD  ©2026</text></g><!--/L-->`},
+ ch:()=>{const R=rngf(91);let st='';for(let i=0;i<26;i++)st+=`<circle cx="${(R()*200).toFixed(0)}" cy="${(R()*70).toFixed(0)}" r="${(.3+R()*.6).toFixed(2)}" fill="#fff" opacity="${(.2+R()*.5).toFixed(2)}"/>`;
+  return `<defs>${fb('f2',2)}${fb('f8',8)}<linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2a64"/><stop offset=".5" stop-color="#d96a8e"/><stop offset=".82" stop-color="#ffc4a0"/></linearGradient></defs><rect width="200" height="200" fill="url(#a)"/>${st}<circle cx="132" cy="108" r="46" fill="#ffd9b8" opacity=".55" filter="url(#f8)"/><circle cx="132" cy="108" r="24" fill="#fff0d8" filter="url(#f2)"/>
+<ellipse cx="50" cy="88" rx="40" ry="6" fill="#ffd0d8" opacity=".5" filter="url(#f2)"/><ellipse cx="160" cy="72" rx="34" ry="5" fill="#ffd0d8" opacity=".45" filter="url(#f2)"/>
+<path d="M-10 140C30 118 60 130 100 124S170 112 210 130V210H-10Z" fill="#8a4a78"/><path d="M-10 160C40 140 80 158 120 148S180 142 210 154V210H-10Z" fill="#552a5c"/><path d="M-10 182C50 168 90 184 140 174S190 172 210 178V210H-10Z" fill="#2c1838"/>
+<!--L--><circle cx="100" cy="100" r="37" fill="#00000030"/><circle cx="100" cy="100" r="35" fill="#f7e7da"/><circle cx="100" cy="100" r="9" fill="#e6d3c4"/><text x="100" y="82" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-weight="700" font-size="13" fill="#7a2f4a">chill</text><text x="100" y="121" text-anchor="middle" font-family="Menlo,monospace" font-size="3.2" fill="#6b3d4c">WARM STORY</text><text x="100" y="127" text-anchor="middle" font-family="Menlo,monospace" font-size="2.8" fill="#8a5a68">CALMWAVE  2026</text><path d="M96 113q4-5 8 0q-4 9-8 0z" fill="#d83a52"/><path d="M98 111q2-3 4 0" fill="none" stroke="#3f8a4a" stroke-width="1.2"/><!--/L-->`},
  sx:()=>{let g='';for(let r=24;r<100;r+=2.3)g+=`<circle cx="100" cy="100" r="${r.toFixed(1)}" fill="none" stroke="#fff" stroke-width=".5" opacity="${(.05+((r*7|0)%5)*.025).toFixed(3)}"/>`;
   return `<defs><radialGradient id="a" cx=".72" cy=".7" r=".8"><stop offset="0" stop-color="#ff8a24" stop-opacity=".95"/><stop offset=".5" stop-color="#d63a12" stop-opacity=".45"/><stop offset="1" stop-color="#d63a12" stop-opacity="0"/></radialGradient></defs><rect width="200" height="200" fill="#0b0506"/>${g}<rect width="200" height="200" fill="url(#a)" style="mix-blend-mode:screen"/><!--L--><circle cx="100" cy="100" r="21" fill="#c9431d"/><text x="100" y="88" text-anchor="middle" font-family="Menlo,monospace" font-size="4.6" fill="#ffe3d4" opacity=".85">SLOW FIRE</text><text x="100" y="116" text-anchor="middle" font-family="Menlo,monospace" font-size="3.8" fill="#ffe3d4" opacity=".7">LAST EMBERS</text><!--/L-->`}
 };
@@ -513,6 +520,7 @@ function initAudio(){
   // fire: rumble + crackles
   L.fire=mk(); s=loopSrc(brown); const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=320; const rg=ctx.createGain();rg.gain.value=.8;s.connect(fl);fl.connect(rg);rg.connect(L.fire);
   L.crack=white;
+  L.music=mk();
   // pad
   padGain=mk(); L.pad=padGain; const pf=ctx.createBiquadFilter();pf.type='lowpass';pf.frequency.value=900; pf.connect(padGain);
   const trem=ctx.createOscillator(),tg=ctx.createGain();trem.frequency.value=.07;tg.gain.value=.25;trem.connect(tg);
@@ -533,10 +541,22 @@ function crackle(){
   }
   fireTimer=setTimeout(crackle,40+Math.random()*260);
 }
-const LEVEL={rain:.5,fire:.7,wind:.6,white:.18,pad:.9};
+const LEVEL={rain:.5,fire:.7,wind:.6,white:.18,pad:.9,music:1};
 function applyMix(smooth){
-  if(!ctx)return; const t=ctx.currentTime;
-  for(const k of ['rain','fire','wind','white','pad']){const g=L[k].gain; g.cancelScheduledValues(t); g.setTargetAtTime((mix[k]||0)/100*LEVEL[k],t,smooth?.6:.05)}
+  if(!ctx)return; const t=ctx.currentTime; if(musicEl)musicEl.volume=Math.min(1,(mix.music||0)/100);
+  for(const k of ['rain','fire','wind','white','pad','music']){const g=L[k].gain; g.cancelScheduledValues(t); g.setTargetAtTime((mix[k]||0)/100*LEVEL[k],t,smooth?.6:.05)}
+}
+
+// music track (an mp3 in audio/music): decoded once and looped through its own gain; falls back to an <audio> element when fetch is unavailable (e.g. file://)
+let musicSrc=null, musicEl=null, musicTok=0; const musicBufs={};
+async function setMusic(it){
+  const tok=++musicTok, url=it&&it.music;
+  if(musicSrc){try{musicSrc.stop()}catch(e){}musicSrc=null}
+  if(musicEl){musicEl.pause();musicEl=null}
+  if(!url||!ctx)return;
+  try{if(!musicBufs[url]){const r=await fetch(url);if(!r.ok)throw 0;musicBufs[url]=await ctx.decodeAudioData(await r.arrayBuffer())}
+    if(tok!==musicTok)return;const src=ctx.createBufferSource();src.buffer=musicBufs[url];src.loop=true;src.connect(L.music);src.start();musicSrc=src;
+  }catch(e){if(tok!==musicTok)return;musicEl=new Audio(url);musicEl.loop=true;musicEl.onerror=()=>toast('음악 파일을 불러올 수 없어요');musicEl.volume=Math.min(1,(mix.music||0)/100);if(playing)musicEl.play().catch(()=>{})}
 }
 function setChord(ch){if(!ctx)return;const t=ctx.currentTime;pad.forEach((o,i)=>{const f=ch[i%ch.length]*(i>=3?2:1);o.frequency.setTargetAtTime(f,t,1.2)})}
 function fadeMaster(to,sec){const t=ctx.currentTime,g=master.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(to,t+sec)}
@@ -548,7 +568,7 @@ function openTheme(it,m,stay){
   $('#ptitle').textContent=it.t; $('#pcopy').textContent=it.sub; $('#pcr').textContent='© CalmWave · '+it.cr; $('#pkind').textContent=it.kind;
   if(!same){mix={...it.mix}; buildLayers(); scene=makeScene(it)}
   if(!stay){$('#player').classList.add('open'); poke()}
-  initAudio(); setChord(it.pad); applyMix(false);
+  initAudio(); setChord(it.pad); if(!same)setMusic(it); applyMix(false);
   if(!same||!playing){ setPlaying(true) }
 }
 function setPlaying(on,silent){
@@ -557,6 +577,7 @@ function setPlaying(on,silent){
   $('#pp').innerHTML=on?ICON.pause:ICON.play; $('#pp').setAttribute('aria-label',on?'일시정지':'재생');
   $('#player').classList.toggle('on-air',on); document.body.classList.toggle('playing',on); $('#home').classList.toggle('playing',on);
   syncSpin();
+  if(musicEl){on?musicEl.play().catch(()=>{}):musicEl.pause()}
   if(on){ctx.resume();fadeMaster(1,2.2);lastTick=Date.now();clearTimeout(fireTimer);crackle()}
   else{fadeMaster(0,silent?.2:1.6);clearTimeout(fireTimer);setTimeout(()=>{if(fadeTok===tok&&!playing)ctx.suspend().catch(()=>{});fadeTok=0},silent?300:1800)}
   updateMini();
@@ -583,11 +604,11 @@ setInterval(()=>{
 
 /* sheet + mixer */
 function buildLayers(){
-  $('#layers').innerHTML=LAYERS.map(([k,n])=>`<div class="layer"><label for="r_${k}">${n}</label><input type="range" id="r_${k}" min="0" max="100" value="${mix[k]||0}" style="--v:${mix[k]||0}%"><output id="o_${k}">${mix[k]||0}</output></div>`).join('');
+  $('#layers').innerHTML=LAYERS.filter(([k])=>k!=='music'||(cur&&cur.music)).map(([k,n])=>`<div class="layer"><label for="r_${k}">${n}</label><input type="range" id="r_${k}" min="0" max="100" value="${mix[k]||0}" style="--v:${mix[k]||0}%"><output id="o_${k}">${mix[k]||0}</output></div>`).join('');
   $$('#layers input').forEach(r=>r.oninput=()=>{const k=r.id.slice(2);mix[k]=+r.value;r.style.setProperty('--v',r.value+'%');$('#o_'+k).textContent=r.value;applyMix(false);poke()});
 }
 $('#presets').innerHTML=Object.keys(PRESETS).map(n=>`<button class="chip" data-n="${n}" aria-pressed="false">${n}</button>`).join('');
-$('#presets').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const p=PRESETS[b.dataset.n];mix=p?{...p}:{...cur.mix};buildLayers();applyMix(true);
+$('#presets').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const p=PRESETS[b.dataset.n];mix=p?{...p,music:mix.music||0}:{...cur.mix};buildLayers();applyMix(true);
   $$('#presets .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));buzz(10)};
 
 /* idle dimming (battery saver) */
