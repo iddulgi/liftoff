@@ -30,7 +30,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .homebg.on{opacity:1}
 .hdr{position:absolute;top:0;left:0;right:0;z-index:30;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 10px;gap:10px}
 .hbtn{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:grid;place-items:center;position:relative}
-#hWave{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none} /* icon only, no circle */
+#hWave{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:none} /* status icon only: no circle, not tappable */
 .wave{display:flex;gap:2px;align-items:center;height:22px} /* six thin bars, proportions taken from the iOS now-playing icon */
 .wave i{width:2.5px;border-radius:2px;background:var(--fg2);opacity:.5;height:var(--h);transition:background .3s,opacity .3s}
 .wave i:nth-child(1){--h:12.5px;--hp:12.5px}.wave i:nth-child(2){--h:22px;--hp:22px}.wave i:nth-child(3){--h:20px;--hp:20px}.wave i:nth-child(4){--h:13.2px;--hp:13.2px}.wave i:nth-child(5){--h:11px;--hp:11px}.wave i:nth-child(6){--h:17.6px;--hp:17.6px}
@@ -40,6 +40,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:#ff7a7a;color:#1a0707;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px}
 .feed{position:relative;z-index:2;flex:1;overflow-y:auto;padding:0 0 150px;scrollbar-width:none}
 .feed::-webkit-scrollbar{display:none}
+.feed.noenter .enter{animation:none!important}
 .feedhead{padding:6px 24px 18px}
 .feedhead h1{font-family:var(--display);font-weight:700;font-size:30px;margin:0;letter-spacing:-.01em}
 .feedhead p{margin:4px 0 0;color:var(--fg2);font-size:14px}
@@ -101,19 +102,33 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .ct{font-family:var(--display);font-weight:700;font-size:15px;color:#fff}
 .cs{font-size:12px;color:#8a90a3}
 
-.feed.decklist{background:#000;padding:90px 0 100px}
+.feed.decklist{--WT:min(calc(100cqw - 20px),360px);--W:min(calc(100cqw - 64px),380px);--WB:calc((2 * var(--W) + 312px) / 3 - 20px);background:#000;padding:90px 0 100px;overflow-x:hidden}  /* --WT: player card width; --W: width of the CD list area; --WB: width from the first CD's left edge to the third CD's right edge, used for the time bar and controls, pulled 10px in on each side */
 .deck{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 24px}
-.tray{width:min(66vw,270px);aspect-ratio:1;border-radius:34px;background:linear-gradient(145deg,#232733,#0e1017);border:1px solid rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);display:grid;place-items:center;margin-bottom:14px;position:relative}
+.tray{width:var(--WT);aspect-ratio:1;border-radius:48px;background:linear-gradient(430deg,#0a0a0a,#0e0e0e);border:1px solid rgba(255,255,255,.05);box-shadow:inset 1px 0 rgba(255,255,255,.10);display:grid;place-items:center;margin-bottom:0;position:relative}
+.tray{background:none;border:0;box-shadow:none} /* TEMP: card look hidden to compare. To bring it back, delete this line (the original background, border and shadow are kept in the rule above) */
 .deck{position:relative;z-index:0}
+.dglow{position:absolute;left:0;right:0;top:-90px;height:640px;z-index:-1;pointer-events:none;animation:dglowin .6s ease both;
+  background:linear-gradient(180deg,rgba(var(--g),.42) 0%,rgba(var(--g),.2) 38%,rgba(var(--g),.07) 68%,rgba(var(--g),0) 100%)} /* soft wash of the CD's main colour behind the player */
+@keyframes dglowin{from{opacity:0}to{opacity:1}}
 .bigslot{width:84%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;outline-offset:4px}
 .bigslot .disc{width:100%;margin:0;box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 0 6px rgba(255,255,255,.045)}
 .dtitle{font-family:var(--display);font-weight:700;font-size:20px}
 .dsub{font-size:12px;color:#8a90a3}
-.dctl{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px}
+.dprog{width:var(--WB);margin-top:20px}
+.dbar{height:3px;border-radius:2px;background:rgba(255,255,255,.16);overflow:hidden}
+.dbar i{display:block;height:100%;width:0;border-radius:2px;background:var(--theme);transition:width .5s linear,background .4s} /* same colour as the header wave icon */
+.dtimes{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
+.dctl{margin-top:12px;width:var(--WB);position:relative;display:flex;align-items:center;justify-content:center;gap:30px}
+#dshuf,#drep{position:absolute;top:50%;margin-top:-18px}
+#dshuf{left:-9px}   /* icon ink starts exactly at the bar's left end */
+#drep{right:-10.4px} /* ...and ends at its right end */
+.dopt{width:36px;height:36px;display:grid;place-items:center;flex:none;color:rgba(255,255,255,.4);position:relative;transition:color .2s}
+.dopt[aria-pressed=true]{color:#fff}
 .dsk{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);display:grid;place-items:center;flex:none}
-.dbtn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.12);border:0;display:grid;place-items:center}
-.shelf{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 12px;padding:34px 22px 0;justify-items:center}
-.sd{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%}
+.dbtn{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.12);border:0;display:grid;place-items:center}
+.shelf{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 12px;width:var(--W);margin:0 auto;padding:48px 0 0;justify-items:center}
+
+.sd{display:flex;flex-direction:column;align-items:center;gap:6px;width:96px}
 .sd .disc{width:min(24vw,96px);margin:0;box-shadow:0 8px 20px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.14)}
 .sd:active .disc{transform:scale(.94)}
 .sl{font-size:11px;color:#8a90a3;text-align:center}
@@ -232,7 +247,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="w0" clipPathUnits="objectBoundingBox"><path d="M0,0 C.14,0 .22,.07 .36,.15 L.82,.42 C.93,.48 1,.52 1,.62 L1,1 L0,1 Z"/></clipPath></defs></svg>
   <section class="home" id="home" aria-label="홈">
                 <header class="hdr">
-      <div class="hl"><button class="hbtn" id="hWave" aria-label="재생 중인 사운드 열기"><span class="wave"><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
+      <div class="hl"><span class="hbtn" id="hWave" role="img" aria-label="재생 상태"><span class="wave"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
       <button class="hbtn" id="calBtn" aria-label="청취 기록 달력"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></button></div>
       <button class="hbtn" aria-label="화면 모드 바꾸기" id="bell"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="2.6"/><path d="M12 5.2a6.8 6.8 0 0 1 6.8 6.8" opacity=".6"/></svg></button>
     </header>
@@ -433,6 +448,7 @@ const PHOTO={ch:'cover/71972cf4e98e92b5834233839142c2aa.jpg',
   nr:'cover/4d1bdacaebb20a66dcf13557611ec97e.jpg'};
 // most used colour of each cover photo, lifted to be readable on black (computed offline from cover/*.jpg)
 const TITLE_COLOR={ch:[158,188,171],med:[173,172,174],dw:[131,199,226],cl:[122,175,223],dd:[150,196,155],se:[140,165,228],sh:[146,188,200],nr:[210,171,137]};
+const GLOW={ch:'120,128,144',med:'100,82,87',dw:'111,150,153',cl:'139,112,56',dd:'107,157,116',se:'125,120,144',sh:'61,109,122',nr:'120,135,144'};
 let OVER=null;
 function overlayURL(){if(!OVER){let g='',g2='';for(let r=44;r<99;r+=2.6){g+=`<circle cx="100" cy="100" r="${r.toFixed(1)}"/>`;g2+=`<circle cx="100" cy="100" r="${(r+1.3).toFixed(1)}"/>`}
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter><radialGradient id="ev" cx=".5" cy=".5" r=".5"><stop offset=".78" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient><linearGradient id="sh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".32" stop-color="#fff" stop-opacity=".14"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset=".78" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><circle cx="100" cy="100" r="30" fill="none" stroke="#000" stroke-width=".6" opacity=".35"/><g fill="none" stroke="#fff" stroke-width=".35" opacity=".08">${g}</g><g fill="none" stroke="#000" stroke-width=".35" opacity=".12">${g2}</g><rect width="200" height="200" fill="url(#sh)" style="mix-blend-mode:screen"/><rect width="200" height="200" fill="url(#ev)"/><rect width="200" height="200" filter="url(#n)" opacity=".2" style="mix-blend-mode:overlay"/></svg>`;
@@ -456,11 +472,13 @@ function renderFeed(){
   }else if(layout==='deck'){
     if(!shelf.length)shelf=ALL.map((_,i)=>i).filter(i=>i!==deckIdx);
     const dk=ALL[deckIdx];
-    feed.innerHTML=`<div class="deck"><div class="tray" style="--glow:rgba(${dk.c[2].join(',')},.42)"><button class="bigslot" id="bigslot" aria-label="전체 화면 플레이어 열기">${discHTML(dk,'gorb',false).replace('class="disc ','id="bigdisc" class="disc ')}</button></div>
+    feed.innerHTML=`<div class="deck"><div class="dglow" style="--g:${GLOW[dk.id]||'120,120,120'}"></div><div class="tray" style="--glow:rgba(${dk.c[2].join(',')},.42)"><button class="bigslot" id="bigslot" aria-label="전체 화면 플레이어 열기">${discHTML(dk,'gorb',false).replace('class="disc ','id="bigdisc" class="disc ')}</button></div>
       <div class="dtitle">${dk.t}</div><div class="dsub">${dk.mode} · ${dk.sub}</div>
-      <div class="dctl"><button id="dprev" class="dsk" aria-label="이전 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M19.5 5.6v12.8a1 1 0 0 1-1.5.86l-10-6.4a1 1 0 0 1 0-1.72l10-6.4a1 1 0 0 1 1.5.86z"/><rect x="3.2" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="dpp" class="dbtn" aria-label="재생/일시정지"></button><button id="dnext" class="dsk" aria-label="다음 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M4.5 5.6v12.8a1 1 0 0 0 1.5.86l10-6.4a1 1 0 0 0 0-1.72l-10-6.4a1 1 0 0 0-1.5.86z"/><rect x="17.6" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button></div></div>
+      <div class="dprog"><div class="dbar"><i id="dfill"></i></div><div class="dtimes"><span id="dtl">0:00</span><span id="dtr">-0:00</span></div></div>
+      <div class="dctl"><button id="dshuf" class="dopt" aria-pressed="false" aria-label="셔플"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 14.5L21 17L18 19.5L21 17H17.8C16.2 17 14.8 16.2 13.9 14.9L10.1 9.1C9.2 7.8 7.8 7 6.2 7H3"/><path d="M3 17H6.2C7.8 17 9.2 16.2 10.1 14.9"/><path d="M18 4.5L21 7L18 9.5L21 7H17.8C16.2 7 14.8 7.8 13.9 9.1"/></svg></button><button id="dprev" class="dsk" aria-label="이전 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M19.5 5.6v12.8a1 1 0 0 1-1.5.86l-10-6.4a1 1 0 0 1 0-1.72l10-6.4a1 1 0 0 1 1.5.86z"/><rect x="3.2" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="dpp" class="dbtn" aria-label="재생/일시정지"></button><button id="dnext" class="dsk" aria-label="다음 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M4.5 5.6v12.8a1 1 0 0 0 1.5.86l10-6.4a1 1 0 0 0 0-1.72l-10-6.4a1 1 0 0 0-1.5.86z"/><rect x="17.6" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="drep" class="dopt" aria-pressed="true" aria-label="반복 재생"><svg width="20.5" height="20.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3L20 6L17 9L20 6H7.5A3.5 3.5 0 0 0 4 9.5V11"/><path d="M7 21L4 18L7 15L4 18H16.5A3.5 3.5 0 0 0 20 14.5V13"/></svg></button></div></div>
       <div class="shelf">${shelf.map((i,k)=>`<button class="sd" data-slot="${k}" data-i="${i}" aria-label="${ALL[i].t} 넣기">${discHTML(ALL[i],'gorb',false)}<span class="sl">${ALL[i].t}</span></button>`).join('')}</div>`;
-    syncSpin();
+    $('#dshuf').setAttribute('aria-pressed',shuffleOn);$('#drep').setAttribute('aria-pressed',repeatOn);
+    updateDeckBar();syncSpin();
   }else{
     feed.innerHTML=ALL.map((it,i)=>`<button class="card enter w${i%3}" data-i="${i}" style="z-index:${i+1};animation-delay:${Math.min(i,4)*80}ms;--first:${i?0:1}"><div class="bgc" style="background-image:${cardURL(it)}"></div><div class="shade"></div>
     <div class="kind">${it.mode} · ${it.kind}</div><h2>${it.t}</h2><div class="sub">${it.sub}</div></button>`).join('');
@@ -486,20 +504,50 @@ function cdTick(){
 // deck: the picked disc flies from the shelf into the tray; the old one drops into its slot
 function loadDisc(btn){
   const k=+btn.dataset.slot,i=+btn.dataset.i; if(feed_busy)return; feed_busy=true;
-  const ph=$('#phone').getBoundingClientRect(), src=btn.querySelector('.disc').getBoundingClientRect(), dst=$('#bigslot').getBoundingClientRect();
-  const fly=document.createElement('div'); fly.className='fly'; fly.innerHTML=discHTML(ALL[i],'gorb spin',false);
-  const sz=src.width; Object.assign(fly.style,{left:(src.left-ph.left)+'px',top:(src.top-ph.top)+'px',width:sz+'px',height:sz+'px'});
-  $('#phone').appendChild(fly); btn.style.visibility='hidden'; const old=$('#bigdisc'); if(old)old.style.transition='opacity .3s',old.style.opacity=0;
-  const tw=dst.width*.8, dx=dst.left-ph.left+(dst.width-tw)/2-(src.left-ph.left), dy=dst.top-ph.top+(dst.height-tw)/2-(src.top-ph.top), sc=tw/sz;
-  const an=fly.animate([{transform:'translate(0,0) scale(1) rotate(0)'},{transform:`translate(${dx*.5}px,${dy*.5-60}px) scale(${1+(sc-1)*.5}) rotate(180deg)`,offset:.5},{transform:`translate(${dx}px,${dy}px) scale(${sc}) rotate(360deg)`}],{duration:700,easing:'cubic-bezier(.3,.7,.3,1)',fill:'forwards'});
-  an.onfinish=()=>{const prev=deckIdx; shelf[k]=prev; deckIdx=i; fly.remove(); feed_busy=false; renderFeed(); const n=document.querySelector(`.sd[data-slot="${k}"] .disc`); if(n)n.animate([{transform:'scale(.4)',opacity:0},{transform:'none',opacity:1}],{duration:380,easing:'cubic-bezier(.3,1.4,.5,1)'});
+  const ph=$('#phone').getBoundingClientRect(), src=btn.querySelector('.disc').getBoundingClientRect(), old=$('#bigdisc'), oldR=old.getBoundingClientRect();
+  const prev=deckIdx, ease='cubic-bezier(.45,0,.25,1)', dur=620;
+  const mk=(it,r,spin)=>{const d=document.createElement('div');d.className='fly';d.innerHTML=discHTML(it,'gorb'+(spin?' spin':''),false);
+    Object.assign(d.style,{left:(r.left-ph.left)+'px',top:(r.top-ph.top)+'px',width:r.width+'px',height:r.height+'px'});$('#phone').appendChild(d);return d};
+  const up=mk(ALL[i],src,true), down=mk(ALL[prev],oldR,playing&&cur&&cur.id===ALL[prev].id);
+  btn.style.visibility='hidden'; old.style.visibility='hidden';      // both discs are now represented by the two flying copies
+  const cx=r=>r.left+r.width/2, cy=r=>r.top+r.height/2;
+  // the picked disc rises into the player while the old one sinks into the empty slot, at the same time, both gliding and turning
+  const A=up.animate([{transform:'none'},{transform:`translate(${cx(oldR)-cx(src)}px,${cy(oldR)-cy(src)}px) scale(${oldR.width/src.width}) rotate(180deg)`}],{duration:dur,easing:ease,fill:'forwards'});
+  down.animate([{transform:'none'},{transform:`translate(${cx(src)-cx(oldR)}px,${cy(src)-cy(oldR)}px) scale(${src.width/oldR.width}) rotate(-180deg)`}],{duration:dur,easing:ease,fill:'forwards'});
+  A.onfinish=()=>{shelf[k]=prev; deckIdx=i; up.remove(); down.remove(); feed_busy=false; renderFeed();
     openTheme(ALL[i],i,true); syncSpin(); buzz(14)};
 }
 let feed_busy=false;
-function nextLayout(){const n=(LAYOUTS.findIndex(l=>l[0]===layout)+1)%LAYOUTS.length;layout=LAYOUTS[n][0];if(layout==='deck'&&cur){deckIdx=ALL.findIndex(a=>a.id===cur.id);shelf=[]}renderFeed();toast(LAYOUTS[n][1]);buzz(10)}
+// Leaving CD player mode: the CD player simply fades away, uncovering the list underneath (the list is drawn straight away and stays still)
+let leaving=false;
+function leaveDeck(n){
+  if(leaving)return;
+  const feed=$('#feed'), done=()=>{};
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches||!$('.tray')){layout=LAYOUTS[n][0];renderFeed();done();return}
+  leaving=true; buzz(10);
+  const ov=feed.cloneNode(true); ov.removeAttribute('id'); ov.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+  Object.assign(ov.style,{position:'absolute',inset:'0',zIndex:'8',pointerEvents:'none',background:'#000',overflow:'hidden'});
+  $('#home').appendChild(ov); ov.scrollTop=feed.scrollTop;
+  feed.classList.add('noenter');
+  // keep the disc turning from the angle it had (a copied element would restart its rotation at 0 and visibly jump)
+  const spinNow=(root)=>{const e=root.querySelector('.bigslot .disc.spin .art');const an=e&&e.getAnimations().find(a=>a.animationName==='spin');return an?an.currentTime:null};
+  const t0=spinNow(feed);
+  layout=LAYOUTS[n][0]; renderFeed();
+  if(t0!=null){ov.querySelectorAll('.disc.spin .art, .disc.spin .sheen').forEach(e=>e.getAnimations().forEach(a=>{if(a.animationName==='spin')a.currentTime=t0}));
+    document.querySelectorAll('.cdlist .disc.spin .art, .cdlist .disc.spin .sheen, #mdisc .disc.spin .art, #mdisc .disc.spin .sheen').forEach(e=>e.getAnimations().forEach(a=>{if(a.animationName==='spin')a.currentTime=t0}))}
+  const a=ov.animate([{opacity:1},{opacity:0}],{duration:420,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});
+  const m=$('#mini'); if(m.classList.contains('show'))m.animate([{opacity:0},{opacity:1}],{duration:380,delay:60,fill:'backwards'});
+  const end=()=>{ov.remove();feed.classList.remove('noenter');leaving=false;done()};
+  a.finished.then(end,end)}
+function nextLayout(){const n=(LAYOUTS.findIndex(l=>l[0]===layout)+1)%LAYOUTS.length;
+  if(LAYOUTS[n][0]==='deck'){goDeck();return}                      // list -> CD player: same rising motion as the mini player tap
+  if(layout==='deck'&&LAYOUTS[n][0]==='cd'){leaveDeck(n);return}   // CD player -> list: fades away
+  layout=LAYOUTS[n][0];renderFeed();buzz(10)}
 
 $('#feed').addEventListener('click',e=>{
   if(layout==='deck'){const sd=e.target.closest('.sd');if(sd)return loadDisc(sd);
+    if(e.target.closest('#dshuf')){shuffleOn=!shuffleOn;buzz(8);const b=$('#dshuf');b.setAttribute('aria-pressed',shuffleOn);toast(shuffleOn?'셔플 켜짐':'셔플 꺼짐');return}
+    if(e.target.closest('#drep')){repeatOn=!repeatOn;buzz(8);$('#drep').setAttribute('aria-pressed',repeatOn);for(const k in musicEls){if(trackList(ALL.find(a=>a.id===k)).length===1)musicEls[k].loop=repeatOn}toast(repeatOn?'반복 재생 켜짐':'반복 재생 꺼짐');return}
     if(e.target.closest('#dprev')){step(-1);return}
     if(e.target.closest('#dnext')){step(1);return}
     if(e.target.closest('#dpp')){if(!cur||cur.id!==ALL[deckIdx].id)openTheme(ALL[deckIdx],deckIdx,true);else setPlaying(!playing);return}
@@ -526,16 +574,20 @@ function applyMix(smooth){
 
 // music: each CD can hold one track (looped) or a playlist (plays in order, then starts over). One <audio> element per CD, routed into the mixer;
 // started inside the tap that selects the disc (iOS Safari requires it). On http(s) it goes through a gain node (volume + fades work on iPhone).
-let musicEl=null; const musicEls={};
+let musicEl=null; const musicEls={}; let shuffleOn=false, repeatOn=true; // repeatOn: loop the CD (one track loops itself); off: when a CD ends, go on to the next CD
+const rndOther=(n,cur)=>{if(n<2)return cur;let r;do{r=Math.floor(Math.random()*n)}while(r===cur);return r};
 const trackList=it=>!it||!it.music?[]:(Array.isArray(it.music)?it.music:[{f:it.music,t:it.t}]);
 const curTitle=()=>{if(!cur)return'';const l=trackList(cur);return l.length>1&&musicEls[cur.id]?l[+musicEls[cur.id].dataset.idx].t:cur.t};
 function setMusic(it){
   if(musicEl&&(!it||musicEl.dataset.theme!==it.id)){musicEl.pause();musicEl=null}
   const list=trackList(it); if(!list.length||!ctx)return;
   let el=musicEls[it.id];
-  if(!el){el=new Audio();el.preload='auto';el.setAttribute('playsinline','');el.dataset.theme=it.id;el.dataset.idx=0;el.loop=list.length===1;el.src=list[0].f;
+  if(!el){el=new Audio();el.preload='auto';el.setAttribute('playsinline','');el.dataset.theme=it.id;el.dataset.idx=0;el.loop=list.length===1&&repeatOn;el.src=list[0].f;
     el.onerror=()=>toast('음악 파일을 불러올 수 없어요');
-    el.onended=()=>{if(list.length>1)playTrack(it,(+el.dataset.idx+1)%list.length)};
+    el.onended=()=>{const i=+el.dataset.idx,last=i>=list.length-1;
+      if(list.length>1&&(shuffleOn||!last))return playTrack(it,shuffleOn?rndOther(list.length,i):i+1);   // next track (random when shuffling)
+      if(repeatOn&&list.length>1)return playTrack(it,0);                                                // end of the CD: start it over
+      if(!repeatOn)step(1)};                                                                            // repeat off: go on to the next CD
     if(/^https?:/.test(location.protocol)){try{ctx.createMediaElementSource(el).connect(L.music);el.dataset.routed='1'}catch(e){}}
     musicEls[it.id]=el}
   musicEl=el;
@@ -571,17 +623,43 @@ function setPlaying(on,silent){
 }
 $('#pp').onclick=()=>{buzz(12);setPlaying(!playing);poke()};
 $('#mpp').onclick=()=>{buzz(10);setPlaying(!playing)};
-const step=d=>{const i=cur?ALL.findIndex(a=>a.id===cur.id):(layout==='deck'?deckIdx:-1);if(i<0)return;const n=(i+d+ALL.length)%ALL.length;buzz(10);openTheme(ALL[n],n,true);
+const step=d=>{const i=cur?ALL.findIndex(a=>a.id===cur.id):(layout==='deck'?deckIdx:-1);if(i<0)return;const n=shuffleOn&&d!==0?rndOther(ALL.length,i):(i+d+ALL.length)%ALL.length;buzz(10);openTheme(ALL[n],n,true);
   if(layout==='deck'){deckIdx=n;shelf=[];renderFeed()}}; // keep the big disc in sync when the CD changes from here or from the lock screen
 $('#mnext').onclick=()=>step(1);
 $('#close').onclick=()=>{$('#player').classList.remove('open');updateMini()};
 function openPlayer(){if(cur){$('#player').classList.add('open');poke()}}
-$('#hWave').onclick=openPlayer; $('#mtext').onclick=openPlayer;
+// Entering CD player mode (mini player tap, or the CD button): the disc grows from where it was (the mini player's disc,
+// else that CD's disc in the list, else the bottom of the screen) into the big disc while the rest of the screen rises from below
+function goDeck(){
+  const ph=$('#phone').getBoundingClientRect(), md=$('#mdisc .disc');
+  const idx=cur?ALL.findIndex(a=>a.id===cur.id):deckIdx;
+  let from=null;
+  if(cur&&md&&$('#mini').classList.contains('show'))from=md.getBoundingClientRect();
+  else{const el=document.querySelector(`.cdlist .disc[data-i="${idx}"]`);if(el){const r=el.getBoundingClientRect();if(r.bottom>ph.top+40&&r.top<ph.bottom-40)from=r}}
+  if(!from)from={left:ph.left+ph.width/2-21,top:ph.bottom-96,width:42,height:42};
+  layout='deck';deckIdx=idx;shelf=[];renderFeed();buzz(10);
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const big=$('#bigdisc'),ease='cubic-bezier(.2,.8,.2,1)';
+  if(big){const to=big.getBoundingClientRect(),dx=from.left+from.width/2-(to.left+to.width/2),dy=from.top+from.height/2-(to.top+to.height/2);
+    big.animate([{transform:`translate(${dx}px,${dy}px) scale(${from.width/to.width})`},{transform:'none'}],{duration:560,easing:ease})}
+  [...document.querySelectorAll('.deck > :not(.tray):not(.dglow), .shelf')].forEach((el,i)=>el.animate([{transform:'translateY(90px)',opacity:0},{transform:'none',opacity:1}],{duration:520,delay:70+i*35,easing:ease,fill:'backwards'}));
+  $('.tray')&&$('.tray').animate([{opacity:0},{opacity:1}],{duration:300,fill:'backwards'})}
+$('#mtext').onclick=()=>{if(cur)goDeck()};
+// CD player progress bar: elapsed and remaining time of the whole CD (all its tracks), updated with the mini player
+const mss=x=>{x=Math.max(0,Math.round(x));return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
+function updateDeckBar(){
+  const f=$('#dfill');if(!f||layout!=='deck')return;
+  const it=ALL[deckIdx],total=trackList(it).reduce((a,t)=>a+(t.d||0),0);
+  let rem=total;if(cur&&cur.id===it.id){const r=cdRemaining();if(r!=null)rem=Math.min(total,r)}
+  const done=total?total-rem:0;
+  f.style.width=(total?Math.min(100,done/total*100):0).toFixed(2)+'%';
+  $('#dtl').textContent=mss(done);$('#dtr').textContent='-'+mss(rem)}
 let miniId=null, trackSec=0;
 function updateMini(){const m=$('#mini');m.classList.toggle('show',!!cur&&!$('#player').classList.contains('open')&&layout!=='deck');
   if(cur&&cur.id!==miniId){miniId=cur.id;trackSec=0;$('#mdisc').innerHTML=discHTML(cur,'gorb'+(playing?' spin':''),false)}
   if(cur){const t=$('#miniT'),tt=cur.t;if(t.textContent!==tt){t.textContent=tt;t.classList.remove('swap');void t.offsetWidth;t.classList.add('swap')}}
-  {const rem=cdRemaining();$('#miniC').textContent=rem==null?'--:--':'-'+fmt(rem)}if(cur){$('#mstitle').textContent=cur.t;$('#mssub').textContent=cur.mode+' · '+cur.sub}}
+  {const rem=cdRemaining();$('#miniC').textContent=rem==null?'--:--':'-'+fmt(rem)}
+  updateDeckBar();if(cur){$('#mstitle').textContent=cur.t;$('#mssub').textContent=cur.mode+' · '+cur.sub}}
 new MutationObserver(updateMini).observe($('#player'),{attributes:true,attributeFilter:['class']});
 
 /* timer */
