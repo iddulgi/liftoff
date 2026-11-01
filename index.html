@@ -847,3 +847,30 @@ fitStandalone(); renderFeed(); resize(); setTimeout(resize,100);
 })();
 </script>
 
+<script>
+/* TEMP DIAGNOSTICS (installed iPhone web app only, or add ?debug to the address): shows how tall the page thinks the screen is. Tap the box to dismiss. */
+(function(){
+  if(!(navigator.standalone||/[?&]debug/.test(location.search)))return;
+  const probe=(css)=>{const d=document.createElement('div');d.style.cssText='position:fixed;left:0;top:0;width:1px;visibility:hidden;pointer-events:none;'+css;document.body.appendChild(d);const h=d.getBoundingClientRect().height;d.remove();return Math.round(h)};
+  const mk=()=>{
+    const ph=document.querySelector('#phone').getBoundingClientRect(), vv=window.visualViewport;
+    return [
+      'standalone='+navigator.standalone+'  '+(innerWidth>innerHeight?'landscape':'portrait'),
+      'innerHeight='+innerHeight+'  outerHeight='+outerHeight,
+      'screen='+screen.width+'x'+screen.height+'  avail='+screen.availHeight,
+      'visualViewport.h='+(vv?Math.round(vv.height):'-'),
+      'documentElement.clientHeight='+document.documentElement.clientHeight,
+      '100vh='+probe('height:100vh')+'  100dvh='+probe('height:100dvh'),
+      '100svh='+probe('height:100svh')+'  100lvh='+probe('height:100lvh'),
+      'safe-area bottom='+probe('height:env(safe-area-inset-bottom,0px)')+'  top='+probe('height:env(safe-area-inset-top,0px)'),
+      'phone (app) height='+Math.round(ph.height)+'  top='+Math.round(ph.top)
+    ].join('\n')};
+  const box=document.createElement('pre');
+  box.style.cssText='position:fixed;z-index:99999;left:10px;right:10px;top:46%;margin:0;padding:10px 12px;background:rgba(0,0,0,.82);color:#7CFF7C;border:1px solid #7CFF7C;border-radius:10px;font:11px/1.45 Menlo,monospace;white-space:pre-wrap';
+  const line=(c,pos)=>{const l=document.createElement('div');l.style.cssText='position:fixed;z-index:99998;left:0;right:0;height:4px;pointer-events:none;background:'+c+';'+pos;document.body.appendChild(l);return l};
+  const redBottom=line('#ff2a2a','bottom:0'), cyan812=line('#00e5ff','top:812px');
+  const upd=()=>{box.textContent=mk()+'\nred line = bottom of the layout viewport\ncyan line = y 812 (where your app ended)\n(tap this box to hide)'};
+  box.addEventListener('click',()=>{box.remove();redBottom.remove();cyan812.remove()});
+  document.body.appendChild(box);upd();addEventListener('resize',upd);setTimeout(upd,500);setTimeout(upd,2000);
+})();
+</script>
