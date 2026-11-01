@@ -293,7 +293,7 @@ const MODES={
   {id:'dd',kind:'Daydream',t:'Daydream',sub:'go beyond the form',cr:'Soft Aurora · 느리게 흐르는 빛',c:[[130,60,170],[60,30,110],[255,150,200]],scene:'mist',mix:{rain:0,fire:0,wind:30,white:5,pad:5},pad:[87.3,130.8,174.6]},
   {id:'se',kind:'Sensations',t:'Sensations',sub:'feel the moment',cr:'Warm Hearth · 장작 타는 소리',c:[[170,80,60],[80,30,40],[255,180,100]],scene:'embers',mix:{rain:0,fire:60,wind:10,white:0,pad:5},pad:[98,123.5,146.8]},
   {id:'sh',kind:'Seaside',t:'Shoreline',sub:'let the tide decide',cr:'Evening Surf · 해질녘 파도',c:[[200,110,120],[70,50,120],[255,200,170]],scene:'waves',mix:{rain:0,fire:0,wind:40,white:40,pad:5},pad:[110,138.6,164.8]},
-  {id:'ch',kind:'Chill',t:'Chill',sub:'warm story',cr:'Warm Story · 따뜻한 로파이 음악',c:[[220,120,110],[120,60,90],[255,190,150]],scene:'mist',mix:{rain:0,fire:0,wind:0,white:0,pad:0,music:80},pad:[130.8,164.8,196],music:'audio/chill.mp3'}]},
+  {id:'ch',kind:'Chill',t:'Chill',sub:'warm story',cr:'Warm Story · 따뜻한 로파이 음악',c:[[220,120,110],[120,60,90],[255,190,150]],scene:'mist',mix:{rain:0,fire:0,wind:0,white:0,pad:0,music:80},pad:[130.8,164.8,196],music:[{"f":"audio/zephiramusic-beat-background-626170.mp3","t":"Beat Background"},{"f":"audio/zephiramusic-cafe-lofi-591791.mp3","t":"Cafe Lofi"},{"f":"audio/zephiramusic-chillhop-591477.mp3","t":"Chillhop"},{"f":"audio/zephiramusic-lo-fi-beat-584803.mp3","t":"Lo Fi Beat"},{"f":"audio/zephiramusic-lofi-90s-612040.mp3","t":"Lofi 90s"},{"f":"audio/zephiramusic-lofi-beat-613823.mp3","t":"Lofi Beat"},{"f":"audio/zephiramusic-lofi-christmas-613825.mp3","t":"Lofi Christmas"},{"f":"audio/zephiramusic-lofi-hip-hops-619134.mp3","t":"Lofi Hip Hops"},{"f":"audio/zephiramusic-lofi-lounge-589550.mp3","t":"Lofi Lounge"},{"f":"audio/zephiramusic-lofi-morning-608128.mp3","t":"Lofi Morning"},{"f":"audio/zephiramusic-lofi-music-577896.mp3","t":"Lofi Music"},{"f":"audio/zephiramusic-lofi-pop-611108.mp3","t":"Lofi Pop"},{"f":"audio/zephiramusic-lofi-vlog-581503.mp3","t":"Lofi Vlog"},{"f":"audio/zephiramusic-shopping-lofi-593810.mp3","t":"Shopping Lofi"},{"f":"audio/zephiramusic-tokyo-lofi-604786.mp3","t":"Tokyo Lofi"},{"f":"audio/zephiramusic-vlog-chillhop-585954.mp3","t":"Vlog Chillhop"}]}]},
  sleep:{accent:'#9db4ff',lead:'수면 · 3개의 사운드스케이프',h:'오늘 하루, 내려놓기',
   items:[
   {id:'nr',kind:'Night Rain',t:'Night Rain',sub:'close your eyes',cr:'Midnight Rain · 깊은 밤의 빗소리',c:[[30,40,110],[8,12,40],[110,130,220]],scene:'rain',mix:{rain:70,fire:0,wind:20,white:10,pad:5},pad:[65.4,98,130.8]}]}
@@ -517,20 +517,25 @@ function applyMix(smooth){
   const g=L.music.gain; g.cancelScheduledValues(t); g.setTargetAtTime((mix.music||0)/100,t,smooth?.6:.05);
 }
 
-// music track: an <audio> element routed into the mixer. Started inside the tap that selects the disc, which iOS Safari requires;
-// on http(s) it goes through a gain node (volume slider + fades work, including on iPhone); on file:// it plays directly
+// music: each CD can hold one track (looped) or a playlist (plays in order, then starts over). One <audio> element per CD, routed into the mixer;
+// started inside the tap that selects the disc (iOS Safari requires it). On http(s) it goes through a gain node (volume + fades work on iPhone).
 let musicEl=null; const musicEls={};
+const trackList=it=>!it||!it.music?[]:(Array.isArray(it.music)?it.music:[{f:it.music,t:it.t}]);
+const curTitle=()=>{if(!cur)return'';const l=trackList(cur);return l.length>1&&musicEls[cur.id]?l[+musicEls[cur.id].dataset.idx].t:cur.t};
 function setMusic(it){
-  if(musicEl&&(!it||musicEl.dataset.url!==it.music)){musicEl.pause();musicEl=null}
-  const url=it&&it.music; if(!url||!ctx)return;
-  let el=musicEls[url];
-  if(!el){el=new Audio();el.loop=true;el.preload='auto';el.setAttribute('playsinline','');el.dataset.url=url;el.src=url;
+  if(musicEl&&(!it||musicEl.dataset.theme!==it.id)){musicEl.pause();musicEl=null}
+  const list=trackList(it); if(!list.length||!ctx)return;
+  let el=musicEls[it.id];
+  if(!el){el=new Audio();el.preload='auto';el.setAttribute('playsinline','');el.dataset.theme=it.id;el.dataset.idx=0;el.loop=list.length===1;el.src=list[0].f;
     el.onerror=()=>toast('음악 파일을 불러올 수 없어요');
+    el.onended=()=>{if(list.length>1)playTrack(it,(+el.dataset.idx+1)%list.length)};
     if(/^https?:/.test(location.protocol)){try{ctx.createMediaElementSource(el).connect(L.music);el.dataset.routed='1'}catch(e){}}
-    musicEls[url]=el}
+    musicEls[it.id]=el}
   musicEl=el; if(!el.dataset.routed)el.volume=Math.min(1,(mix.music||0)/100);
   el.play().catch(()=>toast('화면을 한 번 탭하면 음악이 시작돼요'));
 }
+function playTrack(it,i){const list=trackList(it),el=musicEls[it.id];if(!el)return;el.dataset.idx=i;el.src=list[i].f;el.play().catch(()=>{});
+  if(cur&&cur.id===it.id){updateMini();updateMediaSession(it)}}
 function fadeMaster(to,sec){const t=ctx.currentTime,g=master.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(to,t+sec)}
 
 /* ---------- Player ---------- */
@@ -557,14 +562,15 @@ function setPlaying(on,silent){
 }
 $('#pp').onclick=()=>{buzz(12);setPlaying(!playing);poke()};
 $('#mpp').onclick=()=>{buzz(10);setPlaying(!playing)};
-const step=d=>{if(!cur)return;const i=ALL.findIndex(a=>a.id===cur.id),n=(i+d+ALL.length)%ALL.length;buzz(10);openTheme(ALL[n],n,true)};
+const step=d=>{if(!cur)return;const tl=trackList(cur);if(tl.length>1&&musicEls[cur.id]){buzz(10);playTrack(cur,(+musicEls[cur.id].dataset.idx+d+tl.length)%tl.length);if(!playing)setPlaying(true);return}const i=ALL.findIndex(a=>a.id===cur.id),n=(i+d+ALL.length)%ALL.length;buzz(10);openTheme(ALL[n],n,true)};
 $('#mnext').onclick=()=>step(1);
 $('#close').onclick=()=>{$('#player').classList.remove('open');updateMini()};
 function openPlayer(){if(cur){$('#player').classList.add('open');poke()}}
 $('#hWave').onclick=openPlayer; $('#mtext').onclick=openPlayer;
 let miniId=null, trackSec=0;
 function updateMini(){const m=$('#mini');m.classList.toggle('show',!!cur&&!$('#player').classList.contains('open')&&layout!=='deck');
-  if(cur&&cur.id!==miniId){miniId=cur.id;trackSec=0;const t=$('#miniT');t.textContent=cur.t;t.classList.remove('swap');void t.offsetWidth;t.classList.add('swap');$('#mdisc').innerHTML=discHTML(cur,'gorb'+(playing?' spin':''),false)}
+  if(cur&&cur.id!==miniId){miniId=cur.id;trackSec=0;$('#mdisc').innerHTML=discHTML(cur,'gorb'+(playing?' spin':''),false)}
+  if(cur){const t=$('#miniT'),tt=curTitle();if(t.textContent!==tt){t.textContent=tt;t.classList.remove('swap');void t.offsetWidth;t.classList.add('swap')}}
   $('#miniC').textContent=musicEl&&isFinite(musicEl.duration)?'-'+fmt(musicEl.duration-musicEl.currentTime):'--:--';if(cur){$('#mstitle').textContent=cur.t;$('#mssub').textContent=cur.mode+' · '+cur.sub}}
 new MutationObserver(updateMini).observe($('#player'),{attributes:true,attributeFilter:['class']});
 
@@ -699,7 +705,7 @@ function coverPNG(it){return new Promise(res=>{if(artCache[it.id])return res(art
   const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=512;const k=Math.max(512/img.width,512/img.height),w=img.width*k,h=img.height*k;c.getContext('2d').drawImage(img,(512-w)/2,(512-h)/2,w,h);c.toBlob(b=>{if(!b)return res(null);artCache[it.id]=URL.createObjectURL(b);res(artCache[it.id])})};img.onerror=()=>res(null);img.src=PHOTO[it.id]?encodeURI(PHOTO[it.id]):coverURL(it).slice(5,-2)})}
 function updateMediaSession(it){
   if(!('mediaSession' in navigator)||typeof MediaMetadata==='undefined')return;
-  const meta={title:it.t,artist:'CalmWave',album:it.mode+' · '+it.sub};
+  const meta={title:curTitle()||it.t,artist:'CalmWave',album:it.t+' · '+it.sub};
   try{navigator.mediaSession.metadata=new MediaMetadata(meta)}catch(e){return}
   coverPNG(it).then(u=>{if(u&&cur&&cur.id===it.id){try{navigator.mediaSession.metadata=new MediaMetadata({...meta,artwork:[{src:u,sizes:'512x512',type:'image/png'}]})}catch(e){}}})}
 if('mediaSession' in navigator){const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
