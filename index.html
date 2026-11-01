@@ -17,13 +17,13 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-html{background:#000}   /* the page behind the status bar / home-indicator area must be the same black as the app */
+html{background:#000;overscroll-behavior:none}   /* the page behind the status bar / home-indicator area must be the same black as the app */
 body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--body);overflow:hidden;
   padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px));
   display:flex;align-items:center;justify-content:center}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.phone{position:relative;width:100%;height:100%;max-width:430px;max-height:900px;overflow:hidden;background:var(--ink)}
+.phone{position:relative;width:100%;height:100%;max-width:430px;max-height:900px;overflow:hidden;background:var(--ink);touch-action:pan-y} /* pan-y: vertical scrolling only, so a slightly diagonal drag can't pull the content sideways */
 @media (min-width:520px) and (min-height:760px){.phone{height:min(100%,860px);border-radius:44px;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.6)}}
 
 /* HOME */
@@ -40,7 +40,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .stat{flex:1;min-width:0;height:42px;border-radius:21px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--fg2)}
 .stat b{font-family:var(--display);font-size:15px;color:var(--fg);font-variant-numeric:tabular-nums}
 .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:#ff7a7a;color:#1a0707;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px}
-.feed{position:relative;z-index:2;flex:1;overflow-y:auto;padding:0 0 150px;scrollbar-width:none}
+.feed{position:relative;z-index:2;flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;padding:0 0 150px;scrollbar-width:none}
 .feed::-webkit-scrollbar{display:none}
 .feed.noenter .enter{animation:none!important}
 .feedhead{padding:6px 24px 18px}
@@ -147,7 +147,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .disc.gorb{box-shadow:none}
 .hl{display:flex;align-items:center;gap:8px}
 #calBtn{display:none} /* calendar hidden for now: remove this line to bring the button (and the whole calendar) back */
-.cal{position:absolute;inset:0;z-index:20;background:#000000;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:0 6px calc(env(safe-area-inset-bottom,0px) + 18px);overflow-y:auto}
+.cal{position:absolute;inset:0;z-index:20;background:#000000;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:0 6px calc(env(safe-area-inset-bottom,0px) + 18px);overflow-y:auto;overflow-x:hidden}
 .cal.open{transform:none}
 .calhd{display:flex;padding:0 10px;margin-bottom:10px}
 .calhead{position:sticky;top:0;z-index:5;background:#000000;padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
