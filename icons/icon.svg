@@ -1,51 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <!-- top (front) sphere: dark navy core sitting low, light cyan rim -->
-    <radialGradient id="top" cx="0.5" cy="0.62" r="0.62" fx="0.5" fy="0.64" gradientTransform="translate(.5 .62) scale(1.28 .92) translate(-.5 -.62)">
-      <stop offset="0" stop-color="#060c3a"/>
-      <stop offset=".24" stop-color="#0b2088"/>
-      <stop offset=".46" stop-color="#2557b8"/>
-      <stop offset=".70" stop-color="#6aa6d8"/>
-      <stop offset=".90" stop-color="#b7e0ec"/>
-      <stop offset="1" stop-color="#d4f0f4"/>
-    </radialGradient>
-    <radialGradient id="topRim" cx="0.5" cy="0.10" r="0.5">
-      <stop offset="0" stop-color="#e4f8fa" stop-opacity=".95"/>
-      <stop offset=".55" stop-color="#bfe6ee" stop-opacity=".45"/>
-      <stop offset="1" stop-color="#bfe6ee" stop-opacity="0"/>
-    </radialGradient>
-    <!-- bottom (back) sphere: pale, a little deeper toward the bottom edge -->
-    <radialGradient id="bot" cx="0.5" cy="0.42" r="0.62">
-      <stop offset="0" stop-color="#dcf3f5"/>
-      <stop offset=".55" stop-color="#a9d6e6"/>
-      <stop offset="1" stop-color="#5f98d6"/>
-    </radialGradient>
-    <radialGradient id="botDeep" cx="0.5" cy="0.97" r="0.5">
-      <stop offset="0" stop-color="#4f86d0" stop-opacity=".75"/>
-      <stop offset="1" stop-color="#4f86d0" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
-      <stop offset="0" stop-color="#3b73c6" stop-opacity=".28"/>
-      <stop offset="1" stop-color="#3b73c6" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="22"/></filter>
-    <filter id="soft2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="12"/></filter>
-    <clipPath id="cTop"><circle cx="512" cy="404" r="256"/></clipPath>
-    <clipPath id="cBot"><circle cx="512" cy="620" r="256"/></clipPath>
+    <filter id="edge" filterUnits="userSpaceOnUse" x="-600" y="-600" width="2224" height="2224"><feGaussianBlur stdDeviation="64"/></filter>
+    <filter id="f60" filterUnits="userSpaceOnUse" x="-600" y="-600" width="2224" height="2224"><feGaussianBlur stdDeviation="60"/></filter>
+    <filter id="f40" filterUnits="userSpaceOnUse" x="-600" y="-600" width="2224" height="2224"><feGaussianBlur stdDeviation="40"/></filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="11" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.9 -.4"/>
+    </filter>
+    <linearGradient id="beam" gradientUnits="userSpaceOnUse" x1="760" y1="0" x2="900" y2="1024">
+      <stop offset="0" stop-color="#050c30"/><stop offset=".22" stop-color="#1346b8"/><stop offset=".5" stop-color="#2a72f3"/><stop offset=".78" stop-color="#6fa7fa"/><stop offset="1" stop-color="#bcd6fd"/>
+    </linearGradient>
+    <radialGradient id="coreG"><stop offset="0" stop-color="#7ab0fc" stop-opacity=".7"/><stop offset=".6" stop-color="#7ab0fc" stop-opacity=".3"/><stop offset="1" stop-color="#7ab0fc" stop-opacity="0"/></radialGradient>
+    <radialGradient id="patchG"><stop offset="0" stop-color="#d3e6fe" stop-opacity=".95"/><stop offset=".25" stop-color="#d3e6fe" stop-opacity=".82"/><stop offset=".5" stop-color="#d3e6fe" stop-opacity=".5"/><stop offset=".75" stop-color="#d3e6fe" stop-opacity=".18"/><stop offset="1" stop-color="#d3e6fe" stop-opacity="0"/></radialGradient>
+    <!-- the same blurred circle pinned to the right wall, now used as the shape the light is shown through -->
+    <mask id="shape"><rect width="1024" height="1024" fill="#000"/><circle cx="1024" cy="512" r="500" fill="#fff" filter="url(#edge)"/></mask>
+    <clipPath id="frame"><rect width="1024" height="1024"/></clipPath>
   </defs>
-  <rect width="1024" height="1024" fill="#03060f"/>
-  <ellipse cx="512" cy="512" rx="470" ry="500" fill="url(#glow)"/>
-  <!-- back sphere -->
-  <g clip-path="url(#cBot)">
-    <rect x="256" y="364" width="512" height="512" fill="url(#bot)"/>
-    <rect x="256" y="364" width="512" height="512" fill="url(#botDeep)"/>
-    <!-- the soft crease where the two spheres meet -->
-    <ellipse cx="512" cy="590" rx="46" ry="120" fill="#4f86d0" opacity=".55" filter="url(#soft)"/>
-  </g>
-  <!-- front sphere -->
-  <g clip-path="url(#cTop)">
-    <rect x="256" y="148" width="512" height="512" fill="url(#top)"/>
-    <rect x="256" y="148" width="512" height="512" fill="url(#topRim)"/>
-    <ellipse cx="512" cy="640" rx="190" ry="40" fill="#5e91d6" opacity=".35" filter="url(#soft2)"/>
-  </g>
+  <rect width="1024" height="1024" fill="#02050c"/>
+  <g clip-path="url(#frame)"><g mask="url(#shape)">
+    <rect width="1024" height="1024" fill="url(#beam)"/>
+    <ellipse cx="860" cy="360" rx="300" ry="470" fill="url(#coreG)"/>
+    <g transform="rotate(-12 800 840)"><ellipse cx="800" cy="840" rx="520" ry="300" fill="url(#patchG)"/></g>
+    <rect width="1024" height="1024" filter="url(#grain)" style="mix-blend-mode:soft-light" opacity="0.9"/>
+  </g></g>
 </svg>
