@@ -565,7 +565,7 @@ $('#hWave').onclick=openPlayer; $('#mtext').onclick=openPlayer;
 let miniId=null, trackSec=0;
 function updateMini(){const m=$('#mini');m.classList.toggle('show',!!cur&&!$('#player').classList.contains('open')&&layout!=='deck');
   if(cur&&cur.id!==miniId){miniId=cur.id;trackSec=0;const t=$('#miniT');t.textContent=cur.t;t.classList.remove('swap');void t.offsetWidth;t.classList.add('swap');$('#mdisc').innerHTML=discHTML(cur,'gorb'+(playing?' spin':''),false)}
-  $('#miniC').textContent=fmt(trackSec);if(cur){$('#mstitle').textContent=cur.t;$('#mssub').textContent=cur.mode+' · '+cur.sub}}
+  $('#miniC').textContent=musicEl&&isFinite(musicEl.duration)?'-'+fmt(musicEl.duration-musicEl.currentTime):'--:--';if(cur){$('#mstitle').textContent=cur.t;$('#mssub').textContent=cur.mode+' · '+cur.sub}}
 new MutationObserver(updateMini).observe($('#player'),{attributes:true,attributeFilter:['class']});
 
 /* timer */
