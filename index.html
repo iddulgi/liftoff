@@ -30,9 +30,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .homebg.on{opacity:1}
 .hdr{position:absolute;top:0;left:0;right:0;z-index:30;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 10px;gap:10px}
 .hbtn{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:grid;place-items:center;position:relative}
-.wave{display:flex;gap:3px;align-items:center;height:18px}
-.wave i{width:2.5px;border-radius:2px;background:var(--fg2);opacity:.5;height:var(--h);transition:background .3s,opacity .3s}
-.wave i:nth-child(1){--h:5px}.wave i:nth-child(2){--h:9px}.wave i:nth-child(3){--h:13px}.wave i:nth-child(4){--h:17px}
+#hWave{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none} /* icon only, no circle */
+.wave{display:flex;gap:3px;align-items:center;height:18px;transform:scale(1.3)} /* a little larger, to match the CD button's icon */
+.wave i{width:3px;border-radius:2px;background:var(--fg2);opacity:.5;height:var(--h);transition:background .3s,opacity .3s}
+.wave i:nth-child(1){--h:8px}.wave i:nth-child(2){--h:15px}.wave i:nth-child(3){--h:17px}.wave i:nth-child(4){--h:8px}
 .wave i:nth-child(1){--hp:7px}.wave i:nth-child(2){--hp:13px}.wave i:nth-child(3){--hp:17px}.wave i:nth-child(4){--hp:11px}
 .playing .wave i{background:var(--theme);opacity:1;height:var(--hp);width:3px;animation:eq 1.1s ease-in-out infinite}
 .wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}
@@ -83,7 +84,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 
 
 .tbtn{position:absolute;z-index:31;left:10px;top:calc(env(safe-area-inset-top,0px) + 70px);font-size:10px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:10px;padding:4px 8px;backdrop-filter:blur(8px)}
-.feed.cdlist{background:#000;padding:96px 0 130px;display:flex;flex-direction:column;align-items:center;gap:0}
+.feed.cdlist{background:#000;padding:90px 0 100px;display:flex;flex-direction:column;align-items:center;gap:0}
 .phone{container-type:inline-size}
 .cdlist .disc{width:240px;height:240px;flex:none;margin:0 0 20px;scroll-snap-align:center;transition:transform .25s}
 .cdlist .disc:active{transform:scale(.97)}
@@ -103,7 +104,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .ct{font-family:var(--display);font-weight:700;font-size:15px;color:#fff}
 .cs{font-size:12px;color:#8a90a3}
 
-.feed.decklist{background:#000;padding:90px 0 130px}
+.feed.decklist{background:#000;padding:90px 0 100px}
 .deck{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 24px}
 .tray{width:min(66vw,270px);aspect-ratio:1;border-radius:34px;background:linear-gradient(145deg,#232733,#0e1017);border:1px solid rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);display:grid;place-items:center;margin-bottom:14px;position:relative}
 .deck{position:relative;z-index:0}
@@ -111,8 +112,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .bigslot .disc{width:100%;margin:0;box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 0 6px rgba(255,255,255,.045)}
 .dtitle{font-family:var(--display);font-weight:700;font-size:20px}
 .dsub{font-size:12px;color:#8a90a3}
-.dctl{margin-top:10px}
-.dbtn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);display:grid;place-items:center}
+.dctl{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px}
+.dsk{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);display:grid;place-items:center;flex:none}
+.dbtn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.12);border:0;display:grid;place-items:center}
 .shelf{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 12px;padding:34px 22px 0;justify-items:center}
 .sd{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%}
 .sd .disc{width:min(24vw,96px);margin:0;box-shadow:0 8px 20px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.14)}
@@ -131,7 +133,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .disc.gorb .sheen,.disc.gorb .hole{display:none}
 .disc.gorb .art.photo{background-size:cover,cover;background-position:center,center;background-repeat:no-repeat;-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 3.5%,#000 3.8%);mask-image:radial-gradient(circle at 50% 50%,transparent 3.5%,#000 3.8%)}
 .disc.gorb{box-shadow:none}
-.hl{display:flex;gap:8px}
+.hl{display:flex;align-items:center;gap:8px}
+#calBtn{display:none} /* calendar hidden for now: remove this line to bring the button (and the whole calendar) back */
 .cal{position:absolute;inset:0;z-index:20;background:#0b0d12;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:0 6px calc(env(safe-area-inset-bottom,0px) + 18px);overflow-y:auto}
 .cal.open{transform:none}
 .calhd{display:flex;padding:0 10px;margin-bottom:10px}
@@ -457,7 +460,7 @@ function renderFeed(){
     const dk=ALL[deckIdx];
     feed.innerHTML=`<div class="deck"><div class="tray" style="--glow:rgba(${dk.c[2].join(',')},.42)"><button class="bigslot" id="bigslot" aria-label="전체 화면 플레이어 열기">${discHTML(dk,'gorb',false).replace('class="disc ','id="bigdisc" class="disc ')}</button></div>
       <div class="dtitle">${dk.t}</div><div class="dsub">${dk.mode} · ${dk.sub}</div>
-      <div class="dctl"><button id="dpp" class="dbtn" aria-label="재생/일시정지"></button></div></div>
+      <div class="dctl"><button id="dprev" class="dsk" aria-label="이전 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M19.5 5.6v12.8a1 1 0 0 1-1.5.86l-10-6.4a1 1 0 0 1 0-1.72l10-6.4a1 1 0 0 1 1.5.86z"/><rect x="3.2" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="dpp" class="dbtn" aria-label="재생/일시정지"></button><button id="dnext" class="dsk" aria-label="다음 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M4.5 5.6v12.8a1 1 0 0 0 1.5.86l10-6.4a1 1 0 0 0 0-1.72l-10-6.4a1 1 0 0 0-1.5.86z"/><rect x="17.6" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button></div></div>
       <div class="shelf">${shelf.map((i,k)=>`<button class="sd" data-slot="${k}" data-i="${i}" aria-label="${ALL[i].t} 넣기">${discHTML(ALL[i],'gorb',false)}<span class="sl">${ALL[i].t}</span></button>`).join('')}</div>`;
     syncSpin();
   }else{
@@ -499,6 +502,8 @@ function nextLayout(){const n=(LAYOUTS.findIndex(l=>l[0]===layout)+1)%LAYOUTS.le
 
 $('#feed').addEventListener('click',e=>{
   if(layout==='deck'){const sd=e.target.closest('.sd');if(sd)return loadDisc(sd);
+    if(e.target.closest('#dprev')){step(-1);return}
+    if(e.target.closest('#dnext')){step(1);return}
     if(e.target.closest('#dpp')){if(!cur||cur.id!==ALL[deckIdx].id)openTheme(ALL[deckIdx],deckIdx,true);else setPlaying(!playing);return}
     if(e.target.closest('#bigslot')){if(cur&&cur.id===ALL[deckIdx].id)setPlaying(!playing);else openTheme(ALL[deckIdx],deckIdx,true);return}return}
   const c=e.target.closest('[data-i]'); if(!c)return; buzz(14); {const i=+c.dataset.i;if(layout==='cd'){if(cur&&cur.id===ALL[i].id)setPlaying(!playing);else openTheme(ALL[i],i,true)}else openTheme(ALL[i],i,true)}});
@@ -567,7 +572,8 @@ function setPlaying(on,silent){
 }
 $('#pp').onclick=()=>{buzz(12);setPlaying(!playing);poke()};
 $('#mpp').onclick=()=>{buzz(10);setPlaying(!playing)};
-const step=d=>{if(!cur)return;const i=ALL.findIndex(a=>a.id===cur.id),n=(i+d+ALL.length)%ALL.length;buzz(10);openTheme(ALL[n],n,true)};
+const step=d=>{const i=cur?ALL.findIndex(a=>a.id===cur.id):(layout==='deck'?deckIdx:-1);if(i<0)return;const n=(i+d+ALL.length)%ALL.length;buzz(10);openTheme(ALL[n],n,true);
+  if(layout==='deck'){deckIdx=n;shelf=[];renderFeed()}}; // keep the big disc in sync when the CD changes from here or from the lock screen
 $('#mnext').onclick=()=>step(1);
 $('#close').onclick=()=>{$('#player').classList.remove('open');updateMini()};
 function openPlayer(){if(cur){$('#player').classList.add('open');poke()}}
