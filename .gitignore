@@ -1,6 +1,5 @@
 .DS_Store
+ref image/
 audio/*.png
 audio/*.jpg
 audio/*.mov
-audio/ref image/
-audio/music/
