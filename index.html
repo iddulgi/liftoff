@@ -134,7 +134,11 @@ html.standalone .feed{-webkit-mask-image:linear-gradient(180deg,transparent 0,#0
 .bigslot .disc{width:100%;margin:0;box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 0 6px rgba(255,255,255,.045)}
 .dtitle{font-family:var(--display);font-weight:700;font-size:20px}
 .dsub{font-size:12px;color:#8a90a3}
-.dprog{width:var(--WB);margin-top:20px}
+.dprog{width:var(--WB);margin-top:20px;position:relative}
+.dhit{position:absolute;left:0;right:0;top:-8.5px;height:20px;touch-action:none;cursor:pointer;z-index:2}  /* touch area only: 20px tall, centred on the 3px bar */
+.dthumb{position:absolute;top:-4.5px;left:0;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.5);opacity:0;transition:opacity .15s;pointer-events:none;z-index:3}
+.dprog.dragging .dthumb{opacity:1}
+.dprog.dragging .dbar i{transition:none}
 .dbar{height:3px;border-radius:2px;background:rgba(255,255,255,.16);overflow:hidden}
 .dbar i{display:block;height:100%;width:0;border-radius:2px;background:var(--theme);transition:width .5s linear,background .4s} /* same colour as the header wave icon */
 .dtimes{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
@@ -494,7 +498,7 @@ function renderFeed(){
     const dk=ALL[deckIdx];
     feed.innerHTML=`<div class="deck"><div class="tray" style="--glow:rgba(${dk.c[2].join(',')},.42)"><button class="bigslot" id="bigslot" aria-label="전체 화면 플레이어 열기">${discHTML(dk,'gorb',false).replace('class="disc ','id="bigdisc" class="disc ')}</button></div>
       <div class="dtitle">${dk.t}</div><div class="dsub">${dk.sub} · ${cdLen(dk)}</div>
-      <div class="dprog"><div class="dbar"><i id="dfill"></i></div><div class="dtimes"><span id="dtl">0:00</span><span id="dtr">-0:00</span></div></div>
+      <div class="dprog"><div class="dbar"><i id="dfill"></i></div><div class="dhit" id="dhit" role="slider" aria-label="재생 위치" aria-valuemin="0" aria-valuemax="100"></div><div class="dthumb" id="dthumb"></div><div class="dtimes"><span id="dtl">0:00</span><span id="dtr">-0:00</span></div></div>
       <div class="dctl"><button id="dshuf" class="dopt" aria-pressed="false" aria-label="셔플"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 14.5L21 17L18 19.5L21 17H17.8C16.2 17 14.8 16.2 13.9 14.9L10.1 9.1C9.2 7.8 7.8 7 6.2 7H3"/><path d="M3 17H6.2C7.8 17 9.2 16.2 10.1 14.9"/><path d="M18 4.5L21 7L18 9.5L21 7H17.8C16.2 7 14.8 7.8 13.9 9.1"/></svg></button><button id="dprev" class="dsk" aria-label="이전 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M19.5 5.6v12.8a1 1 0 0 1-1.5.86l-10-6.4a1 1 0 0 1 0-1.72l10-6.4a1 1 0 0 1 1.5.86z"/><rect x="3.2" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="dpp" class="dbtn" aria-label="재생/일시정지"></button><button id="dnext" class="dsk" aria-label="다음 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M4.5 5.6v12.8a1 1 0 0 0 1.5.86l10-6.4a1 1 0 0 0 0-1.72l-10-6.4a1 1 0 0 0-1.5.86z"/><rect x="17.6" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="drep" class="dopt" aria-pressed="true" aria-label="반복 재생"><svg width="20.5" height="20.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3L20 6L17 9L20 6H7.5A3.5 3.5 0 0 0 4 9.5V11"/><path d="M7 21L4 18L7 15L4 18H16.5A3.5 3.5 0 0 0 20 14.5V13"/></svg></button></div></div>
       <div class="shelf">${shelf.map((i,k)=>`<button class="sd" data-slot="${k}" data-i="${i}" aria-label="${ALL[i].t} 넣기">${discHTML(ALL[i],'gorb',false)}<span class="sl">${ALL[i].t}</span></button>`).join('')}</div>`;
     feed.style.setProperty('--g',GLOW[dk.id]||'120,120,120');
@@ -671,12 +675,39 @@ $('#mtext').onclick=()=>{if(cur)goDeck()};
 const mss=x=>{x=Math.max(0,Math.round(x));return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
 const cdLen=it=>mss(trackList(it).reduce((a,t)=>a+(t.d||0),0)); // total play time of a CD, shown next to its description
 function updateDeckBar(){
-  const f=$('#dfill');if(!f||layout!=='deck')return;
+  const f=$('#dfill');if(!f||layout!=='deck'||seeking)return;
   const it=ALL[deckIdx],total=trackList(it).reduce((a,t)=>a+(t.d||0),0);
   let rem=total;if(cur&&cur.id===it.id){const r=cdRemaining();if(r!=null)rem=Math.min(total,r)}
   const done=total?total-rem:0;
   f.style.width=(total?Math.min(100,done/total*100):0).toFixed(2)+'%';
   $('#dtl').textContent=mss(done);$('#dtr').textContent='-'+mss(rem)}
+
+// ---- seeking: tap or drag the CD player's time bar. The bar spans the whole CD (all tracks), so a position maps to (track, offset) ----
+let seeking=false;
+const cdPos=(it,f)=>{const l=trackList(it),total=l.reduce((a,t)=>a+(t.d||0),0);let t=Math.max(0,Math.min(total-.05,f*total));
+  for(let i=0;i<l.length;i++){const d=l[i].d||0;if(t<d||i===l.length-1)return{idx:i,off:t,total};t-=d}return{idx:0,off:0,total}};
+function seekCD(f){
+  const it=ALL[deckIdx],el=musicEls[it.id];if(!el||!cur||cur.id!==it.id)return;
+  const p=cdPos(it,f),was=playing,setT=()=>{el.currentTime=Math.max(0,Math.min(p.off,(el.duration||p.off+1)-.3))};
+  if(+el.dataset.idx!==p.idx){playTrack(it,p.idx);el.addEventListener('loadedmetadata',setT,{once:true});if(!was)el.pause()}else setT();
+  buzz(8)}
+(function(){
+  // dragging only: a plain tap does nothing. The time bar moves from where the music currently is, by how far the finger is dragged.
+  const feed=$('#feed');let drag=null;
+  const barW=()=>$('.dbar').getBoundingClientRect().width;
+  const show=f=>{const it=ALL[deckIdx],{total}=cdPos(it,f),done=f*total;
+    $('#dfill').style.width=(f*100).toFixed(2)+'%';$('#dthumb').style.left=(f*barW())+'px';$('#dtl').textContent=mss(done);$('#dtr').textContent='-'+mss(total-done)};
+  const now=()=>{const it=ALL[deckIdx],total=trackList(it).reduce((a,t)=>a+(t.d||0),0),r=cdRemaining();return total?Math.max(0,Math.min(1,(total-(r==null?total:r))/total)):0};
+  feed.addEventListener('pointerdown',e=>{const h=e.target.closest('#dhit');if(!h||!cur||cur.id!==ALL[deckIdx].id||!trackList(cur).length)return;
+    drag={id:e.pointerId,x0:e.clientX,f0:now(),f:now(),on:false};try{h.setPointerCapture(e.pointerId)}catch(_){}});
+  feed.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;
+    if(!drag.on){if(Math.abs(e.clientX-drag.x0)<5)return;drag.on=true;seeking=true;$('.dprog').classList.add('dragging');buzz(6)}
+    drag.f=Math.max(0,Math.min(1,drag.f0+(e.clientX-drag.x0)/barW()));show(drag.f)});
+  const end=(e,ok)=>{if(!drag||e.pointerId!==drag.id)return;const d=drag;drag=null;
+    if(!d.on)return;                                    // it was only a tap
+    $('.dprog')&&$('.dprog').classList.remove('dragging');if(ok)seekCD(d.f);setTimeout(()=>{seeking=false;updateDeckBar()},60)};
+  feed.addEventListener('pointerup',e=>end(e,true));feed.addEventListener('pointercancel',e=>end(e,false));
+})();
 let miniId=null, trackSec=0;
 function updateMini(){const m=$('#mini');m.classList.toggle('show',!!cur&&!$('#player').classList.contains('open')&&layout!=='deck');
   if(cur&&cur.id!==miniId){miniId=cur.id;trackSec=0;$('#mdisc').innerHTML=discHTML(cur,'gorb'+(playing?' spin':''),false)}
