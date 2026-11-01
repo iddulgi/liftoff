@@ -5,17 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>CalmWave</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#000000">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
 <style>
 /* Layout: phone-sized stage; home feed of overlapping curved cards, full-screen player slides up over it. Dark, single look. */
 :root{
-  --ink:#06080f; --ink2:#0d1220; --fg:#eef1f8; --fg2:#a7afc4; --line:rgba(255,255,255,.12);
+  --ink:#000000; --ink2:#0a0a0a; --fg:#eef1f8; --fg2:#a7afc4; --line:rgba(255,255,255,.12);
   --glass:rgba(18,22,38,.55); --accent:#aab0bd; --theme:#8fd3c9;
   --display:'Inter','Noto Sans KR',system-ui,sans-serif; --body:'Inter','Noto Sans KR',system-ui,sans-serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
+html{background:#000}   /* the page behind the status bar / home-indicator area must be the same black as the app */
 body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--body);overflow:hidden;
   padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px));
   display:flex;align-items:center;justify-content:center}
@@ -102,14 +104,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .ct{font-family:var(--display);font-weight:700;font-size:15px;color:#fff}
 .cs{font-size:12px;color:#8a90a3}
 
-.feed.decklist{--WT:min(calc(100cqw - 20px),360px);--W:min(calc(100cqw - 64px),380px);--WB:calc((2 * var(--W) + 312px) / 3 - 20px);background:#000;padding:90px 0 100px;overflow-x:hidden}  /* --WT: player card width; --W: width of the CD list area; --WB: width from the first CD's left edge to the third CD's right edge, used for the time bar and controls, pulled 10px in on each side */
+.feed.decklist{--WT:min(calc(100cqw - 20px),360px);--W:min(calc(100cqw - 64px),380px);--WB:calc((2 * var(--W) + 312px) / 3 - 20px);padding:90px 0 100px;overflow-x:hidden;
+  background:linear-gradient(180deg,rgba(var(--g,0,0,0),.42) 0,rgba(var(--g,0,0,0),.2) 250px,rgba(var(--g,0,0,0),.07) 440px,rgba(var(--g,0,0,0),0) 640px) top/100% 640px no-repeat local,#000}  /* soft wash of the CD's main colour from the very top. --WT: player card width; --W: width of the CD list area; --WB: width from the first CD's left edge to the third CD's right edge, used for the time bar and controls, pulled 10px in on each side */
 .deck{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 24px}
 .tray{width:var(--WT);aspect-ratio:1;border-radius:48px;background:linear-gradient(430deg,#0a0a0a,#0e0e0e);border:1px solid rgba(255,255,255,.05);box-shadow:inset 1px 0 rgba(255,255,255,.10);display:grid;place-items:center;margin-bottom:0;position:relative}
 .tray{background:none;border:0;box-shadow:none} /* TEMP: card look hidden to compare. To bring it back, delete this line (the original background, border and shadow are kept in the rule above) */
 .deck{position:relative;z-index:0}
-.dglow{position:absolute;left:0;right:0;top:-90px;height:640px;z-index:-1;pointer-events:none;animation:dglowin .6s ease both;
-  background:linear-gradient(180deg,rgba(var(--g),.42) 0%,rgba(var(--g),.2) 38%,rgba(var(--g),.07) 68%,rgba(var(--g),0) 100%)} /* soft wash of the CD's main colour behind the player */
-@keyframes dglowin{from{opacity:0}to{opacity:1}}
 .bigslot{width:84%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;outline-offset:4px}
 .bigslot .disc{width:100%;margin:0;box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 0 6px rgba(255,255,255,.045)}
 .dtitle{font-family:var(--display);font-weight:700;font-size:20px}
@@ -147,10 +147,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .disc.gorb{box-shadow:none}
 .hl{display:flex;align-items:center;gap:8px}
 #calBtn{display:none} /* calendar hidden for now: remove this line to bring the button (and the whole calendar) back */
-.cal{position:absolute;inset:0;z-index:20;background:#0b0d12;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:0 6px calc(env(safe-area-inset-bottom,0px) + 18px);overflow-y:auto}
+.cal{position:absolute;inset:0;z-index:20;background:#000000;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:0 6px calc(env(safe-area-inset-bottom,0px) + 18px);overflow-y:auto}
 .cal.open{transform:none}
 .calhd{display:flex;padding:0 10px;margin-bottom:10px}
-.calhead{position:sticky;top:0;z-index:5;background:#0b0d12;padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+.calhead{position:sticky;top:0;z-index:5;background:#000000;padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
 .calbig{padding:0 20px 40px}
 .calbig span{display:block;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',system-ui,sans-serif;font-size:84px;font-weight:700;line-height:.95;letter-spacing:-.03em;color:#fff;font-variant-numeric:tabular-nums}
 .cdow,.cgrid{display:grid;grid-template-columns:repeat(7,1fr)}
@@ -160,7 +160,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .cal:not(.agenda){scroll-snap-type:y mandatory;scroll-padding-top:var(--hh,220px)}
 .cc{position:relative;display:grid;place-items:center;width:100%;height:100%;min-height:0}
 .cc .n{position:relative;z-index:2;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',system-ui,sans-serif;font-size:16px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums}
-.cc.has .n{color:#0b0d12;font-weight:700}
+.cc.has .n{color:#000000;font-weight:700}
 .cc .disc{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:0;transform:translate(-50%,-50%);box-shadow:none}
 .cc .disc .hole,.cc .disc .sheen{display:none}
 .cc.sel::after{content:"";position:absolute;inset:1%;border-radius:50%;border:2px solid #fff;z-index:4}
@@ -173,7 +173,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .aitems{flex:1;min-width:0;display:flex;justify-content:flex-end;padding-left:20px}
 .ai{display:block;position:relative;margin-left:-22px;flex:none}
 .ai:first-child{margin-left:0}
-.ai .disc{position:relative;width:44px;height:44px;margin:0;box-shadow:0 0 0 1px #0b0d12}
+.ai .disc{position:relative;width:44px;height:44px;margin:0;box-shadow:0 0 0 1px #000000}
 .dnote{font-size:11px;color:#6c7488;text-align:center;padding:6px 0 0}
 .mback{position:absolute;inset:0;z-index:25;background:rgba(0,0,0,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .4s}
 .mback.open{opacity:1;pointer-events:auto}
@@ -472,17 +472,19 @@ function renderFeed(){
   }else if(layout==='deck'){
     if(!shelf.length)shelf=ALL.map((_,i)=>i).filter(i=>i!==deckIdx);
     const dk=ALL[deckIdx];
-    feed.innerHTML=`<div class="deck"><div class="dglow" style="--g:${GLOW[dk.id]||'120,120,120'}"></div><div class="tray" style="--glow:rgba(${dk.c[2].join(',')},.42)"><button class="bigslot" id="bigslot" aria-label="전체 화면 플레이어 열기">${discHTML(dk,'gorb',false).replace('class="disc ','id="bigdisc" class="disc ')}</button></div>
+    feed.innerHTML=`<div class="deck"><div class="tray" style="--glow:rgba(${dk.c[2].join(',')},.42)"><button class="bigslot" id="bigslot" aria-label="전체 화면 플레이어 열기">${discHTML(dk,'gorb',false).replace('class="disc ','id="bigdisc" class="disc ')}</button></div>
       <div class="dtitle">${dk.t}</div><div class="dsub">${dk.mode} · ${dk.sub}</div>
       <div class="dprog"><div class="dbar"><i id="dfill"></i></div><div class="dtimes"><span id="dtl">0:00</span><span id="dtr">-0:00</span></div></div>
       <div class="dctl"><button id="dshuf" class="dopt" aria-pressed="false" aria-label="셔플"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 14.5L21 17L18 19.5L21 17H17.8C16.2 17 14.8 16.2 13.9 14.9L10.1 9.1C9.2 7.8 7.8 7 6.2 7H3"/><path d="M3 17H6.2C7.8 17 9.2 16.2 10.1 14.9"/><path d="M18 4.5L21 7L18 9.5L21 7H17.8C16.2 7 14.8 7.8 13.9 9.1"/></svg></button><button id="dprev" class="dsk" aria-label="이전 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M19.5 5.6v12.8a1 1 0 0 1-1.5.86l-10-6.4a1 1 0 0 1 0-1.72l10-6.4a1 1 0 0 1 1.5.86z"/><rect x="3.2" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="dpp" class="dbtn" aria-label="재생/일시정지"></button><button id="dnext" class="dsk" aria-label="다음 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M4.5 5.6v12.8a1 1 0 0 0 1.5.86l10-6.4a1 1 0 0 0 0-1.72l-10-6.4a1 1 0 0 0-1.5.86z"/><rect x="17.6" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="drep" class="dopt" aria-pressed="true" aria-label="반복 재생"><svg width="20.5" height="20.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3L20 6L17 9L20 6H7.5A3.5 3.5 0 0 0 4 9.5V11"/><path d="M7 21L4 18L7 15L4 18H16.5A3.5 3.5 0 0 0 20 14.5V13"/></svg></button></div></div>
       <div class="shelf">${shelf.map((i,k)=>`<button class="sd" data-slot="${k}" data-i="${i}" aria-label="${ALL[i].t} 넣기">${discHTML(ALL[i],'gorb',false)}<span class="sl">${ALL[i].t}</span></button>`).join('')}</div>`;
+    feed.style.setProperty('--g',GLOW[dk.id]||'120,120,120');
     $('#dshuf').setAttribute('aria-pressed',shuffleOn);$('#drep').setAttribute('aria-pressed',repeatOn);
     updateDeckBar();syncSpin();
   }else{
     feed.innerHTML=ALL.map((it,i)=>`<button class="card enter w${i%3}" data-i="${i}" style="z-index:${i+1};animation-delay:${Math.min(i,4)*80}ms;--first:${i?0:1}"><div class="bgc" style="background-image:${cardURL(it)}"></div><div class="shade"></div>
     <div class="kind">${it.mode} · ${it.kind}</div><h2>${it.t}</h2><div class="sub">${it.sub}</div></button>`).join('');
   }
+  if(layout!=='deck')feed.style.removeProperty('--g');
   feed.scrollTop=0; cancelAnimationFrame(cdRaf); sp=0; updateMini();
   if(layout==='cd')cdRaf=requestAnimationFrame(cdTick);
 }
@@ -642,7 +644,7 @@ function goDeck(){
   const big=$('#bigdisc'),ease='cubic-bezier(.2,.8,.2,1)';
   if(big){const to=big.getBoundingClientRect(),dx=from.left+from.width/2-(to.left+to.width/2),dy=from.top+from.height/2-(to.top+to.height/2);
     big.animate([{transform:`translate(${dx}px,${dy}px) scale(${from.width/to.width})`},{transform:'none'}],{duration:560,easing:ease})}
-  [...document.querySelectorAll('.deck > :not(.tray):not(.dglow), .shelf')].forEach((el,i)=>el.animate([{transform:'translateY(90px)',opacity:0},{transform:'none',opacity:1}],{duration:520,delay:70+i*35,easing:ease,fill:'backwards'}));
+  [...document.querySelectorAll('.deck > :not(.tray), .shelf')].forEach((el,i)=>el.animate([{transform:'translateY(90px)',opacity:0},{transform:'none',opacity:1}],{duration:520,delay:70+i*35,easing:ease,fill:'backwards'}));
   $('.tray')&&$('.tray').animate([{opacity:0},{opacity:1}],{duration:300,fill:'backwards'})}
 $('#mtext').onclick=()=>{if(cur)goDeck()};
 // CD player progress bar: elapsed and remaining time of the whole CD (all its tracks), updated with the mini player
