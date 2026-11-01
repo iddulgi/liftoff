@@ -504,6 +504,7 @@ function noiseBuf(kind){
 function loopSrc(buf){const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;s.start();return s}
 function initAudio(){
   if(ctx)return;
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){} // iOS: play even with the silent switch on
   ctx=new (window.AudioContext||window.webkitAudioContext)();
   master=ctx.createGain(); master.gain.value=0; master.connect(ctx.destination);
   const white=noiseBuf('white'), brown=noiseBuf('brown');
@@ -543,20 +544,23 @@ function crackle(){
 }
 const LEVEL={rain:.5,fire:.7,wind:.6,white:.18,pad:.9,music:1};
 function applyMix(smooth){
-  if(!ctx)return; const t=ctx.currentTime; if(musicEl)musicEl.volume=Math.min(1,(mix.music||0)/100);
+  if(!ctx)return; const t=ctx.currentTime; if(musicEl&&!musicEl.dataset.routed)musicEl.volume=Math.min(1,(mix.music||0)/100);
   for(const k of ['rain','fire','wind','white','pad','music']){const g=L[k].gain; g.cancelScheduledValues(t); g.setTargetAtTime((mix[k]||0)/100*LEVEL[k],t,smooth?.6:.05)}
 }
 
-// music track (an mp3 in audio/music): decoded once and looped through its own gain; falls back to an <audio> element when fetch is unavailable (e.g. file://)
-let musicSrc=null, musicEl=null, musicTok=0; const musicBufs={};
-async function setMusic(it){
-  const tok=++musicTok, url=it&&it.music;
-  if(musicSrc){try{musicSrc.stop()}catch(e){}musicSrc=null}
-  if(musicEl){musicEl.pause();musicEl=null}
-  if(!url||!ctx)return;
-  try{if(!musicBufs[url]){const r=await fetch(url);if(!r.ok)throw 0;musicBufs[url]=await ctx.decodeAudioData(await r.arrayBuffer())}
-    if(tok!==musicTok)return;const src=ctx.createBufferSource();src.buffer=musicBufs[url];src.loop=true;src.connect(L.music);src.start();musicSrc=src;
-  }catch(e){if(tok!==musicTok)return;musicEl=new Audio(url);musicEl.loop=true;musicEl.onerror=()=>toast('음악 파일을 불러올 수 없어요');musicEl.volume=Math.min(1,(mix.music||0)/100);if(playing)musicEl.play().catch(()=>{})}
+// music track: an <audio> element routed into the mixer. Started inside the tap that selects the disc, which iOS Safari requires;
+// on http(s) it goes through a gain node (volume slider + fades work, including on iPhone); on file:// it plays directly
+let musicEl=null; const musicEls={};
+function setMusic(it){
+  if(musicEl&&(!it||musicEl.dataset.url!==it.music)){musicEl.pause();musicEl=null}
+  const url=it&&it.music; if(!url||!ctx)return;
+  let el=musicEls[url];
+  if(!el){el=new Audio();el.loop=true;el.preload='auto';el.setAttribute('playsinline','');el.dataset.url=url;el.src=url;
+    el.onerror=()=>toast('음악 파일을 불러올 수 없어요');
+    if(/^https?:/.test(location.protocol)){try{ctx.createMediaElementSource(el).connect(L.music);el.dataset.routed='1'}catch(e){}}
+    musicEls[url]=el}
+  musicEl=el; if(!el.dataset.routed)el.volume=Math.min(1,(mix.music||0)/100);
+  el.play().catch(()=>toast('화면을 한 번 탭하면 음악이 시작돼요'));
 }
 function setChord(ch){if(!ctx)return;const t=ctx.currentTime;pad.forEach((o,i)=>{const f=ch[i%ch.length]*(i>=3?2:1);o.frequency.setTargetAtTime(f,t,1.2)})}
 function fadeMaster(to,sec){const t=ctx.currentTime,g=master.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(to,t+sec)}
@@ -577,9 +581,9 @@ function setPlaying(on,silent){
   $('#pp').innerHTML=on?ICON.pause:ICON.play; $('#pp').setAttribute('aria-label',on?'일시정지':'재생');
   $('#player').classList.toggle('on-air',on); document.body.classList.toggle('playing',on); $('#home').classList.toggle('playing',on);
   syncSpin();
-  if(musicEl){on?musicEl.play().catch(()=>{}):musicEl.pause()}
+  if(on&&musicEl)musicEl.play().catch(()=>{});
   if(on){ctx.resume();fadeMaster(1,2.2);lastTick=Date.now();clearTimeout(fireTimer);crackle()}
-  else{fadeMaster(0,silent?.2:1.6);clearTimeout(fireTimer);setTimeout(()=>{if(fadeTok===tok&&!playing)ctx.suspend().catch(()=>{});fadeTok=0},silent?300:1800)}
+  else{fadeMaster(0,silent?.2:1.6);clearTimeout(fireTimer);setTimeout(()=>{if(fadeTok===tok&&!playing){ctx.suspend().catch(()=>{});if(musicEl)musicEl.pause()}fadeTok=0},silent?300:1800)}
   updateMini();
 }
 $('#pp').onclick=()=>{buzz(12);setPlaying(!playing);poke()};
