@@ -17,8 +17,8 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-html{background:linear-gradient(180deg,var(--sbtop,#000) 0,#000 45vh),#000}   /* EXPERIMENT: the strip behind the status bar takes the colour of the player's wash; bottom stays black. To undo: use html{background:#000} */
-body{margin:0;background:transparent;color:var(--fg);font-family:var(--body);overflow:hidden;
+html{background:#000}   /* the page behind the status bar / home-indicator area must be the same black as the app */
+body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--body);overflow:hidden;
   padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px));
   display:flex;align-items:center;justify-content:center}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
@@ -30,7 +30,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .home{position:absolute;inset:0;z-index:0;isolation:isolate;display:flex;flex-direction:column}
 .homebg{position:absolute;inset:0;opacity:0;transition:opacity .9s ease}
 .homebg.on{opacity:1}
-.home.deckmode .hdr{background:none}
 .hdr{position:absolute;top:0;left:0;right:0;z-index:30;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 10px;gap:10px}
 .hbtn{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:grid;place-items:center;position:relative}
 #hWave{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:none} /* status icon only: no circle, not tappable */
@@ -106,7 +105,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .cs{font-size:12px;color:#8a90a3}
 
 .feed.decklist{--WT:min(calc(100cqw - 20px),360px);--W:min(calc(100cqw - 64px),380px);--WB:calc((2 * var(--W) + 312px) / 3 - 20px);padding:90px 0 100px;overflow-x:hidden;
-  background:linear-gradient(180deg,rgba(var(--g,0,0,0),.42) 0,rgba(var(--g,0,0,0),.2) 250px,rgba(var(--g,0,0,0),.07) 440px,rgba(var(--g,0,0,0),0) 640px) top/100% 640px no-repeat local,#000}  /* soft wash of the CD's main colour; its top colour is also given to the page background (see setChrome) so the status-bar area matches. --WT: player card width; --W: width of the CD list area; --WB: width from the first CD's left edge to the third CD's right edge, used for the time bar and controls, pulled 10px in on each side */
+  background:linear-gradient(180deg,rgba(var(--g,0,0,0),0) 0,rgba(var(--g,0,0,0),.4) 150px,rgba(var(--g,0,0,0),.2) 300px,rgba(var(--g,0,0,0),.07) 470px,rgba(var(--g,0,0,0),0) 640px) top/100% 640px no-repeat local,#000}  /* soft wash of the CD's main colour; it starts from pure black at the very top so it joins the black status-bar area without a seam. --WT: player card width; --W: width of the CD list area; --WB: width from the first CD's left edge to the third CD's right edge, used for the time bar and controls, pulled 10px in on each side */
 .deck{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 24px}
 .tray{width:var(--WT);aspect-ratio:1;border-radius:48px;background:linear-gradient(430deg,#0a0a0a,#0e0e0e);border:1px solid rgba(255,255,255,.05);box-shadow:inset 1px 0 rgba(255,255,255,.10);display:grid;place-items:center;margin-bottom:0;position:relative}
 .tray{background:none;border:0;box-shadow:none} /* TEMP: card look hidden to compare. To bring it back, delete this line (the original background, border and shadow are kept in the rule above) */
@@ -465,10 +464,6 @@ function syncSpin(){
   const b=$('#bigdisc'); if(b)b.classList.toggle('spin',playing&&cur&&cur.id===ALL[deckIdx].id);
   const pp=$('#dpp'); if(pp)pp.innerHTML=playing?ICON.pause.replace(/width="34" height="34"/,'width="22" height="22"'):ICON.play.replace(/width="36" height="36"/,'width="22" height="22"');
 }
-function setChrome(g){ // colour of the strip behind the status bar: the wash's top colour (colour x 42% over black), or plain black
-  const root=document.documentElement,meta=document.querySelector('meta[name=theme-color]');let c='#000000';
-  if(g){const [r,gg,b]=g.split(',').map(Number);c=`rgb(${Math.round(r*.42)},${Math.round(gg*.42)},${Math.round(b*.42)})`}
-  root.style.setProperty('--sbtop',c);if(meta)meta.content=c}
 function renderFeed(){
   const feed=$('#feed'); feed.classList.toggle('cdlist',layout==='cd'); feed.classList.toggle('decklist',layout==='deck');
   if(layout==='cd'){
@@ -482,15 +477,14 @@ function renderFeed(){
       <div class="dprog"><div class="dbar"><i id="dfill"></i></div><div class="dtimes"><span id="dtl">0:00</span><span id="dtr">-0:00</span></div></div>
       <div class="dctl"><button id="dshuf" class="dopt" aria-pressed="false" aria-label="셔플"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 14.5L21 17L18 19.5L21 17H17.8C16.2 17 14.8 16.2 13.9 14.9L10.1 9.1C9.2 7.8 7.8 7 6.2 7H3"/><path d="M3 17H6.2C7.8 17 9.2 16.2 10.1 14.9"/><path d="M18 4.5L21 7L18 9.5L21 7H17.8C16.2 7 14.8 7.8 13.9 9.1"/></svg></button><button id="dprev" class="dsk" aria-label="이전 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M19.5 5.6v12.8a1 1 0 0 1-1.5.86l-10-6.4a1 1 0 0 1 0-1.72l10-6.4a1 1 0 0 1 1.5.86z"/><rect x="3.2" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="dpp" class="dbtn" aria-label="재생/일시정지"></button><button id="dnext" class="dsk" aria-label="다음 CD"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M4.5 5.6v12.8a1 1 0 0 0 1.5.86l10-6.4a1 1 0 0 0 0-1.72l-10-6.4a1 1 0 0 0-1.5.86z"/><rect x="17.6" y="4.8" width="3.2" height="14.4" rx="1.1"/></svg></button><button id="drep" class="dopt" aria-pressed="true" aria-label="반복 재생"><svg width="20.5" height="20.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3L20 6L17 9L20 6H7.5A3.5 3.5 0 0 0 4 9.5V11"/><path d="M7 21L4 18L7 15L4 18H16.5A3.5 3.5 0 0 0 20 14.5V13"/></svg></button></div></div>
       <div class="shelf">${shelf.map((i,k)=>`<button class="sd" data-slot="${k}" data-i="${i}" aria-label="${ALL[i].t} 넣기">${discHTML(ALL[i],'gorb',false)}<span class="sl">${ALL[i].t}</span></button>`).join('')}</div>`;
-    feed.style.setProperty('--g',GLOW[dk.id]||'120,120,120');setChrome(GLOW[dk.id]||'120,120,120');
+    feed.style.setProperty('--g',GLOW[dk.id]||'120,120,120');
     $('#dshuf').setAttribute('aria-pressed',shuffleOn);$('#drep').setAttribute('aria-pressed',repeatOn);
     updateDeckBar();syncSpin();
   }else{
     feed.innerHTML=ALL.map((it,i)=>`<button class="card enter w${i%3}" data-i="${i}" style="z-index:${i+1};animation-delay:${Math.min(i,4)*80}ms;--first:${i?0:1}"><div class="bgc" style="background-image:${cardURL(it)}"></div><div class="shade"></div>
     <div class="kind">${it.mode} · ${it.kind}</div><h2>${it.t}</h2><div class="sub">${it.sub}</div></button>`).join('');
   }
-  $('#home').classList.toggle('deckmode',layout==='deck');
-  if(layout!=='deck'){feed.style.removeProperty('--g');setChrome(null)}
+  if(layout!=='deck')feed.style.removeProperty('--g');
   feed.scrollTop=0; cancelAnimationFrame(cdRaf); sp=0; updateMini();
   if(layout==='cd')cdRaf=requestAnimationFrame(cdTick);
 }
