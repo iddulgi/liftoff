@@ -32,6 +32,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .phone{position:relative;width:100%;height:100%;max-width:430px;max-height:900px;overflow:hidden;background:var(--ink);touch-action:pan-y} /* pan-y: vertical scrolling only, so a slightly diagonal drag can't pull the content sideways */
 @media (min-width:520px) and (min-height:760px){.phone{height:min(100%,860px);border-radius:44px;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.6)}}
+/* phones: pin the app to the whole screen (top/bottom 0) instead of sizing it with percentages; installed iPhone web apps can come out ~60px short with "height:100%" */
+@media (max-width:519px){.phone{position:fixed;top:0;bottom:0;left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);width:auto;height:auto;max-width:none;max-height:none}}
 
 /* HOME */
 .home{position:absolute;inset:0;z-index:0;isolation:isolate;display:flex;flex-direction:column}
@@ -830,10 +832,18 @@ function waveSync(){
   if(playing){if(!waveRaf){waveMean.fill(-1);wavePk.fill(40);waveRaf=requestAnimationFrame(waveTick)}}
   else{cancelAnimationFrame(waveRaf);waveRaf=0;(waveEls||[...document.querySelectorAll('#hWave .wave i')]).forEach(e=>e.style.removeProperty('height'))}}
 
+/* Installed iPhone web app: if the page reports a viewport shorter than the screen, size the app to the real screen height */
+function fitStandalone(){
+  if(!navigator.standalone)return;
+  const ph=$('#phone');
+  if(innerHeight>innerWidth&&screen.height>innerHeight){ph.style.bottom='auto';ph.style.height=screen.height+'px'}
+  else{ph.style.bottom='';ph.style.height=''}}
+addEventListener('resize',fitStandalone);addEventListener('orientationchange',fitStandalone);document.addEventListener('visibilitychange',fitStandalone);
+
 /* ---------- boot ---------- */
 $('#pp').innerHTML=ICON.play;
 $('#bell').onclick=()=>{if($('#cal').classList.contains('open'))setCal(false);else nextLayout()};
-renderFeed(); resize(); setTimeout(resize,100);
+fitStandalone(); renderFeed(); resize(); setTimeout(resize,100);
 })();
 </script>
 
