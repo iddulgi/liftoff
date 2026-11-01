@@ -31,13 +31,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .hdr{position:absolute;top:0;left:0;right:0;z-index:30;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 10px;gap:10px}
 .hbtn{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:grid;place-items:center;position:relative}
 #hWave{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none} /* icon only, no circle */
-.wave{display:flex;gap:3px;align-items:center;height:18px;transform:scale(1.3)} /* a little larger, to match the CD button's icon */
-.wave i{width:3px;border-radius:2px;background:var(--fg2);opacity:.5;height:var(--h);transition:background .3s,opacity .3s}
-.wave i:nth-child(1){--h:8px}.wave i:nth-child(2){--h:15px}.wave i:nth-child(3){--h:17px}.wave i:nth-child(4){--h:8px}
-.wave i:nth-child(1){--hp:7px}.wave i:nth-child(2){--hp:13px}.wave i:nth-child(3){--hp:17px}.wave i:nth-child(4){--hp:11px}
-.playing .wave i{background:var(--theme);opacity:1;height:var(--hp);width:3px;animation:eq 1.1s ease-in-out infinite}
-.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}
-@keyframes eq{0%,100%{height:var(--hp)}50%{height:calc(var(--hp)*.5)}}
+.wave{display:flex;gap:2px;align-items:center;height:22px} /* six thin bars, proportions taken from the iOS now-playing icon */
+.wave i{width:2.5px;border-radius:2px;background:var(--fg2);opacity:.5;height:var(--h);transition:background .3s,opacity .3s}
+.wave i:nth-child(1){--h:12.5px;--hp:12.5px}.wave i:nth-child(2){--h:22px;--hp:22px}.wave i:nth-child(3){--h:20px;--hp:20px}.wave i:nth-child(4){--h:13.2px;--hp:13.2px}.wave i:nth-child(5){--h:11px;--hp:11px}.wave i:nth-child(6){--h:17.6px;--hp:17.6px}
+.playing .wave i{background:var(--theme);opacity:1;height:var(--hp)} /* while playing, script sets each bar's height from the music */
 .stat{flex:1;min-width:0;height:42px;border-radius:21px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--fg2)}
 .stat b{font-family:var(--display);font-size:15px;color:var(--fg);font-variant-numeric:tabular-nums}
 .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:#ff7a7a;color:#1a0707;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px}
@@ -235,7 +232,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="w0" clipPathUnits="objectBoundingBox"><path d="M0,0 C.14,0 .22,.07 .36,.15 L.82,.42 C.93,.48 1,.52 1,.62 L1,1 L0,1 Z"/></clipPath></defs></svg>
   <section class="home" id="home" aria-label="홈">
                 <header class="hdr">
-      <div class="hl"><button class="hbtn" id="hWave" aria-label="재생 중인 사운드 열기"><span class="wave"><i></i><i></i><i></i><i></i></span></button>
+      <div class="hl"><button class="hbtn" id="hWave" aria-label="재생 중인 사운드 열기"><span class="wave"><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
       <button class="hbtn" id="calBtn" aria-label="청취 기록 달력"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></button></div>
       <button class="hbtn" aria-label="화면 모드 바꾸기" id="bell"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="2.6"/><path d="M12 5.2a6.8 6.8 0 0 1 6.8 6.8" opacity=".6"/></svg></button>
     </header>
@@ -445,6 +442,7 @@ const discHTML=(it,cls,badge)=>`<span class="disc ${cls||''}"><span class="art${
 function syncSpin(){
   $$('.cdlist .disc').forEach(d=>{const i=+d.dataset.i;d.classList.toggle('spin',!!(cur&&cur.id===ALL[i].id&&playing))});
   $$('.cdlist .cmeta').forEach(m=>m.classList.toggle('on',!!(cur&&playing&&cur.id===ALL[+m.dataset.i].id)));
+  waveSync();
   const md=$('#mdisc .disc'); if(md)md.classList.toggle('spin',!!playing);
   $('#mpp').innerHTML=ICON.sm(!!playing);
   const b=$('#bigdisc'); if(b)b.classList.toggle('spin',playing&&cur&&cur.id===ALL[deckIdx].id);
@@ -516,6 +514,7 @@ function initAudio(){
   ctx=new (window.AudioContext||window.webkitAudioContext)();
   master=ctx.createGain(); master.gain.value=0; master.connect(ctx.destination);
   L.music=ctx.createGain(); L.music.gain.value=0; L.music.connect(master);
+  L.an=ctx.createAnalyser(); L.an.fftSize=512; L.an.smoothingTimeConstant=.55; L.music.connect(L.an); // feeds the header level bars
   ctx.onstatechange=()=>{ // interruption handling: calls/alarms suspend the context; reflect it
     if(ctx.state==='interrupted'||(ctx.state==='suspended'&&playing&&!fadeTok)){setPlaying(false,true);toast('다른 소리 때문에 일시정지되었어요')}};
 }
@@ -721,6 +720,25 @@ function updateMediaSession(it){
   coverPNG(it).then(u=>{if(u&&cur&&cur.id===it.id){try{navigator.mediaSession.metadata=new MediaMetadata({...meta,artwork:[{src:u,sizes:'512x512',type:'image/png'}]})}catch(e){}}})}
 if('mediaSession' in navigator){const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
   set('play',()=>{if(!playing)setPlaying(true)});set('pause',()=>{if(playing)setPlaying(false)});set('nexttrack',()=>step(1));set('previoustrack',()=>step(-1))}
+
+/* ---------- Header level bars: six bands of the music, bass on the left; each bar shrinks to a dot when its band is quiet ---------- */
+const WAVE=[[1,2],[2,4],[4,8],[8,16],[16,40],[40,110]]; // fft bins of 86 Hz
+let waveRaf=0, waveEls=null, waveBuf=null, waveSm=[0,0,0,0,0,0], waveAgc=40, waveT0=0;
+function waveTick(t){
+  waveRaf=0; if(!playing)return;
+  const els=waveEls||(waveEls=[...document.querySelectorAll('#hWave .wave i')]), MAX=22, DOT=2.5;
+  let live=!!(ctx&&L.an&&musicEl&&musicEl.dataset.routed&&!musicEl.paused);
+  if(live){const b=waveBuf||(waveBuf=new Uint8Array(L.an.frequencyBinCount));L.an.getByteFrequencyData(b);
+    let top=0;const v=WAVE.map(([a,z])=>{let m=0;for(let i=a;i<z;i++)m+=b[i];m/=(z-a);top=Math.max(top,m);return m});
+    if(top<2)live=false;else{waveAgc=Math.max(top,waveAgc*.995);       // auto gain so quiet and loud tracks both fill the bars
+      v.forEach((m,i)=>{const x=Math.min(1,Math.pow(m/waveAgc,1.35)),k=x>waveSm[i]?.65:.2;waveSm[i]+=(x-waveSm[i])*k})}}
+  if(!live){const s=t/1000; // no audio to read (or opened from a file): a lively stand-in
+    for(let i=0;i<6;i++){const x=.5+.5*Math.sin(s*(2.1+i*.55)+i*1.7)*Math.sin(s*(.9+i*.31)+i);waveSm[i]+=(Math.max(0,x-.1*i/5)-waveSm[i])*.18}}
+  els.forEach((e,i)=>{e.style.height=(DOT+waveSm[i]*(MAX-DOT)).toFixed(1)+'px'});
+  waveRaf=requestAnimationFrame(waveTick)}
+function waveSync(){
+  if(playing){if(!waveRaf)waveRaf=requestAnimationFrame(waveTick)}
+  else{cancelAnimationFrame(waveRaf);waveRaf=0;(waveEls||[...document.querySelectorAll('#hWave .wave i')]).forEach(e=>e.style.removeProperty('height'))}}
 
 /* ---------- boot ---------- */
 $('#pp').innerHTML=ICON.play;
