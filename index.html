@@ -572,8 +572,8 @@ function nextLayout(){const n=(LAYOUTS.findIndex(l=>l[0]===layout)+1)%LAYOUTS.le
 
 $('#feed').addEventListener('click',e=>{
   if(layout==='deck'){const sd=e.target.closest('.sd');if(sd)return loadDisc(sd);
-    if(e.target.closest('#dshuf')){shuffleOn=!shuffleOn;buzz(8);const b=$('#dshuf');b.setAttribute('aria-pressed',shuffleOn);toast(shuffleOn?'셔플 켜짐':'셔플 꺼짐');return}
-    if(e.target.closest('#drep')){repeatOn=!repeatOn;buzz(8);$('#drep').setAttribute('aria-pressed',repeatOn);for(const k in musicEls){if(trackList(ALL.find(a=>a.id===k)).length===1)musicEls[k].loop=repeatOn}toast(repeatOn?'반복 재생 켜짐':'반복 재생 꺼짐');return}
+    if(e.target.closest('#dshuf')){shuffleOn=!shuffleOn;if(shuffleOn&&cur&&musicEls[cur.id])shufPlayed[cur.id]=new Set([+musicEls[cur.id].dataset.idx]);else for(const k in shufPlayed)shufPlayed[k].clear();syncLoops();buzz(8);const b=$('#dshuf');b.setAttribute('aria-pressed',shuffleOn);toast(shuffleOn?'셔플 켜짐':'셔플 꺼짐');return}
+    if(e.target.closest('#drep')){repeatOn=!repeatOn;buzz(8);$('#drep').setAttribute('aria-pressed',repeatOn);syncLoops();toast(repeatOn?'반복 재생 켜짐':'반복 재생 꺼짐');return}
     if(e.target.closest('#dprev')){step(-1);return}
     if(e.target.closest('#dnext')){step(1);return}
     if(e.target.closest('#dpp')){if(!cur||cur.id!==ALL[deckIdx].id)openTheme(ALL[deckIdx],deckIdx,true);else setPlaying(!playing);return}
@@ -601,6 +601,8 @@ function applyMix(smooth){
 // music: each CD can hold one track (looped) or a playlist (plays in order, then starts over). One <audio> element per CD, routed into the mixer;
 // started inside the tap that selects the disc (iOS Safari requires it). On http(s) it goes through a gain node (volume + fades work on iPhone).
 let musicEl=null; const musicEls={}; let shuffleOn=false, repeatOn=true; // repeatOn: loop the CD (one track loops itself); off: when a CD ends, go on to the next CD
+const shufPlayed={}; // per CD: tracks already played in the current shuffle round
+const syncLoops=()=>{for(const k in musicEls){const c=ALL.find(a=>a.id===k);if(c&&trackList(c).length===1)musicEls[k].loop=repeatOn&&!shuffleOn}};
 const rndOther=(n,cur)=>{if(n<2)return cur;let r;do{r=Math.floor(Math.random()*n)}while(r===cur);return r};
 const trackList=it=>!it||!it.music?[]:(Array.isArray(it.music)?it.music:[{f:it.music,t:it.t}]);
 const curTitle=()=>{if(!cur)return'';const l=trackList(cur);return l.length>1&&musicEls[cur.id]?l[+musicEls[cur.id].dataset.idx].t:cur.t};
@@ -608,20 +610,29 @@ function setMusic(it){
   if(musicEl&&(!it||musicEl.dataset.theme!==it.id)){musicEl.pause();musicEl=null}
   const list=trackList(it); if(!list.length||!ctx)return;
   let el=musicEls[it.id];
-  if(!el){el=new Audio();el.preload='auto';el.setAttribute('playsinline','');el.dataset.theme=it.id;el.dataset.idx=0;el.loop=list.length===1&&repeatOn;el.src=list[0].f;
+  if(!el){el=new Audio();el.preload='auto';el.setAttribute('playsinline','');el.dataset.theme=it.id;el.dataset.idx=0;el.loop=list.length===1&&repeatOn&&!shuffleOn;el.src=list[0].f;
     el.onerror=()=>toast('음악 파일을 불러올 수 없어요');
-    el.onended=()=>{const i=+el.dataset.idx,last=i>=list.length-1;
-      if(list.length>1&&(shuffleOn||!last))return playTrack(it,shuffleOn?rndOther(list.length,i):i+1);   // next track (random when shuffling)
-      if(repeatOn&&list.length>1)return playTrack(it,0);                                                // end of the CD: start it over
-      if(!repeatOn)step(1)};                                                                            // repeat off: go on to the next CD
+    el.onended=()=>advance(it);
     if(/^https?:/.test(location.protocol)){try{ctx.createMediaElementSource(el).connect(L.music);el.dataset.routed='1'}catch(e){}}
     musicEls[it.id]=el}
   musicEl=el;
+  if(shuffleOn&&list.length>1){const r=Math.floor(Math.random()*list.length);el.dataset.idx=r;el.src=list[r].f;shufPlayed[it.id]=new Set([r])}   // a shuffled CD starts on a random track
   el.play().catch(()=>toast('화면을 한 번 탭하면 음악이 시작돼요'));
 }
 // time left on the whole CD: rest of the current track plus every track after it
 function cdRemaining(){if(!cur)return null;const l=trackList(cur),el=musicEls[cur.id];if(!l.length||!el)return null;const i=+el.dataset.idx;let r=Math.max(0,(l[i].d||el.duration||0)-el.currentTime);for(let j=i+1;j<l.length;j++)r+=l[j].d||0;return r}
-function playTrack(it,i){const list=trackList(it),el=musicEls[it.id];if(!el)return;el.dataset.idx=i;el.src=list[i].f;el.play().catch(()=>{});if(cur&&cur.id===it.id)applyMix(false);
+// what happens when a track ends (or when "next" is pressed on the lock screen)
+function advance(it){
+  const list=trackList(it),el=musicEls[it.id];if(!el)return;const i=+el.dataset.idx;
+  if(shuffleOn&&list.length>1){
+    const P=shufPlayed[it.id]||(shufPlayed[it.id]=new Set());P.add(i);
+    const rest=list.map((_,k)=>k).filter(k=>!P.has(k));
+    if(rest.length){playTrack(it,rest[Math.floor(Math.random()*rest.length)]);return}   // not every track played yet: a random one of the rest
+    P.clear();step(1);return}                                                            // every track played once: a random other CD
+  if(list.length>1&&i<list.length-1){playTrack(it,i+1);return}
+  if(list.length>1&&repeatOn){playTrack(it,0);return}                                    // repeat: start the CD over
+  step(1)}                                                                               // otherwise go on to the next CD
+function playTrack(it,i){const list=trackList(it),el=musicEls[it.id];if(!el)return;if(shuffleOn&&shufPlayed[it.id])shufPlayed[it.id].add(i);el.dataset.idx=i;el.src=list[i].f;el.play().catch(()=>{});if(cur&&cur.id===it.id)applyMix(false);
   if(cur&&cur.id===it.id){updateMini();updateMediaSession(it)}}
 function fadeMaster(to,sec){const t=ctx.currentTime,g=master.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(to,t+sec)}
 
@@ -641,7 +652,8 @@ function setPlaying(on,silent){
   $('#pp').innerHTML=on?ICON.pause:ICON.play; $('#pp').setAttribute('aria-label',on?'일시정지':'재생');
   $('#player').classList.toggle('on-air',on); document.body.classList.toggle('playing',on); $('#home').classList.toggle('playing',on);
   syncSpin();
-  try{if('mediaSession' in navigator)navigator.mediaSession.playbackState=on?'playing':'paused'}catch(e){}
+  try{if('mediaSession' in navigator){navigator.mediaSession.playbackState=on?'playing':'paused'}}catch(e){}
+  if(on)bindMediaKeys();
   if(on&&musicEl)musicEl.play().catch(()=>{});
   if(on){ctx.resume();fadeMaster(1,2.2);lastTick=Date.now()}
   else{fadeMaster(0,silent?.2:1.6);setTimeout(()=>{if(fadeTok===tok&&!playing){ctx.suspend().catch(()=>{});if(musicEl)musicEl.pause()}fadeTok=0},silent?300:1800)}
@@ -847,11 +859,26 @@ function coverPNG(it){return new Promise(res=>{if(artCache[it.id])return res(art
   const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=512;const k=Math.max(512/img.width,512/img.height),w=img.width*k,h=img.height*k;c.getContext('2d').drawImage(img,(512-w)/2,(512-h)/2,w,h);c.toBlob(b=>{if(!b)return res(null);artCache[it.id]=URL.createObjectURL(b);res(artCache[it.id])})};img.onerror=()=>res(null);img.src=PHOTO[it.id]?encodeURI(PHOTO[it.id]):coverURL(it).slice(5,-2)})}
 function updateMediaSession(it){
   if(!('mediaSession' in navigator)||typeof MediaMetadata==='undefined')return;
+  bindMediaKeys();
   const meta={title:curTitle()||it.t,artist:'Liftoff',album:it.t+' · '+it.sub};
   try{navigator.mediaSession.metadata=new MediaMetadata(meta)}catch(e){return}
   coverPNG(it).then(u=>{if(u&&cur&&cur.id===it.id){try{navigator.mediaSession.metadata=new MediaMetadata({...meta,artwork:[{src:u,sizes:'512x512',type:'image/png'}]})}catch(e){}}})}
-if('mediaSession' in navigator){const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
-  set('play',()=>{if(!playing)setPlaying(true)});set('pause',()=>{if(playing)setPlaying(false)});set('nexttrack',()=>step(1));set('previoustrack',()=>step(-1))}
+// lock screen / control centre buttons. Next and previous move between tracks of the current CD (the CD buttons inside the app move between CDs).
+function lockStep(d){
+  if(!cur)return;const it=cur,list=trackList(it),el=musicEls[it.id];
+  if(!list.length||!el){step(d);return}
+  const i=+el.dataset.idx;
+  if(d>0){advance(it);return}                                       // same rules as a track ending
+  if(el.currentTime>3){el.currentTime=0;return}                     // like a music player: first restart the track,
+  if(i>0)playTrack(it,i-1);else step(-1)}                           // press again for the previous track (or the previous CD)
+function bindMediaKeys(){
+  if(!('mediaSession' in navigator))return;
+  const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
+  set('play',()=>{if(!playing)setPlaying(true)});set('pause',()=>{if(playing)setPlaying(false)});
+  set('nexttrack',()=>lockStep(1));set('previoustrack',()=>lockStep(-1));
+  set('seekbackward',null);set('seekforward',null);                 // so iOS shows previous/next, not the 10-second skip arrows
+  set('seekto',d=>{const el=cur&&musicEls[cur.id];if(el&&isFinite(d.seekTime))el.currentTime=d.seekTime})}
+bindMediaKeys();
 
 /* ---------- Header level bars: six bands of the music, bass on the left; each bar shrinks to a dot when its band is quiet ---------- */
 const WAVE=[[1,2],[2,4],[4,8],[8,16],[16,40],[40,110]]; // fft bins of 86 Hz
