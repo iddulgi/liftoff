@@ -49,6 +49,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .homebg{position:absolute;inset:0;opacity:0;transition:opacity .9s ease}
 .homebg.on{opacity:1}
 .hdr{position:absolute;top:0;left:0;right:0;z-index:30;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 10px;gap:10px}
+.hbtn#sleepBtn{display:flex;align-items:center;justify-content:center;gap:0;transition:padding .4s cubic-bezier(.2,.8,.2,1),gap .4s cubic-bezier(.2,.8,.2,1)}
+#sleepBtn.on{width:auto;padding:0 18px 0 12px;gap:9px;border-radius:21px}
+#sleepBtn svg{flex:none}
+.stx{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .4s cubic-bezier(.2,.8,.2,1),opacity .3s}
+#sleepBtn.on .stx{max-width:90px;opacity:1}
+.stx em{font-style:normal;font-size:14px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums;line-height:1.15}
 .hbtn{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:grid;place-items:center;position:relative}
 #hWave{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:none} /* status icon only: no circle, not tappable */
 .wave{display:flex;gap:2px;align-items:center;height:22px} /* six thin bars, proportions taken from the iOS now-playing icon */
@@ -199,15 +205,22 @@ html.standalone .feed{-webkit-mask-image:linear-gradient(180deg,transparent 0,#0
 .ai:first-child{margin-left:0}
 .ai .disc{position:relative;width:44px;height:44px;margin:0;box-shadow:0 0 0 1px #000000}
 .dnote{font-size:11px;color:#6c7488;text-align:center;padding:6px 0 0}
-.mback{position:absolute;inset:0;z-index:25;background:rgba(0,0,0,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .4s}
+.mback{position:absolute;inset:0;z-index:25;background:rgba(0,0,0,.22);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .4s}
 .mback.open{opacity:1;pointer-events:auto}
-.sheet.msheet{z-index:26;max-height:80%;background:rgba(18,20,28,.72);backdrop-filter:blur(34px) saturate(1.4);-webkit-backdrop-filter:blur(34px) saturate(1.4);box-shadow:0 -20px 60px rgba(0,0,0,.45)}
-.msheet .grab{margin:0 auto 14px;padding:0;cursor:grab;touch-action:none}
-.mshead{display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:6px}
-.mshead b{font-size:16px;font-weight:600}.mshead span{font-size:12px;color:var(--fg2)}
-.msheet h3{margin:20px 0 10px}
-.msheet .chip{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)}
-.msheet .chip[aria-pressed=true]{background:#fff;color:#0a0f1a}
+.sheet.msheet{z-index:26;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);max-height:none;overflow:visible;border-radius:40px;padding:14px 26px 26px;background:rgba(255,255,255,.14);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6);border:0;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateY(130%)}
+.sheet.msheet.open{transform:none}
+.msheet .grab{margin:0 auto 24px;padding:0;cursor:grab;touch-action:none;background:rgba(255,255,255,.15)}
+.mshead{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mshead b{font-size:15px;font-weight:400}.mshead span{font-size:12px;color:rgba(255,255,255,.65)}
+.slval{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:26px 0 18px;font-variant-numeric:tabular-nums}
+.slval b{font-size:52px;font-weight:300;letter-spacing:-.02em;line-height:1}
+.ruler{position:relative;height:44px;overflow:hidden;touch-action:none;cursor:ew-resize;-webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
+.strip{position:absolute;left:50%;top:0;bottom:0;width:0;will-change:transform}
+.strip i{position:absolute;top:50%;width:2px;height:16px;margin:-8px 0 0 -1px;border-radius:1px;background:rgba(255,255,255,.5)}
+.needle{position:absolute;left:50%;top:50%;width:3px;height:30px;margin:-15px 0 0 -1.5px;border-radius:2px;background:#fff}
+.slgo{display:block;width:100%;height:56px;margin-top:32px;border-radius:28px;background:rgba(255,255,255,.95);color:#4b4440;font-size:16px;font-weight:500}
+.msheet.running .ruler{display:none}.msheet.running .slval{margin-bottom:0}
+.msheet.running .slgo{margin-top:50px;background:rgba(255,255,255,.16);color:#fff}
 /* PLAYER */
 .player{position:absolute;inset:0;z-index:20;transform:translateY(100%);transition:transform .6s cubic-bezier(.2,.8,.2,1);background:#000;overflow:hidden}
 .player.open{transform:none}
@@ -273,7 +286,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
                 <header class="hdr">
       <div class="hl"><span class="hbtn" id="hWave" role="img" aria-label="재생 상태"><span class="wave"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
       <button class="hbtn" id="calBtn" aria-label="청취 기록 달력"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></button></div>
-      <button class="hbtn" aria-label="화면 모드 바꾸기" id="bell"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="2.6"/><path d="M12 5.2a6.8 6.8 0 0 1 6.8 6.8" opacity=".6"/></svg></button>
+      <div class="hr" style="display:flex;gap:10px"><button class="hbtn" aria-label="슬립 타이머" id="sleepBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M12 6.8V12l3.4 2.1"/></svg><span class="stx"><em id="sleepNoteT">0:00</em></span></button><button class="hbtn" aria-label="화면 모드 바꾸기" id="bell"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="2.6"/><path d="M12 5.2a6.8 6.8 0 0 1 6.8 6.8" opacity=".6"/></svg></button></div>
     </header>
   <section class="cal" id="cal" aria-label="청취 기록 달력" aria-hidden="true">
     <div class="calhead"><div class="calbig" aria-live="polite"><span id="calMonth"></span></div><div class="cdow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div></div>
@@ -304,9 +317,11 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
   <div class="mback" id="mback"></div>
   <div class="sheet msheet" id="msheet" role="dialog" aria-label="재생 설정" aria-hidden="true">
     <div class="grab" id="mgrab"></div>
-    <div class="mshead"><b id="mstitle">재생 설정</b><span id="mssub"></span></div>
-    <h3>볼륨</h3>
-    <div id="layers"></div>
+    <div hidden><b id="mstitle"></b><span id="mssub"></span><div id="layers"></div></div>
+    <div class="mshead"><b>End time</b></div>
+    <div class="slval"><b id="slVal">30:00</b></div>
+    <div class="ruler" id="ruler"><div class="strip" id="strip"></div><i class="needle"></i></div>
+    <button class="slgo" id="slGo">Start</button>
   </div>
   <div class="toast" id="toast"></div>
 </div>
@@ -735,6 +750,35 @@ setInterval(()=>{
   updateMini();
 },500);
 
+
+/* sleep timer: set with a ruler in the bottom sheet, counts down in the header, fades out over the last 12 s, then pauses */
+let sleepEnd=0,sleepFading=false,sleepPick=30;
+const SL_MIN=5,SL_MAX=90,SL_STEP=5,SL_GAP=14;
+const strip=$('#strip');
+for(let m=SL_MIN;m<=SL_MAX;m+=SL_STEP){const t=document.createElement('i');t.style.left=((m-SL_MIN)/SL_STEP*SL_GAP)+'px';strip.appendChild(t)}
+const mmss=l=>String(Math.floor(l/60)).padStart(2,'0')+':'+String(l%60).padStart(2,'0');
+function sleepPlace(f,anim){strip.style.transition=anim?'transform .2s ease-out':'none';strip.style.transform=`translateX(${-(f-SL_MIN)/SL_STEP*SL_GAP}px)`}
+function sleepUI(){
+  const on=!!sleepEnd,l=on?Math.max(0,Math.ceil((sleepEnd-Date.now())/1000)):0;
+  $('#msheet').classList.toggle('running',on);
+  $('#slVal').textContent=on?mmss(l):String(sleepPick).padStart(2,'0')+':00';$('#slGo').textContent=on?'Turn off':'Start';
+  $('#sleepBtn').classList.toggle('on',on);if(on)$('#sleepNoteT').textContent=mmss(l)}
+function setSleep(m){if(sleepFading&&playing)fadeMaster(1,1.5);sleepFading=false;sleepEnd=m?Date.now()+m*60000:0;sleepUI()}
+$('#slGo').onclick=()=>{buzz(12);if(sleepEnd){setSleep(0);setSheet(false)}else{setSleep(sleepPick);setSheet(false)}};
+(function(){const r=$('#ruler');let x0=null,f0=0,f=sleepPick;
+  r.addEventListener('pointerdown',e=>{if(sleepEnd)return;x0=e.clientX;f0=f;r.setPointerCapture(e.pointerId)});
+  r.addEventListener('pointermove',e=>{if(x0===null)return;
+    f=Math.min(SL_MAX,Math.max(SL_MIN,f0-(e.clientX-x0)/SL_GAP*SL_STEP));sleepPlace(f,false);
+    const v=Math.round(f/SL_STEP)*SL_STEP;if(v!==sleepPick){sleepPick=v;buzz(6);sleepUI()}});
+  const end=()=>{if(x0===null)return;x0=null;f=sleepPick;sleepPlace(f,true)};
+  r.addEventListener('pointerup',end);r.addEventListener('pointercancel',end)})();
+sleepPlace(sleepPick,false);sleepUI();
+setInterval(()=>{
+  if(!sleepEnd)return;const left=(sleepEnd-Date.now())/1000;
+  if(left<=0){sleepEnd=0;sleepFading=false;if(playing)setPlaying(false,true);sleepUI();return}
+  if(left<=12&&playing&&!sleepFading){sleepFading=true;fadeMaster(0,left)}
+  sleepUI()},1000);
+
 /* sheet + mixer */
 function buildLayers(){
   $('#layers').innerHTML=!(cur&&cur.music)?'<div class="nomusic">이 CD에는 아직 음악이 없어요</div>':LAYERS.map(([k,n])=>`<div class="layer"><label for="r_${k}">${n}</label><input type="range" id="r_${k}" min="0" max="100" value="${mix[k]||0}" style="--v:${mix[k]||0}%"><output id="o_${k}">${mix[k]||0}</output></div>`).join('');
@@ -844,6 +888,7 @@ $('#cagenda').onclick=e=>{if(e.target.closest('.arow'))setAgenda(false)};
 function setSheet(on){if(on&&!cur){toast('재생 중인 소리가 없어요');return}$('#msheet').classList.toggle('open',on);$('#mback').classList.toggle('open',on);$('#msheet').setAttribute('aria-hidden',!on);if(on)buzz(8)}
 function openPlayer(){setSheet(true)}
 $('#mback').onclick=()=>setSheet(false);
+$('#sleepBtn').onclick=()=>setSheet(true);
 (function(){const g=$('#mgrab'),sh=$('#msheet');let y0=null;
   const end=dy=>{sh.style.transition='';sh.style.transform='';y0=null;if(dy>70)setSheet(false)};
   g.addEventListener('pointerdown',e=>{y0=e.clientY;sh.style.transition='none';g.setPointerCapture(e.pointerId)});
