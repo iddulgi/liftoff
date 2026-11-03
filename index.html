@@ -215,7 +215,7 @@ html.standalone .feed{-webkit-mask-image:linear-gradient(180deg,transparent 0,#0
 .slval{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:26px 0 18px;font-variant-numeric:tabular-nums}
 .slval b{font-size:52px;font-weight:300;letter-spacing:-.02em;line-height:1}
 .ruler{position:relative;height:44px;overflow:hidden;touch-action:none;cursor:ew-resize;-webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
-.strip{position:absolute;left:50%;top:0;bottom:0;width:0;will-change:transform}
+.strip{position:absolute;left:50%;top:0;bottom:0;width:0;will-change:transform;backface-visibility:hidden}
 .strip i{position:absolute;top:50%;width:2px;height:16px;margin:-8px 0 0 -1px;border-radius:1px;background:rgba(255,255,255,.5)}
 .needle{position:absolute;left:50%;top:50%;width:3px;height:30px;margin:-15px 0 0 -1.5px;border-radius:2px;background:#fff}
 .slgo{display:block;width:100%;height:56px;margin-top:32px;border-radius:28px;background:rgba(255,255,255,.95);color:#4b4440;font-size:16px;font-weight:500}
@@ -757,7 +757,7 @@ const SL_MIN=5,SL_MAX=90,SL_STEP=5,SL_GAP=14;
 const strip=$('#strip');
 for(let m=SL_MIN;m<=SL_MAX;m+=SL_STEP){const t=document.createElement('i');t.style.left=((m-SL_MIN)/SL_STEP*SL_GAP)+'px';strip.appendChild(t)}
 const mmss=l=>String(Math.floor(l/60)).padStart(2,'0')+':'+String(l%60).padStart(2,'0');
-function sleepPlace(f,anim){strip.style.transition=anim?'transform .2s ease-out':'none';strip.style.transform=`translateX(${-(f-SL_MIN)/SL_STEP*SL_GAP}px)`}
+function sleepPlace(f,anim){strip.style.transition=anim?'transform .2s ease-out':'none';strip.style.transform=`translate3d(${-(f-SL_MIN)/SL_STEP*SL_GAP}px,0,0)`}
 function sleepUI(){
   const on=!!sleepEnd,l=on?Math.max(0,Math.ceil((sleepEnd-Date.now())/1000)):0;
   $('#msheet').classList.toggle('running',on);
@@ -765,12 +765,17 @@ function sleepUI(){
   $('#sleepBtn').classList.toggle('on',on);if(on)$('#sleepNoteT').textContent=mmss(l)}
 function setSleep(m){if(sleepFading&&playing)fadeMaster(1,1.5);sleepFading=false;sleepEnd=m?Date.now()+m*60000:0;sleepUI()}
 $('#slGo').onclick=()=>{buzz(12);if(sleepEnd){setSleep(0);setSheet(false)}else{setSleep(sleepPick);setSheet(false)}};
-(function(){const r=$('#ruler');let x0=null,f0=0,f=sleepPick;
-  r.addEventListener('pointerdown',e=>{if(sleepEnd)return;x0=e.clientX;f0=f;r.setPointerCapture(e.pointerId)});
-  r.addEventListener('pointermove',e=>{if(x0===null)return;
-    f=Math.min(SL_MAX,Math.max(SL_MIN,f0-(e.clientX-x0)/SL_GAP*SL_STEP));sleepPlace(f,false);
-    const v=Math.round(f/SL_STEP)*SL_STEP;if(v!==sleepPick){sleepPick=v;buzz(6);sleepUI()}});
-  const end=()=>{if(x0===null)return;x0=null;f=sleepPick;sleepPlace(f,true)};
+(function(){const r=$('#ruler');let x0=null,f0=0,f=sleepPick,raf=0,hist=[];
+  const clamp=v=>Math.min(SL_MAX,Math.max(SL_MIN,v));
+  const set=v=>{f=clamp(v);sleepPlace(f,false);const q=Math.round(f/SL_STEP)*SL_STEP;if(q!==sleepPick){sleepPick=q;buzz(6);$('#slVal').textContent=String(q).padStart(2,'0')+':00'}};
+  r.addEventListener('pointerdown',e=>{if(sleepEnd)return;cancelAnimationFrame(raf);x0=e.clientX;f0=f;hist=[[e.timeStamp,e.clientX]];r.setPointerCapture(e.pointerId)});
+  r.addEventListener('pointermove',e=>{if(x0===null)return;set(f0-(e.clientX-x0)/SL_GAP*SL_STEP);hist.push([e.timeStamp,e.clientX]);while(hist.length>2&&e.timeStamp-hist[0][0]>90)hist.shift()});
+  const end=()=>{if(x0===null)return;x0=null;
+    const a=hist[0],b=hist[hist.length-1];let v=b[0]>a[0]?-(b[1]-a[1])/(b[0]-a[0])/SL_GAP*SL_STEP:0;   // minutes per ms, from the last ~90 ms of the drag
+    let t0=performance.now();
+    const tick=t=>{const dt=Math.min(32,t-t0);t0=t;set(f+v*dt);v*=Math.exp(-dt/450);        // keeps rolling and slows down like a wheel
+      if(Math.abs(v)>0.0008&&f>SL_MIN&&f<SL_MAX)raf=requestAnimationFrame(tick);else{f=sleepPick;sleepPlace(f,true)}};
+    raf=requestAnimationFrame(tick)};
   r.addEventListener('pointerup',end);r.addEventListener('pointercancel',end)})();
 sleepPlace(sleepPick,false);sleepUI();
 setInterval(()=>{
