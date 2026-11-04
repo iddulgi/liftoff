@@ -54,7 +54,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 #sleepBtn svg{flex:none}
 .stx{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .4s cubic-bezier(.2,.8,.2,1),opacity .3s}
 #sleepBtn.on .stx{max-width:90px;opacity:1}
-.stx em{font-style:normal;font-size:14px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums;line-height:1.15}
+.stx em{font-style:normal;font-size:14px;color:#fff;font-variant-numeric:tabular-nums;line-height:1.15}
+.hbtn#hWave{width:40px;height:40px}
 .hbtn{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:grid;place-items:center;position:relative}
 #hWave{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:none} /* status icon only: no circle, not tappable */
 .wave{display:flex;gap:2px;align-items:center;height:22px} /* six thin bars, proportions taken from the iOS now-playing icon */
@@ -319,7 +320,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
     <div class="grab" id="mgrab"></div>
     <div hidden><b id="mstitle"></b><span id="mssub"></span><div id="layers"></div></div>
     <div class="mshead"><b>End time</b></div>
-    <div class="slval"><b id="slVal">30:00</b></div>
+    <div class="slval"><b id="slVal">05:00</b></div>
     <div class="ruler" id="ruler"><div class="strip" id="strip"></div><i class="needle"></i></div>
     <button class="slgo" id="slGo">Start</button>
   </div>
@@ -752,7 +753,7 @@ setInterval(()=>{
 
 
 /* sleep timer: set with a ruler in the bottom sheet, counts down in the header, fades out over the last 12 s, then pauses */
-let sleepEnd=0,sleepFading=false,sleepPick=30;
+let sleepEnd=0,sleepFading=false,sleepPick=5;
 const SL_MIN=5,SL_MAX=90,SL_STEP=5,SL_GAP=14;
 const strip=$('#strip');
 for(let m=SL_MIN;m<=SL_MAX;m+=SL_STEP){const t=document.createElement('i');t.style.left=((m-SL_MIN)/SL_STEP*SL_GAP)+'px';strip.appendChild(t)}
@@ -764,7 +765,7 @@ function sleepUI(){
   $('#slVal').textContent=on?mmss(l):String(sleepPick).padStart(2,'0')+':00';$('#slGo').textContent=on?'Turn off':'Start';
   $('#sleepBtn').classList.toggle('on',on);if(on)$('#sleepNoteT').textContent=mmss(l)}
 function setSleep(m){if(sleepFading&&playing)fadeMaster(1,1.5);sleepFading=false;sleepEnd=m?Date.now()+m*60000:0;sleepUI()}
-$('#slGo').onclick=()=>{buzz(12);if(sleepEnd){setSleep(0);setSheet(false)}else{setSleep(sleepPick);setSheet(false)}};
+$('#slGo').onclick=()=>{buzz(12);if(sleepEnd){setSleep(0);setSheet(false);toast('타이머를 종료했어요')}else{setSleep(sleepPick);setSheet(false);toast(sleepPick+'분 뒤에 재생이 멈춰요')}};
 (function(){const r=$('#ruler');let x0=null,f0=0,f=sleepPick,raf=0,hist=[];
   const clamp=v=>Math.min(SL_MAX,Math.max(SL_MIN,v));
   const set=v=>{f=clamp(v);sleepPlace(f,false);const q=Math.round(f/SL_STEP)*SL_STEP;if(q!==sleepPick){sleepPick=q;buzz(6);$('#slVal').textContent=String(q).padStart(2,'0')+':00'}};
@@ -780,7 +781,7 @@ $('#slGo').onclick=()=>{buzz(12);if(sleepEnd){setSleep(0);setSheet(false)}else{s
 sleepPlace(sleepPick,false);sleepUI();
 setInterval(()=>{
   if(!sleepEnd)return;const left=(sleepEnd-Date.now())/1000;
-  if(left<=0){sleepEnd=0;sleepFading=false;if(playing)setPlaying(false,true);sleepUI();return}
+  if(left<=0){sleepEnd=0;sleepFading=false;if(playing)setPlaying(false,true);sleepUI();toast('슬립 타이머가 끝나 재생을 멈췄어요');return}
   if(left<=12&&playing&&!sleepFading){sleepFading=true;fadeMaster(0,left)}
   sleepUI()},1000);
 
