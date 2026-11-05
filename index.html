@@ -338,11 +338,12 @@ const ICON={play:'<svg width="36" height="36" viewBox="0 0 24 24" fill="#fff"><p
 /* ---------- Content ---------- */
 // c: three RGB colors; scene: visual loop; mix: default layer volumes 0..100; pad: chord Hz
 const MODES={
- focus:{accent:'#8fd3c9',lead:'집중 · 3개의 사운드스케이프',h:'지금, 한 가지에만',
+ focus:{accent:'#8fd3c9',lead:'집중 · 4개의 사운드스케이프',h:'지금, 한 가지에만',
   items:[
-  {id:'med',kind:'Meditation',t:'Lowkey',sub:'stay under the radar',cr:'Still Water · 미세한 안개와 낮은 패드',c:[[34,110,120],[20,60,90],[120,200,190]],scene:'mist',mix:{music:80},pad:[110,164.8,220],music:[{"f":"audio/meditation/hiphop-curtain-light.mp3","t":"Hiphop Curtain Light","d":122.0,"g":0.608},{"f":"audio/meditation/sad-beat-emotional-night.mp3","t":"Sad Beat Emotional Night","d":192.0,"g":0.677},{"f":"audio/meditation/starline.mp3","t":"Starline","d":184.8,"g":0.957},{"f":"audio/meditation/sad-beat-piano-story.mp3","t":"Sad Beat Piano Story","d":186.7,"g":0.53}]},
-  {id:'cl',kind:'Clarity',t:'Clear Tide',sub:'one thing at a time',cr:'Low Tide · 잔잔한 파도 위의 백색소음',c:[[20,100,140],[10,50,90],[170,230,240]],scene:'waves',mix:{music:80},pad:[130.8,196,261.6],music:[{"f":"audio/clear-tide/hype-drill-music.mp3","t":"Hype Drill Music","d":235.5,"g":0.64},{"f":"audio/clear-tide/slow-tide-reflection-atmosphere.mp3","t":"Slow Tide Reflection Atmosphere","d":262.8,"g":0.703},{"f":"audio/clear-tide/chrome-steppa.mp3","t":"Chrome Steppa","d":197.9,"g":0.856}]},
-  {id:'dw',kind:'Deep Work',t:'Off the Grid',sub:'unplug your mind',cr:'Window Rain · 창가에 내리는 빗소리',c:[[40,70,140],[20,30,70],[130,170,230]],scene:'rain',mix:{music:80},pad:[98,146.8,196],music:[{"f":"audio/rainy-desk/beats.mp3","t":"Beats","d":184.0,"g":0.657},{"f":"audio/rainy-desk/cinematic-soul.mp3","t":"Cinematic Soul","d":153.1,"g":0.864},{"f":"audio/rainy-desk/hip-hop.mp3","t":"Hip Hop","d":182.1,"g":0.488}]}]},
+  {id:'med',kind:'Meditation',t:'Lowkey',sub:'stay under the radar',cr:'Still Water · 미세한 안개와 낮은 패드',c:[[34,110,120],[20,60,90],[120,200,190]],scene:'mist',mix:{music:80},pad:[110,164.8,220],music:[{"f":"audio/meditation/hiphop-curtain-light.mp3","t":"Hiphop Curtain Light","d":122.0,"g":0.608},{"f":"audio/meditation/sad-beat-emotional-night.mp3","t":"Sad Beat Emotional Night","d":192.0,"g":0.677},{"f":"audio/meditation/starline.mp3","t":"Starline","d":184.8,"g":0.957},{"f":"audio/meditation/sad-beat-piano-story.mp3","t":"Sad Beat Piano Story","d":186.7,"g":0.53},{"f":"audio/meditation/vintage-acoustic-drums.mp3","t":"Vintage Acoustic Drums","d":208.2,"g":0.6}]},
+  {id:'cl',kind:'Clarity',t:'Clear Tide',sub:'one thing at a time',cr:'Low Tide · 잔잔한 파도 위의 백색소음',c:[[20,100,140],[10,50,90],[170,230,240]],scene:'waves',mix:{music:80},pad:[130.8,196,261.6],music:[{"f":"audio/clear-tide/slow-tide-reflection-atmosphere.mp3","t":"Slow Tide Reflection Atmosphere","d":262.8,"g":0.703},{"f":"audio/clear-tide/chrome-steppa.mp3","t":"Chrome Steppa","d":197.9,"g":0.856}]},
+  {id:'dw',kind:'Deep Work',t:'Off the Grid',sub:'unplug your mind',cr:'Window Rain · 창가에 내리는 빗소리',c:[[40,70,140],[20,30,70],[130,170,230]],scene:'rain',mix:{music:80},pad:[98,146.8,196],music:[{"f":"audio/rainy-desk/beats.mp3","t":"Beats","d":184.0,"g":0.657},{"f":"audio/rainy-desk/cinematic-soul.mp3","t":"Cinematic Soul","d":153.1,"g":0.864},{"f":"audio/rainy-desk/hip-hop.mp3","t":"Hip Hop","d":182.1,"g":0.488},{"f":"audio/rainy-desk/echoes-of-lumen-beat-music.mp3","t":"Echoes Of Lumen Beat Music","d":150.0,"g":0.7}]},
+  {id:'ap',kind:'Momentum',t:'Autopilot',sub:'hands off',cr:'Open Road · 끝없이 이어지는 도로 위의 비트',c:[[70,130,190],[30,70,120],[190,220,245]],scene:'mist',mix:{music:80},pad:[110,164.8,220],music:[{"f":"audio/autopilot/soundsurfer-beat-background.mp3","t":"Soundsurfer Beat Background","d":102.3,"g":0.59},{"f":"audio/autopilot/fashion-beat.mp3","t":"Fashion Beat","d":116.2,"g":0.62},{"f":"audio/autopilot/hard-street-instrumental.mp3","t":"Hard Street Instrumental","d":115.6,"g":0.61},{"f":"audio/autopilot/prettyjohn-beat-music.mp3","t":"Prettyjohn Beat Music","d":69.5,"g":0.6},{"f":"audio/autopilot/hype-drill-music.mp3","t":"Hype Drill Music","d":235.5,"g":0.64},{"f":"audio/autopilot/echoes-of-lumen-drill-beat.mp3","t":"Echoes Of Lumen Drill Beat","d":126.7,"g":0.6},{"f":"audio/autopilot/soundsurfer-drill.mp3","t":"Soundsurfer Drill","d":136.3,"g":0.71}]}]},
  relax:{accent:'#e3a6ff',lead:'이완 · 3개의 사운드스케이프',h:'숨을 길게 내쉬세요',
   items:[
   {id:'se',kind:'Sensations',t:'Sensations',sub:'sink into the night',cr:'Warm Hearth · 장작 타는 소리',c:[[170,80,60],[80,30,40],[255,180,100]],scene:'embers',mix:{music:80},pad:[98,123.5,146.8],music:[{"f":"audio/sensations/lucid-dreaming.mp3","t":"Lucid Dreaming","d":80.0,"g":1.051},{"f":"audio/sensations/piano-background.mp3","t":"Piano Background","d":130.5,"g":1.014},{"f":"audio/sensations/romantic-piano.mp3","t":"Romantic Piano","d":139.7,"g":1.585},{"f":"audio/sensations/yoga-nidra.mp3","t":"Yoga Nidra","d":100.0,"g":0.951},{"f":"audio/sensations/jungle-tears.mp3","t":"Jungle Tears","d":53.4,"g":0.932},{"f":"audio/sensations/inquisitive-minds.mp3","t":"Inquisitive Minds","d":21.2,"g":0.978}]},
@@ -351,7 +352,7 @@ const MODES={
  sleep:{accent:'#9db4ff',lead:'수면 · 3개의 사운드스케이프',h:'오늘 하루, 내려놓기',
   items:[
   {id:'nr',kind:'Night Rain',t:'Act Cool',sub:'close your eyes',cr:'Midnight Rain · 깊은 밤의 빗소리',c:[[30,40,110],[8,12,40],[110,130,220]],scene:'rain',mix:{music:80},pad:[65.4,98,130.8],music:[{"f":"audio/act-cool/dancing-juice.mp3","t":"Dancing Juice","d":195.9,"g":1.079},{"f":"audio/act-cool/funk-groove-ensemble.mp3","t":"Funk Groove Ensemble","d":232.9,"g":0.654}]},
-  {id:'dd',kind:'Daydream',t:'Daydream',sub:'go beyond the form',cr:'Soft Aurora · 느리게 흐르는 빛',c:[[130,60,170],[60,30,110],[255,150,200]],scene:'mist',mix:{music:80},pad:[87.3,130.8,174.6],music:[{"f":"audio/daydream/electric-joyride.mp3","t":"Electric Joyride","d":205.5,"g":1.072},{"f":"audio/daydream/opening.mp3","t":"Opening","d":229.1,"g":0.648},{"f":"audio/daydream/the-mountain-dance.mp3","t":"The Mountain Dance","d":110.1,"g":0.46},{"f":"audio/daydream/radiant-soul.mp3","t":"Radiant Soul","d":135.6,"g":0.72},{"f":"audio/daydream/echoes-of-lumen-drill-beat.mp3","t":"Echoes Of Lumen Drill Beat","d":126.7,"g":0.6},{"f":"audio/daydream/soundsurfer-drill.mp3","t":"Soundsurfer Drill","d":136.3,"g":0.71}]}]}
+  {id:'dd',kind:'Daydream',t:'Daydream',sub:'go beyond the form',cr:'Soft Aurora · 느리게 흐르는 빛',c:[[130,60,170],[60,30,110],[255,150,200]],scene:'mist',mix:{music:80},pad:[87.3,130.8,174.6],music:[{"f":"audio/daydream/electric-joyride.mp3","t":"Electric Joyride","d":205.5,"g":1.072},{"f":"audio/daydream/opening.mp3","t":"Opening","d":229.1,"g":0.648},{"f":"audio/daydream/the-mountain-dance.mp3","t":"The Mountain Dance","d":110.1,"g":0.46},{"f":"audio/daydream/radiant-soul.mp3","t":"Radiant Soul","d":135.6,"g":0.72}]}]}
 };
 const LAYERS=[['music','음악']];
 
@@ -373,9 +374,12 @@ const SCN={
  nr:['forest',['#0b1230','#2a3a70','#8fa6e8','#0a1022','#03060e']],
  sf:['desert',['#060a24','#2a2f6b','#b8c2ff','#1b1d4a','#05061a']],
  sx:['sunset',['#2a0f1a','#c8503a','#ffb05a','#4a1820','#0e0508']],
- ch:['sunset',['#3b2a5e','#e07a8a','#ffc7a0','#6a3a6e','#1c1030']]
+ ch:['sunset',['#3b2a5e','#e07a8a','#ffc7a0','#6a3a6e','#1c1030']],
+ ap:['sea',['#4a7ab0','#a9c8e0','#eef6ff','#1d3f6a','#0a1a30']]
 };
 const ALL=[];['focus','relax','sleep'].forEach(m=>MODES[m].items.forEach(it=>ALL.push({...it,mode:m})));
+// display order of the CD list (Chill right below Off the Grid, Sensations last)
+{const ORDER=['med','cl','dw','ch','ap','sh','nr','dd','se'];ALL.sort((a,b)=>ORDER.indexOf(a.id)-ORDER.indexOf(b.id))}
 const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
 const mixc=(a,b,t)=>{a=hx(a);b=hx(b);return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*t).toString(16).padStart(2,'0')).join('')};
 const rngf=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
@@ -423,7 +427,7 @@ function art(it,H){const k=it.id+H;if(!ART[k]){const [t,p]=SCN[it.id];ART[k]="ur
 /* ---------- Home ---------- */
 let layout='cd', deckIdx=0, shelf=[];
 const LAYOUTS=[['cd','CD 리스트'],['deck','CD 플레이어']];
-const ORB={med:['#0e7f70','#4fcfb4','#e6f6ee'],dw:['#2748d0','#58a4ff','#e4ecff'],cl:['#1769e0','#3fbdf0','#e8f4ff'],dd:['#8a2be2','#ff78c4','#fde6f4'],se:['#e24a14','#ffa03a','#fff0d6'],sh:['#dc3f78','#ff9878','#ffe8dc'],nr:['#2a2fb8','#6c7aff','#e4e6ff'],sf:['#4a1ea6','#9070ff','#ece6ff'],sx:['#c02424','#ff7a46','#ffe3d4']};
+const ORB={med:['#0e7f70','#4fcfb4','#e6f6ee'],dw:['#2748d0','#58a4ff','#e4ecff'],cl:['#1769e0','#3fbdf0','#e8f4ff'],dd:['#8a2be2','#ff78c4','#fde6f4'],se:['#e24a14','#ffa03a','#fff0d6'],sh:['#dc3f78','#ff9878','#ffe8dc'],nr:['#2a2fb8','#6c7aff','#e4e6ff'],sf:['#4a1ea6','#9070ff','#ece6ff'],sx:['#c02424','#ff7a46','#ffe3d4'],ap:['#2a6ab8','#6fb0e8','#eaf4fc']};
 const orbBG=it=>{const [d,m,p]=ORB[it.id];return `radial-gradient(70% 55% at 20% 90%,${d} 0%,transparent 72%),radial-gradient(60% 45% at 82% 12%,${m} 0%,transparent 70%),linear-gradient(158deg,${m} 0%,${m} 28%,${p} 48%,${p} 54%,${d} 74%,${d} 100%)`};
 /* ---------- Disc cover art: vinyl-record style, one art-directed disc per theme (200x200, centre hole cut out) ---------- */
 const fb=(id,sd)=>`<filter id="${id}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${sd}"/></filter>`;
@@ -478,17 +482,18 @@ function coverURL(it){if(!COV[it.id]){let g='',g2='';for(let r=44;r<99;r+=2.6){g
   COV[it.id]="url('data:image/svg+xml;utf8,"+encodeURIComponent(svg).replace(/'/g,'%27')+"')"}return COV[it.id]}
 
 // real cover photos from cover/ (filenames, in the order they are handed out); the vinyl look (grooves, sheen, centre hole) is layered on top
-const PHOTO={ch:'cover/71972cf4e98e92b5834233839142c2aa.jpg',
+const PHOTO={ch:'cover/chill-2.jpg',
   med:'cover/9b0d26031d71dc870723674c00564c99.jpg',
   dw:'cover/rainy-desk.jpg',
   cl:'cover/clear-tide.jpg',
   dd:'cover/eac11306bd51447d313834350dabc922.jpg',
   se:'cover/068eb9b86b5fc2995e8a5b4fc59a5624.jpg',
   sh:'cover/2858e4b793d567ba697904fe69994422.jpg',
-  nr:'cover/4d1bdacaebb20a66dcf13557611ec97e.jpg'};
+  nr:'cover/4d1bdacaebb20a66dcf13557611ec97e.jpg',
+  ap:'cover/autopilot.jpg'};
 // most used colour of each cover photo, lifted to be readable on black (computed offline from cover/*.jpg)
-const TITLE_COLOR={ch:[158,188,171],med:[173,172,174],dw:[131,199,226],cl:[122,175,223],dd:[150,196,155],se:[140,165,228],sh:[146,188,200],nr:[210,171,137]};
-const GLOW={ch:'120,128,144',med:'100,82,87',dw:'111,150,153',cl:'139,112,56',dd:'107,157,116',se:'125,120,144',sh:'61,109,122',nr:'120,135,144'};
+const TITLE_COLOR={ch:[206,172,230],med:[173,172,174],dw:[131,199,226],cl:[122,175,223],dd:[150,196,155],se:[140,165,228],sh:[146,188,200],nr:[210,171,137],ap:[140,185,225]};
+const GLOW={ch:'125,84,150',med:'100,82,87',dw:'111,150,153',cl:'139,112,56',dd:'107,157,116',se:'125,120,144',sh:'61,109,122',nr:'120,135,144',ap:'100,150,190'};
 let OVER=null;
 function overlayURL(){if(!OVER){let g='',g2='';for(let r=44;r<99;r+=2.6){g+=`<circle cx="100" cy="100" r="${r.toFixed(1)}"/>`;g2+=`<circle cx="100" cy="100" r="${(r+1.3).toFixed(1)}"/>`}
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter><radialGradient id="ev" cx=".5" cy=".5" r=".5"><stop offset=".78" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient><linearGradient id="sh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".32" stop-color="#fff" stop-opacity=".14"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset=".78" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><circle cx="100" cy="100" r="30" fill="none" stroke="#000" stroke-width=".6" opacity=".35"/><g fill="none" stroke="#fff" stroke-width=".35" opacity=".08">${g}</g><g fill="none" stroke="#000" stroke-width=".35" opacity=".12">${g2}</g><rect width="200" height="200" fill="url(#sh)" style="mix-blend-mode:screen"/><rect width="200" height="200" fill="url(#ev)"/><rect width="200" height="200" filter="url(#n)" opacity=".2" style="mix-blend-mode:overlay"/></svg>`;
