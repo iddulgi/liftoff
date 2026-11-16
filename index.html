@@ -222,6 +222,27 @@ html.standalone .feed{-webkit-mask-image:linear-gradient(180deg,transparent 0,#0
 .slgo{display:block;width:100%;height:56px;margin-top:32px;border-radius:28px;background:rgba(255,255,255,.95);color:#4b4440;font-size:16px;font-weight:500}
 .msheet.running .ruler{display:none}.msheet.running .slval{margin-bottom:0}
 .msheet.running .slgo{margin-top:50px;background:rgba(255,255,255,.16);color:#fff}
+/* WIDE (tablet / desktop): two panes. CD player stays put on the left, every other CD sits in a grid on the right.
+   The list/player toggle and the mini player are not needed here (script keeps the layout on 'deck'). Phones keep the layout above untouched.
+   Kept after the base rules on purpose so it wins on equal specificity. */
+@media (min-width:768px) and (min-height:560px){
+  .phone{max-width:none;max-height:none;width:100%;height:100%;border-radius:0;border:0;box-shadow:none} /* the stage fills the whole screen */
+  /* CD list: same idea as the phone, but the discs run left to right and scroll sideways */
+  .feed.cdlist{--cd:min(44vh,340px);flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:60px calc(50% - var(--cd)/2) 40px;scrollbar-width:none}
+  .cdlist .cdi{margin:0 36px 0 0}
+  .cdlist .cdi:last-child{margin-right:0}
+  .cdlist .disc{width:var(--cd);height:var(--cd);margin-bottom:24px}
+  .cmeta .ct{font-size:18px}.cmeta .cs{font-size:13px}
+  /* CD player: big centred disc, colour wash over the whole screen */
+  .feed.decklist{--WT:min(54vh,520px);--WB:min(calc(var(--WT) + 160px),calc(100cqw - 64px));padding:84px 24px 60px;
+    background:linear-gradient(180deg,rgba(var(--g,0,0,0),.5) 0,rgba(var(--g,0,0,0),.22) 55%,rgba(var(--g,0,0,0),.06) 100%),#000}
+  .dtitle{font-size:28px}.dsub{font-size:14px}
+  .feed.decklist .shelf{--W:min(1400px,calc(100cqw - 64px));grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:48px 32px;padding-top:72px}
+  .sd{width:100%;gap:12px}.sd .disc{width:100%;max-width:200px}
+  .sl{font-size:15px}
+  .mini{left:50%;right:auto;width:min(560px,calc(100% - 32px));margin-left:calc(min(560px,100% - 32px)/-2)}
+  .sheet.msheet{left:50%;right:auto;width:min(460px,calc(100% - 20px));margin-left:calc(min(460px,100% - 20px)/-2)}
+}
 /* PLAYER */
 .player{position:absolute;inset:0;z-index:20;transform:translateY(100%);transition:transform .6s cubic-bezier(.2,.8,.2,1);background:#000;overflow:hidden}
 .player.open{transform:none}
@@ -536,14 +557,16 @@ function renderFeed(){
 // CD list: discs stay perfect circles; they shrink/fade away from the middle and turn with the scroll, following it with a slight lag
 let cdRaf=0, sp=0;
 const calm=matchMedia('(prefers-reduced-motion:reduce)');
+const WIDE=matchMedia('(min-width:768px) and (min-height:560px)');
 function cdTick(){
   if(layout!=='cd')return;
-  const f=$('#feed'),H=f.clientHeight; sp+=(f.scrollTop-sp)*.16; if(Math.abs(f.scrollTop-sp)<.05)sp=f.scrollTop;
+  const f=$('#feed'),hz=WIDE.matches,S=hz?f.scrollLeft:f.scrollTop,H=hz?f.clientWidth:f.clientHeight; sp+=(S-sp)*.16; if(Math.abs(S-sp)<.05)sp=S;
   const mid=sp+H/2;
   for(const el of f.children){
-    const u=Math.max(-1.6,Math.min(1.6,(el.offsetTop+el.offsetHeight/2-mid)/(H*.55))), a=Math.abs(u);
-    if(!calm.matches){el.style.transform=`translateY(${(-u*34).toFixed(1)}px) scale(${(1-Math.min(a,1.4)*.2).toFixed(3)})`;
-      el.firstElementChild.style.rotate=((el.offsetTop-sp)*.14).toFixed(1)+'deg'}
+    const o=hz?el.offsetLeft:el.offsetTop,c=o+(hz?el.offsetWidth:el.offsetHeight)/2;
+    const u=Math.max(-1.6,Math.min(1.6,(c-mid)/(H*.55))), a=Math.abs(u);
+    if(!calm.matches){el.style.transform=`${hz?'translateX':'translateY'}(${(-u*34).toFixed(1)}px) scale(${(1-Math.min(a,1.4)*.2).toFixed(3)})`;
+      el.firstElementChild.style.rotate=((o-sp)*.14).toFixed(1)+'deg'}
     el.style.opacity=Math.max(.05,1-a*.55).toFixed(3);
   }
   cdRaf=requestAnimationFrame(cdTick);
@@ -586,6 +609,9 @@ function leaveDeck(n){
   const m=$('#mini'); if(m.classList.contains('show'))m.animate([{opacity:0},{opacity:1}],{duration:380,delay:60,fill:'backwards'});
   const end=()=>{ov.remove();feed.classList.remove('noenter');leaving=false;done()};
   a.finished.then(end,end)}
+// Wide screens (tablet / desktop): same flow as the phone, but the CD list runs sideways. Crossing the breakpoint just redraws the feed.
+WIDE.addEventListener('change',()=>renderFeed());
+$('#feed').addEventListener('wheel',e=>{const f=$('#feed');if(!WIDE.matches||layout!=='cd'||Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;f.scrollLeft+=e.deltaY;e.preventDefault()},{passive:false}); // mouse wheel scrolls the row
 function nextLayout(){const n=(LAYOUTS.findIndex(l=>l[0]===layout)+1)%LAYOUTS.length;
   if(LAYOUTS[n][0]==='deck'){goDeck();return}                      // list -> CD player: same rising motion as the mini player tap
   if(layout==='deck'&&LAYOUTS[n][0]==='cd'){leaveDeck(n);return}   // CD player -> list: fades away
